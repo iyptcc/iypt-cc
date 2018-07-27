@@ -1,0 +1,121 @@
+{% extends "dashboard/base.html" %}
+{% load dashboard i18n %}
+{% load hijack_tags %}
+
+{% block body_css %}
+    {{ block.super }}
+    {% if request.session.collapsedmenu %}
+        sidebar-collapse
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+
+        {% block admin_header %}
+            <header class="main-header">
+                {% block logo %}
+                    <a href="#" class="logo">
+                        <!-- mini logo for sidebar mini 50x50 pixels -->
+                        <span class="logo-mini"><b>CC</b></span>
+                        <!-- logo for regular state and mobile devices -->
+                        <span class="logo-lg">IYPT<b>CC</b></span>
+                    </a>
+                {% endblock %}
+                <nav class="navbar navbar-static-top" role="navigation">
+                    <!-- Sidebar toggle button-->
+                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                        <span class="sr-only">{% trans 'Toggle navigation' %}</span>
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <div class="navbar-custom-menu">
+                            <ul class="nav navbar-nav">
+                                {% if request|is_hijacked %}
+                                    <li class="notifications-menu">
+                                        <div href="#" id="hijack-btn" class="bg-warning text-black">
+                                            You are currently hijacking
+                                            <form action="{% url "hijack:release_hijack" %}" method="post" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-xs btn-warning inline">release</button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                {% endif %}
+                                <li class="notifications-menu">
+                                    <a href="#" id="feedback-btn">
+                                        Feedback &nbsp; <span class="fa fa-commenting" aria-hidden="true"></span>
+                                    </a>
+                                </li>
+                                {% block navbar %}
+                                    {% show_messages %}
+                                    {% show_notifications %}
+                                    {% show_tasks %}
+                                    {% show_user %}
+                                {% endblock %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </nav>
+            </header>
+        {% endblock %}
+
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar sidebar-offcanvas">
+            <section class="sidebar">
+                {% block sidebar %}
+                    {% if request.user.is_authenticated %}
+                        {% show_user_panel %}
+                        {% show_search_form %}
+                    {% endif %}
+                    {% show_menu %}
+                {% endblock %}
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Right side column. Contains the navbar and content of the page -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    {% block page_title %}{% endblock %}
+                    <small>{% block page_subtitle %}{% endblock %}</small>
+                </h1>
+                {% block breadcrumb %}
+{#                    {% show_breadcrumb %}#}
+                {% endblock %}
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+
+                {% if messages %}
+                    <div class="row">
+                        <div class="col-lg-12">
+                            {% for message in messages %}
+                                {% show_flash_message message %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% block page_content %}{% endblock %}
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        {% comment %}
+        {% block admin_footer %}
+            <footer class="main-footer">
+                <div class="pull-right hidden-xs">
+                    <b>Ported to Django <a href="http://github.com/kyzima-spb">Kirill Vercetti</a></b>
+                </div>
+                <strong>Copyright &copy; 2014-2015 <a href="http://almsaeedstudio.com">Almsaeed Studio</a>.</strong> All rights reserved.
+            </footer>
+        {% endblock %}
+        {% endcomment %}
+
+    </div>
+    <!-- ./wrapper -->
+{% endblock %}

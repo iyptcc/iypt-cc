@@ -1,0 +1,49 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Tournaments{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                {% if is_paginated %}
+                    <ul class="pagination pagination-sm no-margin">
+                        {% if page_obj.has_previous %}
+                            <li><a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                        {% endif %}
+                        {% for p in page_obj.paginator.page_range %}
+                            <li class="{% if p == page_obj.number %}active{% endif %}"><a href="{{ request.path }}?page={{ p }}">{{ p }}</a></li>
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li><a href="{{ request.path }}?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+        {% for fb in object_list %}
+
+                <div class="col-md-3">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ fb.url }}</h3>
+                            <div class="box-tools pull-right">
+                                <a href="{% url "management:feedback_delete" fb.id %}" class="btn btn-sm btn-danger">delete</a>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            {{ fb.created|date:'c' }}
+                            <p>{{ fb.comment }}</p>
+                            <p>{{ fb.browser }}</p>
+                            <p>User: {{ fb.user }}</p>
+                            <p>email: {{ fb.email }}</p>
+                            <img src="{% url "management:screenshot" fb.id %}" width="100%" />
+                        </div>
+                    </div>
+                </div>
+
+        {% endfor %}
+        </div>
+    {% endblock %}

@@ -1,0 +1,42 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Problems{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Problem List <a href="{% url "tournament:create_problem" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th></th>
+                                </tr>
+                                {% for problem in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ problem.number }}
+                                    </td>
+                                    <td>{{ problem.title }}</td>
+                                    <td>{{ problem.description }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "tournament:change_problem" problem.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "tournament:delete_problem" problem.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

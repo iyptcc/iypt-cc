@@ -1,0 +1,128 @@
+{% extends "dashboard/base.html" %}
+{% load bootstrap3 i18n flags %}
+
+{% block styles_inline %}
+    <style>
+        h1 {
+            font-size: 90px;
+        }
+        h1 img {
+            height:90px;
+            margin-top: -10px;
+        }
+        .placeholder {
+            width: 72px;
+            height: 52px;
+            margin-bottom: 10px;
+            background-color: #aaa;
+            text-align: center;
+            line-height: 52px;
+            font-size: 40px;
+            border-radius: 8px;
+        }
+        .flag-container-72 {
+            height:52px;
+            width:72px;
+            overflow: hidden;
+        }
+        .flag-image-72 {
+            height: 72px;
+            margin-top: -10px;
+        }
+        {% if wide %}
+        body {
+            background:black;
+        }
+        {% endif %}
+  </style>
+{% endblock %}
+
+{% block body %}
+    {% if wide %}<div class="container-fluid" style="background:white;">{% endif %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+              <h1 id="top-name">&nbsp;</h1>
+            </div>
+            <div class="col-md-2">
+              <h1 id="top-flag">
+              </h1>
+            </div>
+            <div class="col-md-2">
+              <h1 id="top-number"></h1>
+            </div>
+        </div>
+    </div>
+    {% if wide %}</div>{% endif %}
+    <div class="container{% if wide %}-fluid{% endif %}" {% if wide %}style="background:white;"{% endif %}>
+        <div class="row">
+            {% if wide %}
+                <div class="col-md-1">
+                </div>
+            {% endif %}
+            {% for f in round.fight_set.all %}
+                <div class="col-md-{% if wide %}2{% else %}4{% endif %} fight">
+                    <h3>{{ f.room.name }}</h3>
+                    <div class="row">
+                        {% for teamatt in f.stage_set.all.0.stageattendance_set.all %}
+                            <div class="col-md-3" id="place-{{ teamatt.team_placeholder.name|slice:"5:" }}">
+                                {% if teamatt.team_placeholder.team %}
+                                    {{ teamatt.team_placeholder.team.origin|flag_image }}
+                                    <h4>{% if teamatt.team_placeholder.team.origin.short %}{{ teamatt.team_placeholder.team.origin.short }}{% else %}{{ teamatt.team_placeholder.team.origin.name }}{% endif %}</h4>
+                                {% else %}
+                                    <div class="placeholder">{{ teamatt.team_placeholder.name|slice:"5:" }}</div>
+                                    <h4>{{ teamatt.team_placeholder.name }}</h4>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if wide %}
+                    {% if forloop.counter|divisibleby:5  %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1">
+                            </div>
+                    {% endif %}
+                {% else %}
+                    {% if forloop.counter|divisibleby:3  %}
+                        </div>
+                        <div class="row">
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+        var currname="";
+        var currflag="";
+
+        function setTeam(num, flag, name) {
+            var obj = $("#place-"+num);
+            console.log(obj);
+            obj.empty();
+            obj.prepend('<div class="flag-container-72"><img class="flag-image-72" src="'+flag+'"></div><h4>'+name+'</h4>');
+
+            obj.closest('.fight').addClass('bg-success');
+
+            return obj
+        }
+        function setOrigin(name,flag) {
+            currname = name;
+            currflag = flag;
+            $("#top-name").text(name.toUpperCase());
+            var f = $("#top-flag");
+            f.empty();
+            f.prepend('<img src="'+flag+'">');
+            $("#top-number").text('')
+            $('.fight').removeClass('bg-success');
+        }
+        function setNumber(num){
+            $("#top-number").text(num);
+            setTeam(num, currflag, currname);
+        }
+    </script>
+{% endblock %}

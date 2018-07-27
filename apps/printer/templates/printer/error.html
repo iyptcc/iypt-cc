@@ -1,0 +1,62 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block page_title %}Error{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Output</h3>
+                    </div>
+                    <div class="box-body">
+                        <pre>
+{{ out }}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Error</h3>
+                    </div>
+                    <div class="box-body">
+{{ err }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Files</h3>
+                    </div>
+                    <div class="box-body">
+<ul>
+{% for d,fs in files.items %}
+                            <li>{{ d }}</li>
+                            <ul>
+                                {% for f in fs %}
+                                <li>{{ f }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+    </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">TeX Code</h3>
+                    </div>
+                    <div class="box-body">
+                        <pre>
+{{ tex }}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

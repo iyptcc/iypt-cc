@@ -1,0 +1,47 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Applications{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Manageable teams</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Role</th>
+                                    <th>Competing</th>
+                                    <th>Members</th>
+                                    <td>Missing Data</td>
+                                    <th></th>
+                                </tr>
+                                {% for team in object_list %}
+                                    <tr>
+                                        <td>
+                                            {{ team.team.origin.name }}
+                                        </td>
+                                        <td>{{ team.role|default:"" }}</td>
+                                        <td>
+                                            {% if not team.is_competing %}<i class="fa fa-warning"></i> not competing{% endif %}
+                                        </td>
+                                        <td>{% for role,val in team.limits.items %}<span class="label {% if val.exceed %}label-danger{% elif val.undercut %}label-warning{% else %}label-success{% endif %}">{{ role.name }}:{{ val.value }}</span> {% endfor %}</td>
+                                        <td><span class="label label-{% if team.missing.0 > 0 %}danger{% else %}success{% endif %}">required: {{ team.missing.0 }}</span> <span class="label label-{% if team.missing.1 > 0 %}warning{% else %}success{% endif %}">optional: {{ team.missing.1 }}</span></td>
+                                        <td>
+                                            <a href="{% url "registration:team_overview" team.team.origin.slug %}" class="btn btn-success">manage</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

@@ -1,0 +1,46 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n flags %}
+
+
+    {% block page_title %}Origins{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Origin List <a href="{% url "tournament:create_origin" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>alpha 2 ISO</th>
+                                    <th>slug</th>
+                                    <th>flag</th>
+                                    <th>pdf</th>
+                                    <th></th>
+                                </tr>
+                                {% for origin in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ origin.name }}
+                                    </td>
+                                    <td>{{ origin.alpha2iso }}</td>
+                                    <td>{{ origin.slug }}</td>
+                                    <td>{{ origin|flag_image }}</td>
+                                    <td>{{ origin.flag_pdf }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "tournament:change_origin" origin.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "tournament:delete_origin" origin.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

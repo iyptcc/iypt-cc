@@ -1,0 +1,210 @@
+---
+  meta:
+    name: IYPT schedule
+    teams: 29
+    rooms:
+    - A
+    - B
+    - C
+    - D
+    - E
+    - F
+    - G
+    - H
+    - I
+
+  rounds:
+  - - name: A
+      rep: 25
+      opp: 26
+      rev: 27
+      obs: 28
+    - name: B
+      rep: 13
+      opp: 14
+      rev: 15
+      obs: 29
+    - name: C
+      rep: 7
+      opp: 8
+      rev: 9
+    - name: D
+      rep: 10
+      opp: 11
+      rev: 12
+    - name: E
+      rep: 4
+      opp: 5
+      rev: 6
+    - name: F
+      rep: 16
+      opp: 17
+      rev: 18
+    - name: G
+      rep: 19
+      opp: 20
+      rev: 21
+    - name: H
+      rep: 22
+      opp: 23
+      rev: 24
+    - name: I
+      rep: 1
+      opp: 2
+      rev: 3
+
+  - - name: A
+      rep: 6
+      opp: 10
+      rev: 8
+      obs: 26
+    - name: B
+      rep: 15
+      opp: 19
+      rev: 17
+      obs: 11
+    - name: C
+      rep: 3
+      opp: 7
+      rev: 5
+    - name: D
+      rep: 27
+      opp: 1
+      rev: 29
+    - name: E
+      rep: 24
+      opp: 13
+      rev: 28
+    - name: F
+      rep: 12
+      opp: 16
+      rev: 14
+    - name: G
+      rep: 9
+      opp: 4
+      rev: 2
+    - name: H
+      rep: 18
+      opp: 22
+      rev: 20
+    - name: I
+      rep: 21
+      opp: 25
+      rev: 23
+
+  - - name: A
+      rep: 14
+      opp: 9
+      rev: 19
+      obs: 23
+    - name: B
+      rep: 5
+      opp: 28
+      rev: 10
+      obs: 21
+    - name: C
+      rep: 2
+      opp: 27
+      rev: 7
+    - name: D
+      rep: 29
+      opp: 24
+      rev: 4
+    - name: E
+      rep: 8
+      opp: 3
+      rev: 13
+    - name: F
+      rep: 11
+      opp: 6
+      rev: 16
+    - name: G
+      rep: 26
+      opp: 18
+      rev: 1
+    - name: H
+      rep: 17
+      opp: 12
+      rev: 22
+    - name: I
+      rep: 20
+      opp: 15
+      rev: 25
+
+  - - name: A
+      rep: 20
+      opp: 7
+      rev: 29
+      obs: 12
+    - name: B
+      rep: 3
+      opp: 27
+      rev: 11
+      obs: 18
+    - name: C
+      rep: 15
+      opp: 1
+      rev: 23
+    - name: D
+      rep: 21
+      opp: 4
+      rev: 26
+    - name: E
+      rep: 24
+      opp: 10
+      rev: 2
+    - name: F
+      rep: 28
+      opp: 16
+      rev: 8
+    - name: G
+      rep: 19
+      opp: 13
+      rev: 5
+    - name: H
+      rep: 6
+      opp: 22
+      rev: 14
+    - name: I
+      rep: 9
+      opp: 25
+      rev: 17
+
+  - - name: A
+      rep: 1
+      opp: 9
+      rev: 20
+      obs: 6
+    - name: B
+      rep: 2
+      opp: 21
+      rev: 13
+      obs: 17
+    - name: C
+      rep: 26
+      opp: 15
+      rev: 7
+    - name: D
+      rep: 29
+      opp: 18
+      rev: 10
+    - name: E
+      rep: 23
+      opp: 12
+      rev: 4
+    - name: F
+      rep: 5
+      opp: 24
+      rev: 16
+    - name: G
+      rep: 27
+      opp: 8
+      rev: 19
+    - name: H
+      rep: 11
+      opp: 28
+      rev: 22
+    - name: I
+      rep: 14
+      opp: 3
+      rev: 25

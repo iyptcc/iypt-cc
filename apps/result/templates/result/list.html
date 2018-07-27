@@ -1,0 +1,26 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Results{% endblock %}
+
+    {% block page_content %}
+        {% for tournament in tournaments %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h4 class="box-title" style="">{{ tournament.name }}
+                            {% if tournament.protected %}
+                                <span class="label label-info"><i class="fa fa-{% if tournament.unlock %}un{% endif %}lock"></i></span>&nbsp;
+                            {% endif %}
+                        </h4>
+                    </div>
+                    <div class="box-body">
+                        <a class="btn btn-primary" href="{% url "result:plan" tournament.slug %}">view results</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endblock %}

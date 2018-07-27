@@ -1,0 +1,22 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Configure Template{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                <form method="post" role="form">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Variables <input class="btn btn-success" type="submit" value="load"></h3>
+                        {% csrf_token %}
+                    </div>
+                    <div class="box-body">
+                        {% bootstrap_form form %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

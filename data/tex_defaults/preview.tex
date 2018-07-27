@@ -1,0 +1,68 @@
+(% block documentclass %)landscape(% endblock %)
+
+(% block content %)
+\begin{center}
+\LARGE \uppercase{PREVIEW for Fight: Round (( round )), Room (( room ))}
+\bigskip
+\end{center}
+
+\begin{center}
+\begin{tabular}{l(% for stage in stages -%)
+     ccccl@{\hskip 1cm}
+(%- endfor %)}
+     (% for stage in stages -%)
+     & \multicolumn{4}{l}{\boldfont Stage (( stage.order ))} &
+(%- endfor %)\\
+{\lightfont Reporter}
+(% for stage in stages -%)
+     & \multicolumn{4}{l}{ (( stage.reporter )) } &
+(%- endfor %)\\
+{\lightfont Opponent}
+(% for stage in stages -%)
+     & \multicolumn{4}{l}{ (( stage.opponent )) } &
+(%- endfor %)\\
+{\lightfont Reviewer}
+(% for stage in stages -%)
+     & \multicolumn{4}{l}{ (( stage.reviewer )) } &
+(%- endfor %)\\
+\hline
+  (% for problem in problems %)
+      (( problem[0] )) (( problem[1] ))
+           (% for stage in stages -%)
+             &
+              (% if problem[0] in stage.problems %)
+                  \multicolumn{4}{c}{$\checkmark$}
+              (% else %)
+(% if problem[0] in stage.rejected_reporter %)
+   $\times$
+(% else %)
+   $\cdot$
+(% endif %) &
+(% if problem[0] in stage.presented_reporter %)
+   $\times$
+(% else %)
+   $\cdot$
+(% endif %) &
+(% if problem[0] in stage.opposed_opponent %)
+   $\times$
+(% else %)
+   $\cdot$
+(% endif %) &
+(% if problem[0] in stage.presented_opponent %)
+   $\times$
+(% else %)
+   $\cdot$
+(% endif %)
+                (% endif %)  &
+          (% endfor %)\\
+  (% endfor %)\hline
+(% for stage in stages -%)
+     & a & b & c & d &
+(%- endfor %)\\
+\end{tabular}
+
+a) rejected by reporter  b) presented by reporter c) opposed by opponent d) presented by opponent
+
+If there are less than five problems left to challenge, the bans are successively removed from back to front.
+\end{center}
+(% endblock %)

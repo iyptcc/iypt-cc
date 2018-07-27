@@ -1,0 +1,47 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Apply as Possible Juror{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                {% include "registration/inc/participation_data.html" %}
+                {% if missing|length == 0 %}
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Apply</h3>
+                    </div>
+                    <div class="box-body">
+                        <form action="" method="post">{% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            <p>
+                                <input class="btn btn-success" type="submit" value="{% trans 'Apply' %}">
+                            </p>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                    <div class="box box-danger">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Missing Profile Values</h3>
+                    </div>
+                    <div class="box-body">
+                        These profile values are missing to apply as a possible juror. You can enter them <a href="{% url "account:profile" %}">here</a>.
+                        <ul>
+                            {% for m in missing %}
+                                <li>{{ m.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    {% endblock %}

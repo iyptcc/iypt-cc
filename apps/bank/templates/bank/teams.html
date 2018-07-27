@@ -1,0 +1,47 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Teams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Bill Teams</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>expected fee</th>
+                                    <th>Accounts</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                {% for t in teams %}
+                                <tr>
+                                    <td>
+                                        {{ t.obj.origin.name }}
+                                    </td>
+                                    <td>{{ t.fee_sum }}</td>
+                                    <td>{% for a in t.accounts %}<a href="{% url "bank:list_account" a.account.id %}" class="label label-default">{{ a.account.owners.all|join:", " }} : {{ a.account.name }} | billed:{{ a.o_sum }} - pend:{{ a.o_pend }}</a> {% endfor %}</td>
+                                    <td>{% if t.bill_differ %}<i class="fa fa-warning"></i> bill differs by {{ t.bill_differ }}{% endif %}</td>
+                                    <td>
+                                        {% if t.accounts|length == 0 %}
+                                            <a class="btn btn-success" href="{% url "bank:create_team_account" t.obj.id %}">create account</a>
+                                        {% else %}
+                                            <a class="btn btn-primary" href="{% url "bank:payment_team_request" t.obj.id %}">bill</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

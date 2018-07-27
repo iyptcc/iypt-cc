@@ -1,0 +1,80 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+
+    {% block page_title %}Round {{ round }}, Room {{ room }}{% endblock %}
+
+    {% block page_content %}
+        <form method="post" role="form">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Fight Information</h3>
+                        </div>
+                        <div class="box-body">
+
+                            <h4>Teams:</h4>
+
+                            {% for teamatt in attendants.stageattendance_set.all %}
+                                <p>{{ teamatt.role.name }}: {{ teamatt.team.origin.name }}</p>
+                            {% endfor %}
+
+                            {% buttons %}
+                                    <input class="btn btn-success" type="submit" value="{% trans 'Save Jury' %}">
+                            {% endbuttons %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="box {% if form.errors %}box-danger{% else %}box-info{% endif %}">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Chair</h3>
+                        </div>
+                        <div class="box-body">
+                            {% if form.errors %}
+                                <h4>Please correct the following error</h4>
+                                {{ form.non_field_errors }}
+                            {% endif %}
+
+                            {{ form.chair }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Jurors</h3>
+                        </div>
+                        <div class="box-body">
+                            {% csrf_token %}
+                            <p>please select jurors for this fight</p>
+                            {{ form.jurors }}
+                        </div>
+                    </div>
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Non-Voting Jurors</h3>
+                        </div>
+                        <div class="box-body">
+                            nv Jurors
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

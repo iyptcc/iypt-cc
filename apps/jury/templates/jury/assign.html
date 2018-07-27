@@ -1,0 +1,222 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n graph_color %}
+
+
+    {% block page_title %}Assign Jurors{% endblock %}
+
+    {% block page_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Statistics</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Assignments</h3>
+                                            <div class="box-tools pull-right">
+                                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="row">
+                                                {% for li in assignments %}
+                                                    {% if li|length > 0 %}
+                                                        <div class="col-md-12">
+                                                            <div class="box box-info">
+                                                                <div class="box-header with-border">
+                                                                    <h3 class="box-title">{{ forloop.counter0 }} Fights ({{ li|length }})</h3>
+                                                                </div>
+                                                                <div class="box-body">
+                                                                    {% for j in li %}
+                                                                        {% if j.possible_chair %}<b>{% endif %}
+                                                                            {{ j }}{% if j.possible_chair %}</b>{% endif %}{% if not forloop.last %}, {% endif %}
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="box box-primary">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Costs</h3>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="chart">
+                                                <canvas id="lineChart" height="300" width="1024"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% for round in rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-{% if forloop.counter <= object.fix_rounds %}default collapsed-box{% else %}primary{% endif %}">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for fight in round %}
+                                    <div class="col-md-4">
+                                        <div class="box box-info">
+                                            <!-- Apply any bg-* class to to the icon to color it -->
+                                            <div class="box-header with-border">
+                                                <h4 class="box-title">Room {{ fight.room }}</h4>
+                                            </div>
+                                            <div class="box-body">
+                                                <p>Chair: {{ fight.chair.name }}</p>
+                                                {% for juror in fight.jurors %}
+                                                    <p>Juror: {{ juror.name }}</p>
+                                                {% endfor %}
+                                                {% for juror in fight.nonvoting %}
+                                                    <p>Non Voting: {{ juror.name }}</p>
+                                                {% endfor %}
+                                            </div><!-- /.info-box-content -->
+                                        </div><!-- /.info-box -->
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Actions</h3>
+                    </div>
+                    <div class="box-body">
+                            {% if assigned %}
+                                <button class="btn btn-success disabled">apply</button> Can not apply because some jurors are already assigned.
+
+                                <a class="btn btn-danger" href="{% url "jury:clean" object.fix_rounds %}?next={{ uuid }}">Clean all assignments</a>
+
+                            {% else %}
+                                <form action="" method="post">
+                                    {% csrf_token %}
+                                    <input class="btn btn-success" type="submit" value="apply" />
+                                </form>
+                            {% endif %}
+                    </div>
+                </div>
+            </div>
+            </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <script src="/static/AdminLTE/plugins/chartjs/Chart.min.js"></script>
+{% endblock %}
+
+{% block javascripts_inline %}
+
+    <script language="javascript">
+    $(function () {
+
+    var areaChartData = {
+        //labels: Array.apply(null, Array({{ total }})).map(function (_, i) {return !(i%1000)?i:"";}),
+        labels: Array.apply(null, Array({{ total }})).map(function (_, i) {return i%({{ total }}/50)?"":i;}),
+      //labels: ["January", "February", "March", "April", "May", "June", "July"],
+      datasets: [
+        {
+          label: "Cost",
+          strokeColor: "rgba(210, 214, 222, 1)",
+          pointColor: "rgba(210, 214, 222, 1)",
+          pointStrokeColor: "#c1c7d1",
+          pointHighlightFill: "#fff",
+          pointHighlightStroke: "rgba(220,220,220,1)",
+          data: {{ costs }}
+        },
+          {
+          label: "Best",
+          strokeColor: "rgba(60, 214, 100, 1)",
+          pointColor: "rgba(60, 214, 100, 1)",
+          pointStrokeColor: "#c1c7d1",
+          pointHighlightFill: "rgba(60, 214, 100, 1)",
+          pointHighlightStroke: "rgba(60, 214, 100, 1)",
+          data: {{ best_costs }}
+        }
+          {% for key, value in dissect.items %}
+              , {
+              label: "{{ key }}",
+              strokeColor: "rgba({{ key|rgbFromName }}, 1)",
+              pointHighlightFill: "rgba({{ key|rgbFromName }}, 1)",
+              pointHighlightStroke: "rgba({{ key|rgbFromName }}, 1)",
+              data: {{ value }}
+            }
+          {% endfor %}
+       ]
+    };
+
+    var areaChartOptions = {
+        showXLabels: 10,
+      //Boolean - If we should show the scale at all
+      showScale: true,
+      //Boolean - Whether grid lines are shown across the chart
+      scaleShowGridLines: false,
+      //String - Colour of the grid lines
+      scaleGridLineColor: "rgba(0,0,0,.05)",
+      //Number - Width of the grid lines
+      scaleGridLineWidth: 1,
+      //Boolean - Whether to show horizontal lines (except X axis)
+      scaleShowHorizontalLines: true,
+      //Boolean - Whether to show vertical lines (except Y axis)
+      scaleShowVerticalLines: true,
+      //Boolean - Whether the line is curved between points
+      bezierCurve: false,
+      //Boolean - Whether to show a dot for each point
+      pointDot: false,
+      //Number - Radius of each point dot in pixels
+      pointDotRadius: 4,
+      //Number - Pixel width of point dot stroke
+      pointDotStrokeWidth: 1,
+      //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+      //pointHitDetectionRadius: 20,
+      //Boolean - Whether to show a stroke for datasets
+      datasetStroke: true,
+      //Number - Pixel width of dataset stroke
+      datasetStrokeWidth: 2,
+      //Boolean - Whether to fill the dataset with a color
+      datasetFill: false,
+      //String - A legend template
+      //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+      maintainAspectRatio: true,
+        animation : false,
+      //Boolean - whether to make the chart responsive to window resizing
+      responsive: true
+    };
+
+    //-------------
+    //- LINE CHART -
+    //--------------
+    var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
+    var lineChart = new Chart(lineChartCanvas);
+    var lineChartOptions = areaChartOptions;
+    lineChart.Line(areaChartData, lineChartOptions);
+    });
+
+    </script>
+
+{% endblock %}

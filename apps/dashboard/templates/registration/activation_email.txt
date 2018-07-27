@@ -1,0 +1,11 @@
+Hello {{ user }},
+
+Thank you for registering with IYPT CC.
+Please finish your registration by clicking on the following link:
+
+https://{{ site }}{% url 'registration_activate' activation_key %}
+
+within {{ expiration_days }} days.
+
+Sincerely your
+IYPT CC System

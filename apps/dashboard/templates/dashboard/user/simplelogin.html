@@ -1,0 +1,78 @@
+{% extends "dashboard/base.html" %}
+{% load bootstrap3 i18n dashboard %}
+
+{% block page_title %}{% trans 'View Grades' %}{% endblock %}
+
+{% block body_css %}hold-transition login-page{% endblock %}
+
+{% block body %}
+    <div class="login-box">
+        <div class="login-logo">
+            {% block logo %}
+                <a href="#">IYPT<b>CC</b></a>
+            {% endblock %}
+        </div>
+    
+        <div class="login-box-body">
+            {% if form.errors and not form.non_field_errors %}
+                <p class="login-box-msg">
+                {% if form.errors.items|length == 1 %}
+                        {% trans "Please correct the error below." %}
+                    {% else %}
+                        {% trans "Please correct the errors below." %}
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <p class="login-box-msg">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <form action="" method="post" id="login-form" role="form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+                <p>Access results for {{ form.get_tournament }}</p>
+                <div class="form-group has-feedback">
+                    {% bootstrap_field form.password show_label=False %}
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                    {{ form.password.errors }}
+                </div>
+                <div class="row">
+                    <div class="col-xs-8">
+                        <!--<div class="checkbox icheck">-->
+                            <!--<label>-->
+                                <!--<input type="checkbox" id="remember_me" name="_remember_me" value="on"> Remember Me-->
+                            <!--</label>-->
+                        <!--</div>-->
+                    </div>
+                    <div class="col-xs-4">
+                        <button type="submit" class="btn btn-primary btn-block btn-flat">
+                            {% trans 'Log in' %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {% url 'admin_password_reset' as password_reset_url %}
+            {% if password_reset_url %}
+                <a href="{{ password_reset_url }}">{% trans 'Forgotten your password or username?' %}</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+        document.getElementById('id_username').focus();
+
+        $(function () {
+            $('input').iCheck({
+              checkboxClass: 'icheckbox_square-blue',
+              radioClass: 'iradio_square-blue',
+              increaseArea: '20%' // optional
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% if 'name' in available_actions %}
+<a href="{% url "account:profile"  %}" class ="btn btn-warning">
+set name
+</a>{% endif %}
+{% if 'profile' in available_actions %}
+<a href="{% url "account:profile"  %}" class ="btn btn-warning">
+complete profile
+</a>{% endif %}
+{% if 'apply_experiencedjuror' in available_actions %}
+<a href="{% url "registration:apply_preselected_participationrole" tournament.slug tournament.roles.ju %}" class ="btn btn-warning">
+apply as experienced juror
+</a>{% endif %}
+{% if 'apply_possiblejuror' in available_actions %}
+<a href="{% url "registration:apply_possiblejuror" tournament.slug %}" class ="btn btn-warning">
+apply as possible juror
+</a>{% endif %}
+{% if 'apply_teamleaderjuror' in available_actions %}
+<a href="{% url "registration:apply_preselected_teammember" tournament.slug tournament.team_roles.leader %}" class ="btn btn-warning">
+apply to team as team leader jurur
+</a>{% endif %}
+{% if 'data' in available_actions %}
+<a href="{% url "registration:attendeeproperty"  %}" class ="btn btn-warning">
+fill participation data
+</a>{% endif %}
+{% if 'associate_experiencedjuror' in available_actions %}
+<a href="{% url "registration:associate_to_team" tournament.slug %}" class ="btn btn-warning">
+associate to team
+</a>{% endif %}
+{% if 'setpw' in available_actions %}
+<a href="{% url "registration:manageable_teams"  %}" class ="btn btn-warning">
+manage team
+</a>{% endif %}
+{% if 'apply_manager' in available_actions %}
+<a href="{% url "registration:apply_team" tournament.slug %}" class ="btn btn-warning">
+apply as team manager
+</a>{% endif %}
+{% if 'associate_role' in available_actions %}
+<a href="{% url "registration:associate_to_team" tournament.slug %}" class ="btn btn-warning">
+associate to team
+</a>{% endif %}
+{% if 'apply_teammember' in available_actions %}
+<a href="{% url "registration:apply_preselected_teammember" tournament.slug tournament.team_roles.member %}" class ="btn btn-warning">
+apply as team member
+</a>{% endif %}
+{% if 'apply_teamleader' in available_actions %}
+<a href="{% url "registration:apply_preselected_teammember" tournament.slug tournament.team_roles.leader %}" class ="btn btn-warning">
+apply as team leader
+</a>{% endif %}
+{% if 'associate_visitor' in available_actions %}
+<a href="{% url "registration:apply_visitor_teammember" tournament.slug 'visitor' %}" class ="btn btn-warning">
+apply to team as visitor
+</a>{% endif %}
+{% if 'apply_role' in available_actions %}
+<a href="{% url "registration:apply_preselected_participationrole" tournament.slug tournament.roles.vi %}" class ="btn btn-warning">
+apply with role: LOC, EC, independent visitor, ...
+</a>{% endif %}
+{% if 'apply_loc' in available_actions %}
+<a href="{% url "registration:apply_participationrole" tournament.slug %}" class ="btn btn-warning">
+apply as local orga: time keeper, guide
+</a>{% endif %}
+{% if 'active_teammember' in available_actions %}
+<a href="{% url "account:tournament" %}" class ="btn btn-success">
+set active tournament
+</a>{% endif %}

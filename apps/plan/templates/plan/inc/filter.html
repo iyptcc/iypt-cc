@@ -1,0 +1,29 @@
+{% for filter in filters %}
+    <p><span class="text-bold">{{ filter.name }}</span> <a class="text-primary" href="?{{ filter.link_rest }}">all</a></p>
+    {% for opt in filter.elements %}
+        <p>
+            {% if opt.id in filter.ex_actives %}
+                <a class="label label-info"
+                   href="?{{ filter.link_rest }}{% for ac in filter.in_actives %}&in_{{ filter.link_name }}={{ ac }}{% endfor %}{% for ac in filter.ex_actives %}{% if ac != opt.id %}&ex_{{ filter.link_name }}={{ ac }}{% endif %}{% endfor %}">
+                    &not; not
+                </a>&nbsp;
+            {% else %}
+                <a class="text-primary"
+                   href="?{{ filter.link_rest }}{% for ac in filter.in_actives %}{% if ac != opt.id %}&in_{{ filter.link_name }}={{ ac }}{% endif %}{% endfor %}{% for ac in filter.ex_actives %}&ex_{{ filter.link_name }}={{ ac }}{% endfor %}&ex_{{ filter.link_name }}={{ opt.id }}">
+                    &not; not
+                </a>
+            {% endif %}
+            {% if opt.id in filter.in_actives %}
+                <a class="label label-info"
+                   href="?{{ filter.link_rest }}{% for ac in filter.in_actives %}{% if ac != opt.id %}&in_{{ filter.link_name }}={{ ac }}{% endif %}{% endfor %}{% for ac in filter.ex_actives %}&ex_{{ filter.link_name }}={{ ac }}{% endfor %}">
+                    {{ opt }}
+                </a>
+            {% else %}
+                <a class="text-primary"
+                   href="?{{ filter.link_rest }}{% for ac in filter.in_actives %}&in_{{ filter.link_name }}={{ ac }}{% endfor %}{% for ac in filter.ex_actives %}{% if ac != opt.id %}&ex_{{ filter.link_name }}={{ ac }}{% endif %}{% endfor %}&in_{{ filter.link_name }}={{ opt.id }}">
+                    {{ opt }}
+                </a>
+            {% endif %}
+        </p>
+    {% endfor %}
+{% endfor %}

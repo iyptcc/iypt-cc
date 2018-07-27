@@ -1,0 +1,53 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Accounts{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Account List <a href="{% url "bank:create_account" %}" class="btn btn-success">add account</a> <a href="{% url "bank:payment_request" %}" class="btn btn-info">add payment request</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Owners</th>
+                                    <th>Team</th>
+                                    <th>Name</th>
+                                    <th>Balance</th>
+                                    <th>Balance Pending</th>
+                                    <th></th>
+                                </tr>
+                                {% for ac in object_list %}
+                                <tr>
+                                    <td>{{ ac.account.id }}</td>
+                                    <td>
+                                        {% for o in ac.account.owners.all %}
+                                            <span class="label label-default">{{ o.full_name }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                       {{ ac.account.team }}
+                                    </td>
+                                    <td>{{ ac.account.name }}</td>
+                                    <td>{{ ac.balance }}</td>
+                                    <td>{{ ac.balance_pending }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "bank:list_account" ac.account.id %}">transactions</a>
+                                        <a class="btn btn-info" href="{% url "bank:merge_account" ac.account.id %}">merge</a>
+                                        <a class="btn btn-success" href="{% url "bank:change_account" ac.account.id %}">edit</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

@@ -1,0 +1,47 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Teams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Bill independent Attendees</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>expected fee</th>
+                                    <th>also in teams fees</th>
+                                    <th>Accounts</th>
+                                    <th></th>
+                                </tr>
+                                {% for a in attendees %}
+                                <tr>
+                                    <td>
+                                        {{ a.obj.full_name }}
+                                    </td>
+                                    <td>{{ a.fee_sum }}</td>
+                                    <td>{{ a.teams|join:", " }}</td>
+                                    <td>{% for ac in a.accounts %}<span class="label label-default">{{ ac.owners.all|join:", " }} : {{ ac.name }}</span> {% endfor %}</td>
+                                    <td>
+                                        {% if a.accounts|length == 0 %}
+                                            <a class="btn btn-success" href="{% url "bank:create_attendee_account" a.obj.id %}">create account</a>
+                                        {% else %}
+                                            <a class="btn btn-primary" href="{% url "bank:payment_attendee_request" a.obj.id %}">bill</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

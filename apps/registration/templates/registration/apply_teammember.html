@@ -1,0 +1,37 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Applications{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Apply for team at {{ tournament }}</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="callout callout-info">
+                            <h4>Private Information</h4>
+
+                            <p>By Applying for a team, all the team leaders of this team will have access to your personal data for this tournament. This includes
+                                <ul>
+                                    <li>name</li>
+                                    <li>email address</li>
+                                    <li>passport information</li>
+                                    <li>etc.</li>
+                                </ul>
+                            </p>
+                        </div>
+                        <form method="post">
+                            {% bootstrap_form form %}
+                            {% csrf_token %}
+                            <input type="submit" value="apply" class="btn btn-success"/>
+                        </form>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

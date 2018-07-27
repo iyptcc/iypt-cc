@@ -1,0 +1,67 @@
+---
+  meta:
+    name: AYPT schedule
+    teams: 14
+    rooms:
+    - A
+    - B
+    - C
+    - D
+    
+  rounds:
+  - - name: A
+      rep: 1
+      opp: 2
+      rev: 3
+      obs: 4
+    - name: B
+      rep: 5
+      opp: 6
+      rev: 7
+      obs: 8
+    - name: C
+      rep: 9
+      opp: 10
+      rev: 11
+    - name: D
+      rep: 12
+      opp: 13
+      rev: 14
+  
+  - - name: A
+      rep: 11
+      opp: 12
+      rev: 5
+      obs: 13
+    - name: B
+      rep: 14
+      opp: 8
+      rev: 10
+      obs: 9
+    - name: C
+      rep: 4
+      opp: 7
+      rev: 1
+    - name: D
+      rep: 6
+      opp: 3
+      rev: 2
+  
+  - - name: A
+      rep: 14
+      opp: 4
+      rev: 11
+      obs: 3
+    - name: B
+      rep: 2
+      opp: 13
+      rev: 9
+      obs: 7
+    - name: C
+      rep: 1
+      opp: 5
+      rev: 12
+    - name: D
+      rep: 8
+      opp: 6
+      rev: 10

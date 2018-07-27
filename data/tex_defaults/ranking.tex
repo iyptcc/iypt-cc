@@ -1,0 +1,14 @@
+(% block header %)
+\usepackage{booktabs}
+(% endblock %)
+
+(% block content %)
+\section*{Team Ranking after PF (( round ))}
+\begin{tabular}{clc(% for r in ranks[0]['sp'] %)c(% endfor %)} \toprule
+Rank & Team & Total (% for r in ranks[0]['sp'] %)& PF (( loop.index )) (% endfor %)\\ \midrule
+  (% for team in ranks %)
+	(( team["rank"] )) & (( team["team"] )) & (( team["tsp"] ))
+     (% for sp in team["sp"] %) & (( sp[0] )) (% endfor %) \\
+  (% endfor %) \bottomrule
+ \end{tabular}
+(% endblock %)

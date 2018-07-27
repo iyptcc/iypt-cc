@@ -1,0 +1,44 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Team Roles{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Team Role List <a href="{% url "tournament:create_trole" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>related Participation Role</th>
+                                    <th>per Team Limits</th>
+                                    <th></th>
+                                </tr>
+                                {% for role in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ role.name }}
+                                    </td>
+                                    <td>{{ role.get_type_display }}</td>
+                                    <td>{% for pr in role.participation_roles.all %}<span class="label label-primary">{{ pr.name }}</span> {% endfor %}</td>
+                                    <td>{{ role.members_min|default:"0" }} ≤ x ≤ {{ role.members_max|default:"∞" }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "tournament:change_trole" role.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "tournament:delete_trole" role.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

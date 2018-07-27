@@ -1,0 +1,134 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Users{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-10">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary collapsed-box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Actions</h3> <a class="btn btn-success btn-sm" href="{% url "management:user_create" %}">add user</a>
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">delete</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set tournament</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.tournaments }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_add_tournaments" value="add tournaments for selected">
+                                                        <input class="btn btn-danger" type="submit" name="_del_tournaments" value="delete tournaments from selected">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% csrf_token %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Users
+                                    </h3>
+                                </div>
+                                <div class="box-body no-padding">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th><input id="checkAll" type="checkbox"> all</th>
+                                                <th>Name</th>
+                                                <th>Username</th>
+                                                <th>Email</th>
+                                                <th>Joined / last login</th>
+                                                <th>Tournaments</th>
+                                                <th></th>
+                                            </tr>
+                                            {% for choice_id, choice_label in form.persons.field.choices %}
+                                                <tr>
+                                                    <td>
+                                                        <input name="persons" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                                    </td>
+                                                    <td>
+                                                        {{ choice_label.user.first_name }} {{ choice_label.user.last_name }}
+                                                    </td>
+                                                    <td>
+                                                        {{ choice_label.user.username }}
+                                                    </td>
+                                                    <td>
+                                                        {{ choice_label.user.email }}
+                                                    </td>
+                                                    <td>
+                                                        {{ choice_label.user.date_joined|date:'c' }}<br />
+                                                        {{ choice_label.user.last_login|date:'c'|default:"not yet loggin in" }}
+                                                    </td>
+                                                    <td>
+                                                        {% for tournament in choice_label.tournaments.all %}<span class="label label-default">{{ tournament.name }}</span> {% endfor %}
+                                                    </td>
+                                                    <td>
+                                                        <a class="btn btn-primary" href="{% url "management:user_password" choice_label.id %}">set password</a>
+                                                        <a class="btn btn-info" href="{% url "management:user_edit" choice_label.id %}">edit</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Filter</h3>
+                    </div>
+                    <div class="box-body">
+                        {% include "plan/inc/filter.html" with filters=filters %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

@@ -1,0 +1,31 @@
+{% load flags %}
+
+<li data-juror="{{ juror.id }}" data-name="{{ juror.attendee.last_name }}" >
+    <span class="label {% if juror.possible_chair %}label-primary{% elif juror.experience == 1 %}label-info{% elif juror.experience == -1 %}label-warning{% else %}label-default{% endif %}">
+        {% for confl in juror.conflicting.all %}
+            {{ confl|flag_image }}
+            {% if juror.attendee.team_set.first.origin == confl %}
+                <i class="fa fa-group text-danger"></i>
+            {% endif %}
+        {% endfor %}
+        {% if juror.local %}
+            <i class="fa fa-bullseye text-success"></i>
+        {% endif %}
+        {{ juror.attendee.full_name }}
+        <span style="color:#000;">
+        {% for a in juror.assignments %}
+            {% if a == 'chair' %}
+                <i class="fa fa-dot-circle-o ro-ind-{{ forloop.counter }}"></i>
+            {% elif a == 'used' %}
+                <i class="fa fa-circle ro-ind-{{ forloop.counter }}"></i>
+            {% elif a == 'nonvoting' %}
+                <i class="fa fa-eye ro-ind-{{ forloop.counter }}"></i>
+            {% elif a == 'free' %}
+                <i class="fa fa-circle-o ro-ind-{{ forloop.counter }}"></i>
+            {% elif a == 'na' %}
+                <i class="fa fa-times ro-ind-{{ forloop.counter }}"></i>
+            {% endif %}
+        {% endfor %}
+        </span>
+    </span>
+</li>

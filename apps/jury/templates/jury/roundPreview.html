@@ -1,0 +1,206 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+{% load flags %}
+
+{% block styles_inline %}
+    <style>
+        .flag-container-72 {
+            height:13px;
+            overflow: hidden;
+            display: inline;
+        }
+        .flag-image-72 {
+            height: 18px;
+            margin-top: -2px;
+        }
+    </style>
+{% endblock %}
+
+    {% block page_title %}Tournament{% endblock %}
+
+    {% block page_content %}
+        <form action="" method="post">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ round.order }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for fight in round %}
+                                    <div class="col-md-4">
+                                        <div class="box box-info">
+                                            <!-- Apply any bg-* class to to the icon to color it -->
+                                            <div class="box-header with-border">
+                                                <h4 class="box-title">Room {{ fight.room }}</h4>
+                                            </div>
+                                            <div class="box-body">
+                                                {{ fight.chair }}
+                                            </div>
+                                            <div class="box-footer">
+                                                {% for j in fight.jurors %}
+                                                    <p>{{ j }}</p>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="box-footer">
+                                                {% for j in fight.nonvoting %}
+                                                    <p>{{ j }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if forloop.counter|divisibleby:3  %}
+                                        </div>
+                                        <div class="row">
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Action</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% if deletions|length > 0 %}
+                                <div class="col-md-12">
+                                    <div class="box box-danger">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Deletions</h3>
+                                            <div class="box-tools pull-right">
+                                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            {{ deletions }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if conflicts|length > 0 %}
+                                <div class="col-md-12">
+                                    <div class="box box-danger">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Conflicts</h3>
+                                            <div class="box-tools pull-right">
+                                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            <ul>
+                                            {% for conf in conflicts %}
+                                                <li><b>{{ conf.fight.room.name }}</b>
+                                                    {% for teamatt in conf.fight.stage_set.all.0.stageattendance_set.all %}
+                                                        {{ teamatt.team.origin|flag_image }}
+                                                    {% endfor %}
+                                                        : {{ conf.juror.attendee.full_name }}
+                                                    {% for confor in conf.juror.conflicting.all %}
+                                                        {{ confor|flag_image }}
+                                                    {% endfor %}
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if chairMeets|length > 0 %}
+                                    <div class="col-md-12">
+                                        <div class="box box-danger">
+                                            <div class="box-header with-border">
+                                                <h3 class="box-title">Chair meets team mote than twice</h3>
+                                                <div class="box-tools pull-right">
+                                                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="box-body">
+                                                <ul>
+                                                {% for conf in chairMeets %}
+                                                    <li><b>{{ conf.juror.attendee.full_name }}</b>:{{ conf.team }}
+                                                    </li>
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <div class="col-md-12">
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Assignments</h3>
+                                            (<b>possible chairs bold</b>)
+                                            <div class="box-tools pull-right">
+                                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="row">
+                                                {% for li in assignments %}
+                                                    {% if li|length > 0 %}
+                                                        <div class="col-md-12">
+                                                            <div class="box box-info">
+                                                                <div class="box-header with-border">
+                                                                    <h3 class="box-title">{{ forloop.counter0 }} Fights ({{ li|length }})</h3>
+                                                                </div>
+                                                                <div class="box-body">
+                                                                    {% for j in li %}
+                                                                        {% if j.possible_chair %}<b>{% endif %}
+                                                                            {{ j }}{% if j.possible_chair %}</b>{% endif %}{% if not forloop.last %}, {% endif %}
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Costs</h3>
+                                            <div class="box-tools pull-right">
+                                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body no-padding">
+                                            <table class="table">
+                                                <tr>
+                                                    <th></th>
+                                                    <th>old</th>
+                                                    <th>new</th>
+                                                    <th></th>
+                                                </tr>
+                                                {% for cost in costs %}
+                                                    <tr>
+                                                    <td><b>{{ cost.name }}</b></td>
+                                                    <td>{{ cost.old|floatformat:3 }}</td>
+                                                    <td>{{ cost.new|floatformat:3 }}</td>
+                                                    <td {% if cost.diff > 0 %}class="text-danger"{% endif %}
+                                                    ><b>{{ cost.diff|floatformat:3 }}</b></td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input class="btn btn-success" type="submit" value="save" />
+                            {% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endblock %}

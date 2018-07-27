@@ -1,0 +1,38 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Tournaments{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Create new Tournament</h3>
+                        </div>
+                        <div class="box-body">
+                            <a href="{% url "management:create" %}" class="btn btn-success">create</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% for trn in object_list %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ trn.name }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <p>slug: {{ trn.slug }}</p>
+                            <a href="{% url "management:delete" trn.id %}" class="btn btn-danger">delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}

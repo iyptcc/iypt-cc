@@ -1,0 +1,145 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n dashboard %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Possible Jurors{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-10">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary collapsed-box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Actions</h3>
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">delete</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-success">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set juror role</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-success" type="submit" name="_role" value="set for selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-success">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set experience level</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {% bootstrap_field form.experience %}
+                                                    <input class="btn btn-success" type="submit" name="_experience" value="set for selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-info">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">get email link</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-info" type="submit" name="_mailto" value="get mail for selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% csrf_token %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Possible Jurors ({{ form.obj_list.field.choices|length }})</h3>
+                                </div>
+                                <div class="box-body no-padding table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th><input id="checkAll" type="checkbox"> all</th>
+                                                <th>Name</th>
+                                                <th>email</th>
+                                                <th>Experience</th>
+                                                <th>Attendee</th>
+                                                <th>EJ appl.</th>
+                                                <th>approved by</th>
+                                                <th>approved_at</th>
+                                                <th></th>
+                                            </tr>
+                                            {% for choice_id, person in form.obj_list.field.choices %}
+                                            <tr>
+                                                <td>
+                                                    <input name="obj_list" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                                </td>
+                                                <td>{{ person.person.user.first_name }} {{ person.person.user.last_name }}</td>
+                                                <td>{{ person.person.user.email }}</td>
+                                                <td>{% if person.experience == 1 %}<i class="fa fa-arrow-up"></i>{% endif %}
+                                                    {% if person.experience == 0 %}<i class="fa fa-arrow-right"></i>{% endif %}
+                                                    {% if person.experience == -1 %}<i class="fa fa-arrow-down"></i>{% endif %}</td>
+                                                <td>{% if attendees|hash:choice_id %}{% for r in attendees|hash:choice_id %}<span class="label label-{% if r.attending %}success{% else %}warning{% endif %}">{{ r.name }}</span> {% endfor %}{% else %}<span class="label label-danger">no attendance</span> {% endif %}</td>
+                                                <td>{% if ejs|hash:choice_id %}<span class="label label-primary">applied</span>{% endif %}</td>
+                                                <td>{{ person.approved_by }}</td>
+                                                <td>{{ person.approved_at|date:"c" }}</td>
+                                                <td>
+                                                    {% if not person.approved_by %}
+                                                    <a class="btn btn-success" href="{% url "jury:accept_possiblejuror" person.id %}">approve</a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Filter</h3>
+                    </div>
+                    <div class="box-body">
+                        {% include "plan/inc/filter.html" with filters=filters %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

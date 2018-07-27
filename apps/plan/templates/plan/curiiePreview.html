@@ -1,0 +1,114 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Curiie Import Preview{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Preview</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="box box-info">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Members for {{ teams|length }} Teams <span class="label label-warning">missing member</span> <span class="label label-danger">check spelling</span> <span class="label label-primary">already attending</span> <span class="label label-success"><i class="fa fa-user"></i> user exists with same name</span></h3>
+                                    </div>
+                                    <div class="box-body no-padding">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th>Origin (Teamleaders)</th>
+                                                    <th>Members</th>
+                                                </tr>
+                                                {% for t in teams %}
+                                                    <tr><th class="{% if t.t|length == 0 %}bg-danger{% endif %}">{{ t.name }}
+                                                        (
+                                                        {% for tl in t.t %}{% if not forloop.first %},{% endif %}
+                                                            <span class="{% if not tl.1 %}bg-danger{% elif tl.2 %}bg-primary{% endif %}">{{ tl.0 }}{% if tl.3 %} <i class="fa fa-user"></i>{% endif %}</span>{% endfor %}
+                                                        )
+                                                            </th>
+                                                    {% for m in t.m %}
+                                                        <td class="{% if not m.1 %}bg-danger{% elif m.2 %}bg-primary{% endif %}">{% if m.3 %}<i class="fa fa-user"></i> {% endif %}{% include "account/inc/full_name.html" with first_name=m.5 last_name=m.6 %}</td>
+                                                    {% endfor %}
+                                                    {% for miss in t.miss %}
+                                                        <td class="bg-warning"></td>
+                                                    {% endfor %}
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="box box-info">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Jurors <span class="label label-info">local jurors : {{ default_c }}</span> <span class="label label-danger">check spelling</span> <span class="label label-primary">already attending</span> <span class="label label-warning">unknown Country</span></h3>
+
+                                    </div>
+                                    <div class="box-body no-padding">
+                                        <col style="width:20%">
+                                        <col style="width:80%">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Country</th>
+                                                </tr>
+                                                {% for j in jurors %}
+                                                    <tr class="{% if j.loc == True %}bg-info{% endif %}">
+                                                        <th class="{% if not j.spelling %}bg-danger{% elif j.attendee %}bg-primary{% endif %}">{% if j.user %}<i class="fa fa-user"></i> {% endif %}{{ j.name }}</th>
+                                                        {% for c in j.list %}
+                                                            <td class="{% if c.1 %}bg-warning{% endif %}">{{ c.0 }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <form action="" method="post">{% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            <p>
+                                <input class="btn btn-success btn-flat" type="submit" value="{% trans 'Submit' %}">
+                            </p>
+                        </form>
+                    </div>
+                </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Correct Import</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" role="form">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <input type="hidden" name="{{ stage_field }}" value="1" />
+                            {% buttons %}
+                                <input class="btn btn-primary btn-flat" type="submit" value="{% trans 'Preview' %}">
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endblock %}

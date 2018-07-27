@@ -1,0 +1,59 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Tournament{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+        {% for round in rounds %}
+
+                <div class="col-md-6">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ round.0.sp|length }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Team</th>
+                                        <th>TSP</th>
+                                        {% for sp in round.0.sp %}
+                                            <th>Round {{ forloop.counter }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    {% for t in round %}
+                                        <tr>
+                                            <td><b>{{ t.rank }}</b>
+                                                {% if t.rank_diff > 0 %}
+                                                    <span class="text-green pull-right"><i class="fa fa-arrow-up"></i>{{ t.rank_diff }}</span>
+                                                {% elif t.rank_diff == 0 %}
+                                                    <span class="pull-right"><i class="fa fa-arrow-right"></i></span>
+                                                {% elif t.rank_diff < 0 %}
+                                                    <span class="text-danger pull-right"><i class="fa fa-arrow-down"></i>{{ t.rank_diff|stringformat:"+d"|slice:"1:" }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td><a href="{% url "result:team" tournament t.slug %}">{{ t.team }}</a> {% if t.all_won %}
+                                                    <i class="fa fa-star text-yellow"></i>
+                                                {% endif %}
+                                            </td>
+                                            <td><b>{{ t.tsp|floatformat:1 }}</b></td>
+                                            {% for sp in t.sp %}
+                                                <td><a href="{% url "result:fight" tournament forloop.counter sp.2|slugify %}">{{ sp.0 }}</a>{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+        {% endfor %}
+        </div>
+    {% endblock %}

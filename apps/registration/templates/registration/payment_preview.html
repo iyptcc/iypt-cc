@@ -1,0 +1,60 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Payment Preview{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Account</h3>
+                    </div>
+                    <div class="box-body">
+                        <dl>
+                            <dt>ID</dt>
+                            <dl>{{ account.id }}</dl>
+                            <dt>Owners</dt>
+                            <dl>{{ account.owners.all|join:', ' }}</dl>
+                            <dt>Name</dt>
+                            <dl>{{ account.name }}</dl>
+                        </dl>
+
+                        <form action="" method="post">{% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            <p>
+                                <input class="btn btn-success" type="submit" value="{% trans 'Create' %}">
+                            </p>
+                        </form>
+                    </div>
+                </div>
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Payments (total {{ fees_sum }})</h3>
+                    </div>
+                    <div class="box-bodyno-padding">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Fee</th>
+                                    <th>Amount</th>
+                                </tr>
+                                {% for fee in fees %}
+                                    <tr>
+                                        <td>{{ fee.name }}</td>
+                                        <td>{{ fee.amount  }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endblock %}

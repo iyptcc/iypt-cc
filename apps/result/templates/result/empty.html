@@ -1,0 +1,22 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Results{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h4 class="box-title" style="">{{ tournament.name }}
+                            No Results available
+                        </h4>
+                    </div>
+                    <div class="box-body">
+                        They may become available at a later time
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

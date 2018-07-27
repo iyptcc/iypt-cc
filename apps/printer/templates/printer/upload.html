@@ -1,0 +1,33 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Upload{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Pdf Upload</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% bootstrap_form form %}
+                            {% csrf_token %}
+                            <input class="btn btn-success" type="submit" value="upload" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Profile Data{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">User Properties List <a href="{% url "management:create_property" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>type</th>
+                                    <th></th>
+                                </tr>
+                                {% for ap in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ ap.name }}
+                                    </td>
+                                    <td>{{ ap.type }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "management:change_property" ap.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "management:delete_property" ap.id %}">delete</a>
+                                        {% if not forloop.first %}
+                                        <form class="inline" action="{% url "management:move_property" ap.id "up" %}" method="post">{% csrf_token %}<button class="btn btn-info" type="submit"><i class="fa fa-arrow-up"></i></button></form>
+                                        {% endif %}
+                                        {% if not forloop.last %}
+                                        <form class="inline" action="{% url "management:move_property" ap.id "down" %}" method="post">{% csrf_token %}<button class="btn btn-info" type="submit"><i class="fa fa-arrow-down"></i></button></form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

@@ -1,0 +1,25 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Payment{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Generate Invoice</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post">
+                            {% bootstrap_form form %}
+                            {% csrf_token %}
+                            <input type="submit" value="create" class="btn btn-success"/>
+                        </form>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

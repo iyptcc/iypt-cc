@@ -1,0 +1,64 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Assign Roles and Groups{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                <form action="" method="post">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Assign to persons <input class="btn btn-success" type="submit" name="_do" value="perform change"></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Team</th>
+                                    <th>Roles</th>
+                                    <th>Groups</th>
+                                </tr>
+                                {% for person in persons %}
+                                    <tr {% if not person.superior %}class="bg-danger"{% endif %}>
+                                        <td>
+                                            {{ person.full_name }}
+                                            {% if not person.superior %}
+                                                <i class="fa fa-warning"></i> restricted access
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% for team in person.teams %}<span class="label label-default">{{ team }}</span> {% endfor %}
+                                            {% if person.team_new %}<span class="label label-success">{{ person.team_new }}</span>{% endif %}
+                                        </td>
+                                        <td>
+                                            {% for role in person.roles %}<span class="label label-default">{{ role }}</span> {% endfor %}
+                                            {% for role in person.roles_new %}<span class="label label-success">{{ role }}</span> {% endfor %}
+                                            {% for role in person.roles_del %}<span class="label label-danger">{{ role }}</span> {% endfor %}
+                                            {% for role in person.roles_del_na %}<span class="label label-danger"><i class="fa fa-warning"></i> {{ role }}</span> {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for group in person.groups %}<span class="label label-default">{{ group }}</span> {% endfor %}
+                                            {% for group in person.groups_new %}<span class="label label-success">{{ group }}</span> {% endfor %}
+                                            {% for group in person.groups_del %}<span class="label label-danger">{{ group }}</span> {% endfor %}
+                                            {% for group in person.groups_del_na %}<span class="label label-danger"><i class="fa fa-warning"></i> {{ group }}</span> {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {{ field.as_hidden }}
+                    {% endfor %}
+                    <input type="hidden" name="action" value="{{ action }}" />
+                    <input type="hidden" name="{{ stage_field }}" value="2" />
+                    <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

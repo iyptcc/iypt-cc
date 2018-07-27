@@ -1,0 +1,46 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Applications{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Apply for {{ tournament }} as Possible Juror</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tr>
+                                <th>Level</th>
+                                <th>Description</th>
+                            </tr>
+                            <tr>
+                                <td>no experience</td>
+                                <td>Never been a juror at the tournament before.</td>
+                            </tr>
+                            <tr>
+                                <td>low experience</td>
+                                <td>Judged before at the tournament.</td>
+                            </tr>
+                            <tr>
+                                <td>high experience</td>
+                                <td>Chaired before at the tournament.</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="box-footer">
+                        <p>Please rate your experience as a juror according to the table above</p>
+                        <form method="post">
+                            {% bootstrap_form form %}
+                            {% csrf_token %}
+                            <input type="submit" value="apply" class="btn btn-success"/>
+                        </form>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

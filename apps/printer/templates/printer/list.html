@@ -1,0 +1,85 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}PDFs{% endblock %}
+
+    {% block page_content %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                <form method="post">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">PDFs
+                        <a class="btn btn-success" href="{% url "printer:upload" %}" >upload</a>
+                        <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
+                        </h3>
+                        {% csrf_token %}
+
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>State</th>
+                                    <th>File</th>
+                                    <th>rendered</th>
+                                    <th>expire</th>
+                                    <th></th>
+                                    <th>Job</th>
+                                    <th></th>
+                                </tr>
+                                {% for choice_id, pdf in form.pdfs.field.choices %}
+                                    <tr>
+                                        <td>
+                                            <input name="pdfs" value="{{ choice_id }}" type="checkbox">
+                                        </td>
+                                        <td>{{ pdf.pure_name }}</td>
+                                        <td>
+                                            {{ pdf.status }}
+                                        </td>
+                                        <td>
+                                            {{ pdf.file }}
+                                        </td>
+                                        <td>
+                                            {{ pdf.rendered_at|date:'Y b j  H:m:s e' }}
+                                        </td>
+                                        <td>
+                                            {{ pdf.expire_at|date:'Y b j  H:m:s e' }}
+                                        </td>
+                                        <td>
+                                            {% for t in pdf.tags.all %}
+                                                <span class="label label-{{ t.color }}">{{ t.name }}</span>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% if pdf.status == "failure" %}
+                                                {% if pdf.task_id %}
+                                                    <a href="{% url "printer:tex_error" pdf.task_id %}">{{ pdf.task_id }}</a>
+                                                {% else %}
+                                                    no job
+                                                {% endif %}
+                                            {% elif pdf.status == "error" and pdf.task_id != None %}
+                                                <a href="{% url "printer:tex_render_error" pdf.task_id %}">{{ pdf.task_id }}</a>
+                                            {% else %}
+                                                {{ pdf.task_id }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if pdf.file %}
+                                                <a href="{% url "printer:file" pdf.file %}" class="btn btn-info"><i class="fa fa-file-pdf-o"></i></a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

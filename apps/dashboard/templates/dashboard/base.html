@@ -1,0 +1,86 @@
+<!DOCTYPE html>{% load static dashboard %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <link rel="icon" href="/static/cc-favicon.ico" type="image/x-icon" />
+
+    {% block meta_extra %}{% endblock %}
+
+    <title>{% block page_title %}{% endblock %} | {% block title %}IYPTcc{% endblock %}</title>
+
+    {% block stylesheets %}
+        {% link_css 'bootstrap' %}
+        {% link_css 'fontawesome' %}
+        {% link_css 'ionicons' %}
+        {% link_css 'css/AdminLTE.css' %}
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+             folder instead of downloading all of them to reduce the load. -->
+        {% link_css 'AdminLTE/dist/css/skins/_all-skins.min.css' %}
+        {% link_css 'icheck' %}
+        <link href="{% static 'tellme/feedback.min.css' %}" rel="stylesheet">
+    {% endblock %}
+
+    <style>
+        .sidebar-menu .treeview-menu {
+            /*display:block;*/
+        }
+        .select2-container {
+            width:100% !important;
+        }
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            margin-top: -7px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            color: #000;
+        }
+
+        .flag-container-72 {
+            height:26px;
+            overflow: hidden;
+        }
+        .flag-image-72 {
+            height: 36px;
+            margin-top: -5px;
+        }
+
+        #hijack-btn{
+            padding: 13.66px;
+            line-height: 20px;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        {% link_js 'html5shiv' %}
+        {% link_js 'respond' %}
+    <![endif]-->
+
+    {%  block javascripts_head %}{% endblock %}
+    {% block styles_inline %}{% endblock %}
+</head>
+
+<body class="{% block body_css %}hold-transition sidebar-mini {% ui_theme "skin-blue" %}{% endblock %}">
+    {% block body %}{% endblock %}
+
+    {% block javascripts %}
+        {% link_js 'jquery' %}
+        {% link_js 'jquery_ui' %}
+        <script>
+            $.widget.bridge('uibutton', $.ui.button);
+        </script>
+        {% link_js 'bootstrap' %}
+        {% link_js 'icheck' %}
+        {% link_js 'slimscroll' %}
+        {% link_js 'fastclick' %}
+        {% link_js 'js/app.js' %}
+    {% endblock %}
+
+    {% include 'dashboard/js_inc.html' %}
+
+    {% block javascripts_inline %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Placeholder Teams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Team List ({{ form.fields|length }}/{{ realnr }})
+                            <form class="inline" action="{% url 'plan:phteamsgen' %}" method="post">
+                                <input class="btn btn-success" type="submit" value="generate missing">
+                                {% csrf_token %}
+                            </form>
+                            <form class="inline" action="{% url 'plan:phteamsdel' %}" method="post">
+                                <input class="btn btn-warning" type="submit" name="_last" value="remove last">
+                                <input class="btn btn-danger" type="submit" name="_all" value="remove all">
+                                {% csrf_token %}
+                            </form>
+                        </h3>
+                    </div>
+                    <form method="post" action="">
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Assignment</th>
+                                </tr>
+                                {% for team in form %}
+                                <tr>
+                                    <td>{{ team.label }}</td>
+                                    <td>{{ team }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box-footer">
+                        <input type="submit" class="btn btn-success" value="save assignment"/>
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <h4>Please correct the following error</h4>
+                            {{ form.non_field_errors }}
+                        {% endif %}
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
+

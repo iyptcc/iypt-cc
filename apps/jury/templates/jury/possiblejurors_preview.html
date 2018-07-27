@@ -1,0 +1,68 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n dashboard %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Possible Jurors{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Set role for ({{ persons|length }}) <input class="btn btn-success" type="submit" value="{% trans 'Apply' %}">
+                                    </h3>
+                                    {% for field in form %}
+                                        {{ field.as_hidden }}
+                                    {% endfor %}
+                                    {% csrf_token %}
+                                    <input type="hidden" name="{{ stage_field }}" value="2" />
+                                    <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                                    <input type="hidden" name="action" value="{{ action }}" />
+                            </div>
+                                <div class="box-body no-padding table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Experience</th>
+                                                <th>Attendee</th>
+                                                <th>approved by</th>
+                                                <th>approved_at</th>
+                                            </tr>
+                                            {% for person in persons %}
+                                            <tr {% if not person.attending %}class="bg-danger"{% endif %}>
+                                                <td>{{ person.obj.person.user.first_name }} {{ person.obj.person.user.last_name }}</td>
+                                                <td>{% if person.experience == 1 %}<i class="fa fa-arrow-up"></i>{% endif %}
+                                                    {% if person.experience == 0 %}<i class="fa fa-arrow-right"></i>{% endif %}
+                                                    {% if person.experience == -1 %}<i class="fa fa-arrow-down"></i>{% endif %}
+                                                {% if 'new_experience' in person %}<span class="label label-success">{% if person.new_experience == 1 %}<i class="fa fa-arrow-up"></i>{% endif %}
+                                                    {% if person.new_experience == 0 %}<i class="fa fa-arrow-right"></i>{% endif %}
+                                                    {% if person.new_experience == -1 %}<i class="fa fa-arrow-down"></i>{% endif %}</span>{% endif %}
+                                                </td>
+                                                <td>{% for r in person.roles %}<span class="label label-default">{{ r.name }}</span> {% endfor %}{% for r in person.new_roles %}<span class="label label-success">{{ r.name }}</span> {% endfor %}</td>
+                                                <td>{{ person.obj.approved_by }}</td>
+                                                <td>{{ person.obj.approved_at|date:"c" }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

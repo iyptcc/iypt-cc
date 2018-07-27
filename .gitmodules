@@ -1,0 +1,24 @@
+[submodule "apps/dashboard/static/AdminLTE"]
+	path = apps/dashboard/static/AdminLTE
+	url = https://github.com/almasaeed2010/AdminLTE.git
+[submodule "apps/dashboard/static/bootstrap-datetimepicker"]
+	path = apps/dashboard/static/bootstrap-datetimepicker
+	url = https://github.com/Eonasdan/bootstrap-datetimepicker
+[submodule "apps/dashboard/static/Font-Awesome"]
+	path = apps/dashboard/static/Font-Awesome
+	url = https://github.com/FortAwesome/Font-Awesome.git
+[submodule "apps/dashboard/static/ionicons"]
+	path = apps/dashboard/static/ionicons
+	url = https://github.com/driftyco/ionicons.git
+[submodule "apps/dashboard/static/moment"]
+	path = apps/dashboard/static/moment
+	url = https://github.com/moment/moment.git
+[submodule "apps/dashboard/static/moment-timezone"]
+	path = apps/dashboard/static/moment-timezone
+	url = https://github.com/moment/moment-timezone.git
+[submodule "apps/dashboard/static/raven-js"]
+	path = apps/dashboard/static/raven-js
+	url = https://github.com/getsentry/raven-js.git
+[submodule "apps/dashboard/static/select2"]
+	path = apps/dashboard/static/select2
+	url = https://github.com/select2/select2.git

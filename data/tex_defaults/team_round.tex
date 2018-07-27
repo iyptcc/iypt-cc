@@ -1,0 +1,19 @@
+(% block content %)
+
+	\begin{center}
+	\LARGE \uppercase{Team Plan  in Round (( round ))}
+	\bigskip
+	\end{center}
+    \begin{multicols}{2}
+    (% for fight in fights %)
+        \section*{(( fight.room ))}
+            \textbf{Reporter:} (( fight.reporter ))\\
+            \textbf{Opponent:} (( fight.opponent ))\\
+            \textbf{Reviewer:} (( fight.reviewer ))\\
+        (% if fight.observer -%)
+            \textbf{Observer:} (( fight.observer ))
+        (%- endif %)
+
+	(% endfor %)
+    \end{multicols}
+(% endblock %)

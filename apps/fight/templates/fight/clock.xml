@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
+"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"
+		xmlns:xlink="http://www.w3.org/1999/xlink" >
+
+	<script type="text/javascript">
+		<![CDATA[
+      var timer_active = false;
+      var t;
+      var warning_timer;
+      var radius = 300;
+      var topleftspacing = 100;
+      var current_phase = -1;
+	  var saved_timestamp;
+	  var saved_ticks;
+      var phases = new Array();
+
+      var roomName = {{ id }};
+
+      var socketProto = 'wss://';
+
+      if (location.protocol != 'https:') {
+        var socketProto = 'ws://';
+      }
+      
+      var socketUrl = socketProto + window.location.host + '/ws/clock/'+ roomName +'/view/';
+      var chatSocket = new WebSocket(socketUrl);
+
+      window.onload=function() {
+        {% for p in phases %}
+        phases.push(new Phase("{{ p.name }}", {{ p.duration }} , {% if p.linked %}true{% else %}false{% endif %}, {{ p.id }}));
+        {% endfor %}
+      }
+
+      function Phase (name, duration, linked, id) {
+        this.name = name;
+        this.duration = duration;
+        this.linked_offset = 0;
+        this.linked = linked;
+        this.id = id;
+        this.current_time = 0;
+      }
+
+      function clearWarningLabel () {
+        document.getElementById('warninglabel').firstChild.nodeValue = " ";
+      }
+
+	  function updateSavedTime() {
+	    saved_timestamp = Math.floor((new Date().getTime())/1000);
+		saved_ticks = phases[current_phase].current_time;
+	  }
+
+	  function checkSavedTime () {
+	    var now = Math.floor((new Date().getTime())/1000);
+	    if ((now - saved_timestamp) - (phases[current_phase].current_time - saved_ticks) > 1) {
+          phases[current_phase].current_time = saved_ticks + (now - saved_timestamp);
+        }
+	  }
+
+      function nextPhase () {
+        if (current_phase + 1 >= phases.length) {
+          document.getElementById('warninglabel').firstChild.nodeValue = "The current phase is already the last phase. There is no next phase.";
+          clearTimeout(warning_timer);
+          warning_timer = setTimeout(clearWarningLabel, 5000);
+        }
+        else {
+          current_phase++;
+          document.getElementById('phaselabel').firstChild.nodeValue = phases[current_phase].name;
+		  updateSavedTime();
+          updateLinkedOffset();
+          resetColors();
+          draw();
+        }
+      }
+
+      function previousPhase () {
+        if (current_phase - 1 < 0) {
+          document.getElementById('warninglabel').firstChild.nodeValue = "The current phase is already the first phase. There is no previous phase.";
+          clearTimeout(warning_timer);
+          warning_timer = setTimeout(clearWarningLabel, 5000);
+        }
+        else {
+          current_phase--;
+          document.getElementById('phaselabel').firstChild.nodeValue = phases[current_phase].name;
+          updateLinkedOffset();
+		  updateSavedTime();
+          resetColors();
+          draw();
+        }
+      }
+
+      function resetPhase () {
+        if(current_phase >= 0) {
+          phases[current_phase].current_time = 0;
+		  updateSavedTime();
+		  resetColors();
+          draw();
+        }
+      }
+
+	  function plus10 () {
+        if(current_phase >= 0) {
+          phases[current_phase].current_time += 10;
+		  updateSavedTime();
+		  resetColors();
+          draw();
+        }
+      }
+
+	  function minus10 () {
+        if(current_phase >= 0){
+		  if (phases[current_phase].current_time >= 10){
+          phases[current_phase].current_time -= 10;
+		  updateSavedTime();
+		  resetColors();
+          draw();
+		  }
+        }
+      }
+
+      function updateLinkedOffset () {
+        if (phases[current_phase].linked && current_phase > 0) {
+          var offset = phases[current_phase-1].duration + phases[current_phase-1].linked_offset - phases[current_phase-1].current_time;
+          phases[current_phase].linked_offset = (offset > 0) ? offset : 0;
+        }
+      }
+
+      function resetColors () {
+        if (phases[current_phase].current_time < phases[current_phase].duration + phases[current_phase].linked_offset) {
+          document.getElementById('background').setAttributeNS(null,"fill","#eee");
+          document.getElementById('foreground').setAttributeNS(null,"fill","#3c0");
+        }
+        else {
+          document.getElementById('background').setAttributeNS(null,"fill","f00");
+          document.getElementById('foreground').setAttributeNS(null,"fill","f90");
+        }
+      }
+
+      function startstop () {
+        if (current_phase < 0) {
+          nextPhase();
+        }
+
+        timer_active = !timer_active;
+        if (timer_active) {
+		  updateSavedTime();
+          t = setTimeout("tick()", 1000);
+          document.getElementById('startstop_button_text').firstChild.nodeValue = "Pause";
+        }
+        else {
+          clearTimeout(t);
+          document.getElementById('startstop_button_text').firstChild.nodeValue = "Start Clock";
+        }
+      }
+
+      function tick () {
+        phases[current_phase].current_time++;
+		checkSavedTime();
+        draw();
+        if (timer_active) {
+          t = setTimeout("tick()", 1000);
+        }
+        console.log("write tick send")
+        if(chatSocket.readyState === chatSocket.OPEN){
+            chatSocket.send(JSON.stringify({
+                'state': {"elapsed":phases[current_phase].current_time, "name":phases[current_phase].name,"id":phases[current_phase].id}
+            }));
+        }
+      }
+
+      function draw () {
+        var total_time = phases[current_phase].duration + phases[current_phase].linked_offset;
+        var time_string = toMinutesSeconds(phases[current_phase].current_time) + " of " + toMinutesSeconds(total_time);
+        document.getElementById('timedisplay').firstChild.nodeValue = time_string;
+        var arc = document.getElementById('foreground');
+        var center = "M" + (radius+topleftspacing) + "," + (radius+topleftspacing);
+        var startpoint = "v-" + radius;
+        var arcradius = "a"+radius+","+radius+" ";
+        var largeflag = "0 ";
+        if (phases[current_phase].current_time % total_time > total_time / 2) {
+          largeflag = "1 ";
+        }
+        var sweepflag = "1 ";
+        var angle = 2*Math.PI*(phases[current_phase].current_time % total_time) / total_time;
+        var stopx = Math.sin(angle)*radius;
+        var stopy = -Math.cos(angle)*radius+300;
+        var stoppoint = stopx + "," + stopy + " ";
+        var pathdescription = center + startpoint + arcradius + "0 " + largeflag + sweepflag + stoppoint + "z";
+		var re = /(?:\.([^.]+))?$/;
+		var index;
+        arc.setAttributeNS(null,"d",pathdescription);
+		arc.setAttributeNS(null,"stroke", "#000");
+		arc.setAttributeNS(null,"stroke-width", "1");
+
+        if (phases[current_phase].current_time >= total_time * 3/4) {
+          arc.setAttributeNS(null,"fill", "#f90");
+        }
+		if (phases[current_phase].current_time >= total_time - 30) {
+          arc.setAttributeNS(null,"fill", "#f60");
+        }
+		if (phases[current_phase].current_time >= total_time - 10) {
+          arc.setAttributeNS(null,"fill", "#f00");
+        }
+        if (phases[current_phase].current_time >= total_time) {
+          arc.setAttributeNS(null, "fill", "#f00");
+          document.getElementById('background').setAttributeNS(null,"fill","#f90");
+        }
+		if (phases[current_phase].current_time >= total_time + 10) {
+          arc.setAttributeNS(null, "fill", "#fa0");
+          document.getElementById('background').setAttributeNS(null,"fill","#fa0");
+		  document.getElementById('background').setAttributeNS(null,"stroke","#fa0");
+		  arc.setAttributeNS(null,"stroke-width", "0");
+		  if (phases[current_phase].current_time % 2) {
+             arc.setAttributeNS(null, "fill", "#f00");
+             document.getElementById('background').setAttributeNS(null,"fill","#f00");
+			 document.getElementById('background').setAttributeNS(null,"stroke","#f00");
+        }
+        }
+
+      }
+
+      function toMinutesSeconds (sec) {
+        var minutes = Math.floor(sec / 60);
+        var seconds = sec % 60;
+        var minutes_string = (minutes < 10) ? "0"+minutes : minutes.toString();
+        var seconds_string = (seconds < 10) ? "0"+seconds : seconds.toString();
+        return (minutes_string + ":" + seconds_string);
+      }
+
+      function goodbye(e) {
+        if(!e) e = window.event;
+        e.cancelBubble = true;
+        e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        if (e.stopPropagation) {
+          e.stopPropagation();
+          e.preventDefault();
+      }
+
+      }
+
+    chatSocket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        var message = data['action'];
+        console.log(message)
+        console.log("done")
+        if(message == "startstop")
+        {
+            startstop()
+        }
+        if(message == "previous")
+        {
+            previousPhase()
+        }
+        if(message == "next")
+        {
+            nextPhase()
+        }
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+window.onbeforeunload=goodbye;
+    ]]>
+	</script>
+	<defs>
+		<linearGradient id="button_surface" gradientUnits="objectBoundingBox"
+				x1="1" x2="1" y1="0" y2="1">
+			<stop stop-color="#eee" offset="0"/>
+			<stop stop-color="#444" offset="0.67"/>
+		</linearGradient>
+
+		<linearGradient id="virtual_light" gradientUnits="objectBoundingBox"
+				x1="0" x2="0" y1="0" y2="1">
+			<stop stop-color="#eee" offset="0" stop-opacity="1"/>
+			<stop stop-color="#333" offset="0.4" stop-opacity="0.5"/>
+		</linearGradient>
+	</defs>
+
+
+	<circle id="background" cx="400" cy="400" r="300" stroke="black" stroke-width="0" fill="#eee"  onclick="startstop()"/>
+	<path id="foreground" d = "M400,400 v-300 a300,300 0 1,1 0,0 z" fill="blue" onclick="startstop()" />
+	<text id="timedisplay" x="70" y="80" style="font-family:Tahoma; font-size: 65pt; font-weight: bold;"> </text>
+	<text id="phaselabel" x="50" y="750" style="font-family:Tahoma; font-size: 15pt; font-weight: bold;">Clock is reset and ready!</text>
+	<text x="50" y="770" style="font-family:Tahoma; font-size: 7pt; font-weight: bold; fill: #ccc;"> &#169; 2012-16 Georg Hofferek and Timotheus Hell: licensed under a <a style="font-family:Tahoma; font-size: 7pt; font-weight: bold; fill: #ccc;" xlink:href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a>.</text>
+	<text id="warninglabel" x="50" y="725" style="font-family:Tahoma; font-size: 15pt; font-weight: bold; fill: red;"> </text>
+
+	<style type="text/css">
+		g.button:hover{
+		opacity: 0.90;
+		}
+	</style>
+	<g class="button" cursor="pointer"
+			onmouseup="startstop()">
+		<rect class="button" cursor="pointer" x="810" y="110" rx="5"
+				ry="5" width="150" height="50"
+				fill="url(#button_surface)" stroke="#fff"/>
+		<rect x="812" y="112" rx="5" ry="5" width="146" height="46"
+				fill="url(#virtual_light)" stroke="#fff" stroke-opacity="0.4"/>
+		<text id="startstop_button_text" x="830" y="140" fill="white"
+				font-family="Tahoma" font-size="16" font-weight="500">
+			Start Clock
+		</text>
+	</g>
+
+	<g class="button" cursor="pointer"
+			onmouseup="resetPhase()">
+		<rect class="button" cursor="pointer" x="810" y="210" rx="5"
+				ry="5" width="150" height="50"
+				fill="url(#button_surface)" stroke="#fff"/>
+		<rect x="812" y="212" rx="5" ry="5" width="146" height="46"
+				fill="url(#virtual_light)" stroke="#fff" stroke-opacity="0.4"/>
+		<text x="830" y="240" fill="white"
+				font-family="Tahoma" font-size="16" font-weight="500">
+			Reset Phase
+		</text>
+	</g>
+
+	<g class="button" cursor="pointer"
+			onmouseup="previousPhase()">
+		<rect class="button" cursor="pointer" x="810" y="410" rx="5"
+				ry="5" width="70" height="50"
+				fill="url(#button_surface)" stroke="#fff"/>
+		<rect x="812" y="412" rx="5" ry="5" width="66" height="46"
+				fill="url(#virtual_light)" stroke="#fff" stroke-opacity="0.4"/>
+		<text x="823" y="440" fill="white"
+				font-family="Tahoma" font-size="16" font-weight="500">
+			&lt; &lt;
+		</text>
+
+	</g>
+
+
+	<g class="button" cursor="pointer"
+			onmouseup="nextPhase()">
+		<rect class="button" cursor="pointer" x="890" y="410" rx="5"
+				ry="5" width="70" height="50"
+				fill="url(#button_surface)" stroke="#fff"/>
+		<rect x="892" y="412" rx="5" ry="5" width="66" height="46"
+				fill="url(#virtual_light)" stroke="#fff" stroke-opacity="0.4"/>
+		<text x="920" y="440" fill="white"
+				font-family="Tahoma" font-size="16" font-weight="500">
+			&gt; &gt;
+		</text>
+	</g>
+
+
+
+	<g class="button" cursor="pointer"
+			onmouseup="minus10()">
+		<rect class="button" cursor="pointer" x="810" y="310" rx="5"
+				ry="5" width="70" height="50"
+				fill="url(#button_surface)" stroke="#fff"/>
+		<rect x="812" y="312" rx="5" ry="5" width="66" height="46"
+				fill="url(#virtual_light)" stroke="#fff" stroke-opacity="0.4"/>
+		<text x="823" y="340" fill="white"
+				font-family="Tahoma" font-size="16" font-weight="500">
+			-10
+		</text>
+
+	</g>
+
+
+	<g class="button" cursor="pointer"
+			onmouseup="plus10()">
+		<rect class="button" cursor="pointer" x="890" y="310" rx="5"
+				ry="5" width="70" height="50"
+				fill="url(#button_surface)" stroke="#fff"/>
+		<rect x="892" y="312" rx="5" ry="5" width="66" height="46"
+				fill="url(#virtual_light)" stroke="#fff" stroke-opacity="0.4"/>
+		<text x="916" y="340" fill="white"
+				font-family="Tahoma" font-size="16" font-weight="500">
+			+10
+		</text>
+	</g>
+
+
+</svg>

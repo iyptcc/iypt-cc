@@ -1,0 +1,70 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block page_title %}Assignments{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">New Assignment</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" action="{% url "jury:assign_new" %}">
+                            {% bootstrap_form form %}
+                            {% csrf_token %}
+                            <input type="submit" class="btn btn-success" value="generate" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Assignments</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>State</th>
+                                    <th>Quality</th>
+                                    <th>Author</th>
+                                    <th>Runtime</th>
+                                    <th>Rounds</th>
+                                    <th>Jurors per Room</th>
+                                    <th>Cooling Base</th>
+                                    <th>Fixed Rounds</th>
+                                </tr>
+                                {% for a in assignments %}
+                                    <tr>
+                                        <td><a href="{% url "jury:assign_preview" a.task.task_id %}">{{ a.task.task_id }}</a></td>
+                                        <td>
+                                            {% if a.progress %}
+                                                {{ a.state }} {{ a.progress }}%
+                                            {% else %}
+                                                {{ a.state }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if a.cost %}
+                                                <a href="{% url "jury:cost_graph" a.task.task_id %}">{{ a.cost }}</a>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ a.task.author.full_name }}</td>
+                                        <td>{{ a.task.created }} - {{ a.task.finished }}</td>
+                                        <td>{{ a.task.total_rounds }}</td>
+                                        <td>{{ a.task.room_jurors }}</td>
+                                        <td>{{ a.task.cooling_base }}</td>
+                                        <td>{{ a.task.fix_rounds }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

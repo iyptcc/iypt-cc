@@ -1,0 +1,35 @@
+{% if item.route or item.has_children %}
+    <li id="{{ item.uid }}" class="{% if item.is_active %}active{% endif %} {% if item.has_children %}treeview{% endif %}">
+        <a href="{% if item.has_children %}#{% else %}{{ item.url }}{% endif %}">
+            {% if item.has_children %}
+                <i class="{{ item.icon|default:'fa fa-dot-circle-o' }}"></i>
+            {% else %}
+                <i class="{{ item.icon|default:'fa fa-circle-o' }}"></i>
+            {% endif %}
+            <span>{{ item.label }}</span>
+            {% if item.badges %}
+                <div class="pull-right-container">
+                    {% for badge in item.badges %}
+                        <small class="label pull-right bg-{{ badge.1 }}">{{ badge.0 }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if item.has_children and false %}<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>{% endif %}
+        </a>
+
+        {% if item.has_children %}
+            <ul class="treeview-menu" {% if item.to_display or item.is_active %}style="display: block;"{% endif %}>
+                {% for child in item.children %}
+                    {% include 'dashboard/inc/menu_item.html' with item=child %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+{% else %}
+    <li class="header">
+        <span>{{ item.label }}</span>
+        {% if item.badge %}
+            <small class="label pull-right bg-{{ item.badge_color }}">{{ item.badge }}</small>
+        {% endif %}
+    </li>
+{% endif %}

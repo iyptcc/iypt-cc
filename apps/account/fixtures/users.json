@@ -1,0 +1,41 @@
+ 
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$30000$bfSRcz8435Km$VOJasXkSscLPajzWpi3An2aA8YKkn9keyX/FGassy/k=",
+      "last_login": "2016-10-08T13:23:54.173Z",
+      "is_superuser": true,
+      "username": "root",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2016-09-25T03:02:41.688Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$30000$wM415SS82bsA$3SZoCvrNlbgFVH5e8SyxfqgGfA2HrMoo5EDn0je/FXo=",
+      "last_login": "2016-10-08T17:59:46.066Z",
+      "is_superuser": false,
+      "username": "felix",
+      "first_name": "",
+      "last_name": "",
+      "email": "fe-iypt@nlogn.org",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2016-09-25T03:03:33.043Z",
+      "groups": [
+        3
+      ],
+      "user_permissions": []
+    }
+  }
+]

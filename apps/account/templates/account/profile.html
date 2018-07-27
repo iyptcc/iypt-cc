@@ -1,0 +1,82 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ upform.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Profile{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Basic Settings</h3>
+                            </div>
+                            <div class="box-body">
+                                <p>The basic settings allow you to set your name. The characters are restricted, so that an english speaking person can read it.</p>
+                                {% if cap %}
+                                    <div class="callout callout-info">
+                                        <h4>Name Capitalisation</h4>
+
+                                        <p>The program assumes that names start with captial letter followed by small characters. The name {{ name }} does not follow this convention. If you use a transscripted name, please follow the same rules.
+                                        This info can be ignored if you are sure that the capitalisation is correct.</p>
+                                    </div>
+                                {% endif %}
+                                <form method="post" role="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    {% bootstrap_form form %}
+                                    {% buttons %}
+                                        <input class="btn btn-primary btn-flat" type="submit" name="_settings" value="{% trans 'Update Settings' %}">
+                                    {% endbuttons %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="box box-default collapsed-box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Allowed Name Characters</h3>
+                                <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                            </div>
+                            </div>
+                            <div class="box-body">
+                                <div class="row">
+                                {% for c in chars %}
+                                    <div class="col-md-2">u{{ c.h }} {{ c.s }}</div>
+                                {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Profile</h3>
+                    </div>
+                    <div class="box-body">
+                        <p>These profile settings allow you to store information about yourself. Most of the tournaments require these information. When you apply for a tournament, you will get an overview, which of the values from your profile are required. If available, you can automatically supply the values entered here. They are not visible to the tournament organisers before you allowed the transfer.</p>
+                        <form method="post" role="form" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% bootstrap_form upform %}
+                            {% buttons %}
+                                <input class="btn btn-primary btn-flat" type="submit" name="_profile" value="{% trans 'Update Profile' %}">
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ upform.media.js }}
+{% endblock %}

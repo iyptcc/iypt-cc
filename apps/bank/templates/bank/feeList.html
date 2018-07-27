@@ -1,0 +1,35 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Fees{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Property Fees</h3>
+                    </div>
+                    <div class="box-body">
+                        <a class="btn btn-success" href="{% url "bank:fee_property_create" %}">create</a>
+                    </div>
+                </div>
+            </div>
+            {% for fee in object_list %}
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ fee.name }}, {{ fee.fee }}</h3>
+                        </div>
+                        <div class="box-body">
+                            <p>If true: {% for p in fee.if_true.all %}<span class="label label-success">{{ p }}</span> {% endfor %}</p>
+                            <p>and if not true: {% for p in fee.if_not_true.all %}<span class="label label-warning">{{ p }}</span> {% endfor %}</p>
+
+                            <p><a class="btn btn-danger" href="{% url "bank:fee_property_delete" fee.id %}">delete</a></p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endblock %}

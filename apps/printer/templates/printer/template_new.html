@@ -1,0 +1,33 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Create Template{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <form action="" method="post">{% csrf_token %}
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add</h3>
+                    </div>
+                    <div class="box-body">
+                            {% bootstrap_form form %}
+                            <input type="submit" class="btn btn-success" name="_save" value="Save" />
+                            <a class="btn btn-warning" href="{% url "printer:templates" %}">cancel</a>
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

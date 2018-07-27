@@ -1,0 +1,67 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}{% if fight.final %}Final{% else %}Round {{ round }}, {{ room }}{% endif %}{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            {% if fight %}
+            <div class="col-md-12">
+                <div class="box box-info">
+                    <!-- Apply any bg-* class to to the icon to color it -->
+                    <div class="box-header with-border">
+                        <h4 class="box-title" style="line-height: 24px;">Grades
+                            <div style="display: inline-block;line-height: 24px;">
+                            {% for t in fight.result %}
+                                <a class="label label-info" href="{% url 'result:team' tournament t.slug %}">{{ t.name }}: {{ t.sp|floatformat:1 }}{% if t.won %} <i class="fa fa-star text-yellow"></i>{% endif %}</a>
+                            {% endfor %}
+                            {% if fight.partial_grades %}
+                                <a class="label label-primary" href="{% url 'result:pdfpartial' tournament round room|slugify %}"><i class="fa fa-file-pdf-o"> partial grades</i></a>
+                            {% endif %}
+                            </div>
+                        </h4>
+                        <div class="box-tools pull-right">
+                            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                        {% include 'result/fight_table.html' with fight=fight %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if preview %}
+            <div class="col-md-12">
+                <div class="box box-info">
+                    <!-- Apply any bg-* class to to the icon to color it -->
+                    <div class="box-header with-border">
+                        <h4 class="box-title">Preview</h4>
+                        <div class="box-tools pull-right">
+                            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            {% for s in preview %}
+                                <div class="col-md-{% if preview|length == 3 %}4{% else %}3{% endif %}">
+                                    <div class="box box-warning">
+                                        <div class="box-header with-border">
+                                            <h4 class="box-title">Stage {{ forloop.counter }}</h4>
+                                        </div>
+                                        <div class="box-body">
+                                            <p>Reporter: {{ s.rep.origin.name }}</p>
+                                            <p>Opponent: {{ s.opp.origin.name }}</p>
+                                            <p>Reviewer: {{ s.rev.origin.name }}</p>
+                                            {% include 'result/preview_part.html' with s=s %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {%  endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    {% endblock %}

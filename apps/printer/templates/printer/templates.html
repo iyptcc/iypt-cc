@@ -1,0 +1,64 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+{% block styles_inline %}
+    <style>
+        pre {
+            max-height:300px;
+        }
+    </style>
+{% endblock %}
+
+    {% block page_title %}Templates{% endblock %}
+
+    {% block page_content %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Templates
+                        <a class="btn btn-success" href="{% url "printer:template_add" %}" >add</a></h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Parent</th>
+                                    <th>Files</th>
+                                    <th>Source</th>
+                                    <th></th>
+                                </tr>
+                                {% for tmp in object_list %}
+                                    <tr>
+                                        <td>{{ tmp.name }}</td>
+                                        <td>
+                                            {{ tmp.get_type_display }}
+                                        </td>
+                                        <td>
+                                            {{ tmp.parent }}
+                                        </td>
+                                        <td>
+                                            {% for f in tmp.all_files %}
+                                                <span class="label label-default">{{ f.pure_name }}</span>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            <pre style="width: 400px;">
+{{ tmp.templateversion_set.last.src }}
+                                            </pre>
+                                        <td>
+                                            <a class="btn btn-primary" href="{% url "printer:template_edit" tmp.id %}">edit</a>
+                                            <a class="btn btn-info" href="{% url "printer:template_versions" tmp.id %}">versions</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

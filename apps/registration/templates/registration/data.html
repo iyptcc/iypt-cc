@@ -1,0 +1,70 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+
+    {% block page_title %}Data{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">You participate in {{ attendee.tournament.name }} with roles</h3>
+                    </div>
+                    <div class="box-body">
+                        {% for r in attendee.roles.all %}<span class="label label-default">{{ r.name }}</span> {% endfor %}
+                    </div>
+                </form>
+                </div>
+            </div>
+             <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">You participate in teams with roles</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tr>
+                                <th>Team</th>
+                                <th>Role</th>
+                            </tr>
+                            {% for tm in attendee.teammember_set.all %}
+                                <tr>
+                                    <td>{{ tm.team.origin.name }}</td>
+                                    <td>{{ tm.role }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Manage Data for {{ attendee.tournament.name }}</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <input type="submit" value="save" class="btn btn-success">
+                        </form>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

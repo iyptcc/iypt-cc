@@ -1,0 +1,48 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Roles{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Role List <a href="{% url "tournament:create_prole" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Groups</th>
+                                    <th>Approvable by</th>
+                                    <th>Global Limit</th>
+                                    <th>Attending</th>
+                                    <th></th>
+                                </tr>
+                                {% for role in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ role.name }}
+                                    </td>
+                                    <td>{{ role.get_type_display }}</td>
+                                    <td>{% for g in role.groups.all %}<span class="label label-default">{{ g.name }}</span> {% endfor %}</td>
+                                    <td>{% for g in role.approvable_by.all %}<span class="label label-default">{{ g.name }}</span> {% endfor %}</td>
+                                    <td>{{ role.global_limit }}</td>
+                                    <td>{% if role.attending %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "tournament:change_prole" role.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "tournament:delete_prole" role.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

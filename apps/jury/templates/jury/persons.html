@@ -1,0 +1,180 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Jurors{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-10">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary collapsed-box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Actions</h3>
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">delete</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set conflicting</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.conflicting }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_add_conflicting" value="add conflicting">
+                                                        <input class="btn btn-danger" type="submit" name="_del_conflicting" value="delete conflicting">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set parameters</h3>
+                                                </div>
+                                                <div class="box-body no-padding">
+                                                    <table class="table table-striped">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th></th>
+                                                                <th>Local</th>
+                                                                <th>Possible Chair</th>
+                                                                <th>Experience</th>
+                                                                {% for rf in form.get_round_forms %}
+                                                                    <td>{{  forloop.counter }}</td>
+                                                                {% endfor %}
+                                                            </tr>
+                                                            <tr>
+                                                                <td>set</td>
+                                                                <td>{{ form.local_set }}</td>
+                                                                <td>{{ form.possible_chair_set }}</td>
+                                                                <td>{{ form.experience_set }}</td>
+                                                                {% for rf in form.get_round_forms %}
+                                                                    <td>{{ rf.1 }}</td>
+                                                                {% endfor %}
+                                                            </tr>
+                                                            <tr>
+                                                                <td>value</td>
+                                                                <td>{{ form.local }}</td>
+                                                                <td>{{ form.possible_chair }}</td>
+                                                                <td>{{ form.experience }}</td>
+                                                                {% for rf in form.get_round_forms %}
+                                                                    <td>{{ rf.0 }}</td>
+                                                                {% endfor %}
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_set_parameters" value="set parameters">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% csrf_token %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Persons ({{ form.jurors.field.choices|length }})</h3>
+                                </div>
+                                <div class="box-body no-padding">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th><input id="checkAll" type="checkbox"> all</th>
+                                                <th>Name</th>
+                                                <th>Counrty</th>
+                                                <th>Local</th>
+                                                <th>Possible Chair</th>
+                                                <th>Experience</th>
+                                                <th>Bias</th>
+                                                {% for r in rounds %}
+                                                    <td>{{ r.order }}</td>
+                                                {% endfor %}
+                                                <th></th>
+                                            </tr>
+                                            {% for choice_id, person in form.jurors.field.choices %}
+                                            <tr>
+                                                <td>
+                                                    <input name="jurors" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                                </td>
+                                                <td>{{ person.attendee.active_user.user.first_name }} {{ person.attendee.active_user.user.last_name }}</td>
+                                                <td>{{ person.conflicting.all|join:', ' }}</td>
+                                                <td>{% if person.local %}<i class="fa fa-check"></i>{% endif %}</td>
+                                                <td>{% if person.possible_chair %}<i class="fa fa-check"></i>{% endif %}</td>
+                                                <td>{% if person.experience == person.EXPERIENCE_HIGH %}<i class="fa fa-arrow-up"></i>{% endif %}
+                                                    {% if person.experience == person.EXPERIENCE_LOW %}<i class="fa fa-arrow-right"></i>{% endif %}
+                                                    {% if person.experience == person.EXPERIENCE_NEW %}<i class="fa fa-arrow-down"></i>{% endif %}</td>
+                                                <td>{{ person.bias }}</td>
+                                                {% for r in rounds %}
+                                                    <td>{% if r in person.availability.all %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-close"></i>{% endif %}</td>
+                                                {% endfor %}
+                                                <td>
+                                                    <div class="btn-group pull-right">
+                                                        <a href="{% url 'jury:edit_juror' person.id %}" type="button" class="btn btn-primary">edit</a>
+                                                        <a href="{% url 'jury:personal' person.id %}" type="button" class="btn btn-info">assignments</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Filter</h3>
+                    </div>
+                    <div class="box-body">
+                        {% include "plan/inc/filter.html" with filters=filters %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

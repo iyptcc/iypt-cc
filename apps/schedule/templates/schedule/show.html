@@ -1,0 +1,135 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}{{ schedule.name }} for {{ schedule.teams_nr }} Teams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Statistics</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h4 class="box-title">Team meetings</h4>
+                                        </div>
+                                        <div class="box-body no-padding">
+                                            <table  class="table table-striped">
+                                                <col style="width:{{ meet_ratio }}%">
+                                                {% for i in meet.0 %}
+                                                    <col style="width:{{ meet_ratio }}%">
+                                                {% endfor %}
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Team</th>
+                                                        {% for t in meet.0 %}
+                                                            <th>{{ forloop.counter }}</th>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    {% for line in meet %}
+                                                        <tr>
+                                                            <th>{{ forloop.counter }}</th>
+                                                            {% for m in line %}
+                                                                {% if forloop.parentloop.counter == forloop.counter %}
+                                                                    <td class="bg-gray"></td>
+                                                                {% else %}
+                                                                    <td {% if m|length > 1 %}class="bg-danger"{% endif %}>{{ m|join:', ' }}</td>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div><!-- /.info-box-content -->
+                                    </div><!-- /.info-box -->
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h4 class="box-title">{{ big_room_cap }} Team Fights</h4>
+                                        </div>
+                                        <div class="box-body no-padding">
+                                            <table  class="table">
+                                                <col style="width:{{ meet_ratio }}%">
+                                                {% for i in meet.0 %}
+                                                    <col style="width:{{ meet_ratio }}%">
+                                                {% endfor %}
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Team</th>
+                                                        {% for t in meet.0 %}
+                                                            <th>{{ forloop.counter }}</th>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    {% for line in team_rooms %}
+                                                        <tr {% if forloop.counter <= equal_room %}class="bg-success"{% endif %}>
+                                                            <th></th>
+                                                            {% for m in line %}
+                                                                <td>{{ m|default:"" }}</td>
+                                                            {% endfor %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div><!-- /.info-box-content -->
+                                    </div><!-- /.info-box -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% for round in schedule.rounds.all %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ round.order }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for fight in round.fights.all %}
+                                    <div class="col-md-2">
+                                        <div class="box box-info">
+                                            <!-- Apply any bg-* class to to the icon to color it -->
+                                            <div class="box-header with-border">
+                                                <h4 class="box-title">Room {{ fight.room }}</h4>
+                                            </div>
+                                            <div class="box-body no-padding">
+                                                <table  class="table table-striped">
+                                                    <tbody>
+                                                        {% for teamatt in fight.templateattendance_set.all %}
+                                                            <tr>
+                                                                <td>{{ teamatt.get_type_display }}</td><td>{{ teamatt.team }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- /.info-box-content -->
+                                        </div><!-- /.info-box -->
+                                    </div>
+                                    {% if forloop.counter|divisibleby:6  %}
+                                        </div>
+                                        <div class="row">
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}

@@ -1,0 +1,217 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Applications{% endblock %}
+
+    {% block page_content %}
+        {% for trn in tournaments %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary {% if not trn.active %}collapsed-box{% endif %}">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Overview of the application process for {{ trn.name }} {% if trn.active %}<span class="label label-primary">active</span>{% endif %}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa {% if trn.active %}fa-minus{% else %}fa-plus{% endif %}"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            {% if trn.logo %}
+                            <img src="{% url "registration:tournament_logo" trn.slug %}" />
+                            {% endif %}
+                            <p>In this section, you can register for {{ trn.name }}. Below you get suggested next actions, according to your progress. For a detailed overview of the registration process, expand the <i>detailed process</i> box.</p>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {% if trn.possible_juror %}
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Possible Juror</h3>
+                                            </div>
+                                        <div class="box-body">
+                                            <p>You are approved as possible Juror. This is only a precondition to be a member of the jury at the tournament.</p>
+                                            <p>If not done, you have to apply for a function to actually attend the tournament. This is most probably team leader juror or experienced juror</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if trn.proles|length > 0 %}
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Participation Roles</h3>
+                                            </div>
+                                        <div class="box-body">
+
+                                            <p>You participate with the roles:</p>
+                                            {% for r in trn.proles %}
+                                                <span class="label label-info">{{ r }}</span>
+                                            {% endfor %}
+
+
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    <div class="box box-primary">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Next available Actions</h3>
+                                            </div>
+                                        <div class="box-body">
+                                            <p>choose the one, matching your role</p>
+
+                                            <p>
+                                            {% include "registration/inc/next_action.html" with tournament=trn available_actions=trn.available_actions %}
+                                            </p>
+                                            {% if trn.wait_actions|length > 0 %}
+                                                <p> Waiting for </p>
+                                                {% include "registration/inc/wait_action.html" with tournament=trn wait_actions=trn.wait_actions %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="box box-primary {% if not trn.active %}collapsed-box{% endif %}">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Detailed Process</h3>
+                                            <div class="box-tools pull-right">
+                                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa {% if trn.active %}fa-minus{% else %}fa-plus{% endif %}"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+
+                                            <p><span class="label label-success">green</span> actions are completed, <span class="label label-warning">orange</span> actions are available (choose the one, matching your role), <span class="label label-primary">blue</span> actions are pending someone's approval and <span class="label label-danger">red</span> actions are not (yet) available.</p>
+                            <p>Actions with rounded corners require someone else to confirm your application and text on an arrow is a precondition to proceed on this route.</p>
+                            <p>The dashed password arrows require to distribute the secret team join password offline to the persons who should be able to apply.</p>
+
+
+                            <style>
+                                {% for aa in trn.disabled_actions %}#{{ trn.slug }}{{ aa }} rect{% if not forloop.last %}, {% endif %}{% endfor %} {
+                                    stroke: rgb(221, 75, 57);
+                                    stroke-width: 3px;
+                                }
+                                {% for aa in trn.available_actions %}#{{ trn.slug }}{{ aa }} rect{% if not forloop.last %}, {% endif %}{% endfor %} {
+                                    stroke: rgb(243, 156, 18);
+                                    stroke-width: 3px;
+                                }
+                                {% for aa in trn.wait_actions %}#{{ trn.slug }}{{ aa }} rect{% if not forloop.last %}, {% endif %}{% endfor %} {
+                                    stroke: rgb(60, 141, 188);
+                                    stroke-width: 3px;
+                                }
+                                {% for aa in trn.finished_actions %}#{{ trn.slug }}{{ aa }} rect{% if not forloop.last %}, {% endif %}{% endfor %} {
+                                    stroke: rgb(0, 166, 90);
+                                    stroke-width: 3px;
+                                }
+                            </style>
+                            {% include "registration/registration_graph.svg" with tournament=trn %}
+                            {# https://mermaidjs.github.io/mermaid-live-editor/#/edit/Z3JhcGggTFIKYWNjb3VudCAtLT4gbmFtZVtzZXQgbmFtZV0gCiBuYW1lIC0tPiBwcm9maWxlW2NvbXBsZXRlIDxici8-cHJvZmlsZV0KCnByb2ZpbGUgLS0gaWYgYWxyZWFkeSA8YnIvPiBhcHByb3ZlZCBhcyBqdW9yIC0tPiBhcHBseV9leHBlcmllbmNlZGp1cm9yCgpwcm9maWxlIC0tPiBhcHBseV9wb3NzaWJsZWp1cm9yW2FwcGx5IGFzIDxici8-IHBvc3NpYmxlIGp1cm9yXQphcHBseV9wb3NzaWJsZWp1cm9yIC0tPiB3YWl0X3Bvc3NpYmxlanVyb3Iod2FpdCBmb3IgPGJyLz4gYXBwcm92YWwgYnk8YnIvPiAgb3JnYW5pc2VycykKd2FpdF9wb3NzaWJsZWp1cm9yIC0tPiBhcHBseV90ZWFtbGVhZGVyanVyb3JbYXBwbHkgdG8gdGVhbSBhczxici8-IHRlYW0gbGVhZGVyIGp1cnVyXQp3YWl0X3Bvc3NpYmxlanVyb3IgLS0-IGFwcGx5X2V4cGVyaWVuY2VkanVyb3JbYXBwbHkgYXMgPGJyLz4gZXhwZXJpZW5jZWQganVyb3JdCmFwcGx5X2V4cGVyaWVuY2VkanVyb3IgLS0-IHdhaXRfZXhwZXJpZW5jZWRqdXJvcih3YWl0IGZvciA8YnIvPmFwcHJvdmFsIGJ5IDxici8-ICBvcmdhbmlzZXJzKQp3YWl0X2V4cGVyaWVuY2VkanVyb3IgLS0-IGRhdGEKd2FpdF9leHBlcmllbmNlZGp1cm9yIC0tPiBhc3NvY2lhdGVfZXhwZXJpZW5jZWRqdXJvclthc3NvY2lhdGU8YnIvPiB0byB0ZWFtXQphc3NvY2lhdGVfZXhwZXJpZW5jZWRqdXJvciAtLT4gd2FpdF9hY2NlcHRfZXhwZXJpZW5jZWRqdXJvcih3YWl0IGZvcjxici8-IGFwcHJvdmFsIGJ5IDxici8-dGVhbSBtYW5hZ2VyKQp3YWl0X2FjY2VwdF9leHBlcmllbmNlZGp1cm9yIC0tPiBkYXRhCnNldHB3IC0uIHBhc3N3b3JkIC4tPiBhc3NvY2lhdGVfZXhwZXJpZW5jZWRqdXJvcgphcHBseV90ZWFtbGVhZGVyanVyb3IgLS0-IHdhaXRfYWNjZXB0X3RlYW1sZWFkZXJqdXJvcih3YWl0IGZvciA8YnIvPiBhcHByb3ZhbCBieTxici8-ICB0ZWFtIG1hbmdlcikKd2FpdF9hY2NlcHRfdGVhbWxlYWRlcmp1cm9yIC0tPiBkYXRhCgpwcm9maWxlIC0tIGlmIGFwcHJvdmVkPGJyLz4gYXMgSU9DIC0tPiBzZXRwdwpwcm9maWxlICAtLT4gYXBwbHlfaW9jW2FwcGx5IGFzIDxici8-SU9DIGZvciBvcmlnaW5dCmFwcGx5X2lvYyAtLT4gd2FpdF9pb2Mod2FpdCBmb3IgPGJyLz5hcHByb3ZhbCBieTxici8-b3JnYW5pc2VycykKd2FpdF9pb2MgLS0-IHNldHB3CnByb2ZpbGUgLS0-IGFwcGx5X21hbmFnZXJbYXBwbHkgYXM8YnIvPnRlYW0gbWFuYWdlcl0KYXBwbHlfbWFuYWdlciAtLT4gd2FpdF9tYW5hZ2VyKHdhaXQgZm9yIDxici8-IGFwcHJvdmFsIGJ5PGJyLz4gIG9yZ2FuaXNlcnMpCndhaXRfbWFuYWdlciAtLT4gc2V0cHdbc2V0IHRlYW0gPGJyLz5wYXNzd29yZF0KCgpzZXRwdyAtLiBwYXNzd29yZCAuLT4gYXNzb2NpYXRlX3JvbGUKc2V0cHcgLS4gcGFzc3dvcmQgLi0-IGFwcGx5X3RlYW1sZWFkZXJqdXJvcgoKd2FpdF92aXNpdG9yIC0tPiBkYXRhW2ZpbGwgPGJyLz5wYXJ0aWNpcGF0aW9uIDxici8-IGRhdGFdCnNldHB3IC0tPiBkYXRhCndhaXRfdGVhbW1lbWJlciAtLT4gZGF0YQp3YWl0X3JvbGUgLS0-IGRhdGEKCmRhdGEgLS0-IHBhcnRpY2lwYXRlCgoKc2V0cHcgLS4gcGFzc3dvcmQgLi0-IGFwcGx5X3RlYW1tZW1iZXIKCnByb2ZpbGUgLS0-IGFwcGx5X3RlYW1tZW1iZXJbYXBwbHkgYXMgPGJyLz4gdGVhbSBtZW1iZXJdCmFwcGx5X3RlYW1tZW1iZXIgLS0-IHdhaXRfdGVhbW1lbWJlcih3YWl0IGZvciA8YnIvPmFwcHJvdmFsIGJ5IDxici8-ICB0ZWFtIG1hbmFnZXIpCgp3YWl0X3JvbGUgLS0-IGFzc29jaWF0ZV9yb2xlW2Fzc29jaWF0ZSA8YnIvPiB0byB0ZWFtXQphc3NvY2lhdGVfcm9sZSAtLT4gd2FpdF9hY2NlcHRfcm9sZSh3YWl0IGZvciA8YnIvPmFwcHJvdmFsIGJ5IDxici8-ICB0ZWFtIG1hbmFnZXIpCndhaXRfYWNjZXB0X3JvbGUgLS0-IGRhdGEKCnNldHB3IC0uIHBhc3N3b3JkIC4tPiBhcHBseV90ZWFtbGVhZGVyCnByb2ZpbGUgLS0-IGFwcGx5X3RlYW1sZWFkZXJbYXBwbHkgYXMgPGJyLz4gdGVhbSBsZWFkZXJdCmFwcGx5X3RlYW1sZWFkZXIgLS0-IHdhaXRfdGVhbWxlYWRlcih3YWl0IGZvciA8YnIvPmFwcHJvdmFsIGJ5IDxici8-ICB0ZWFtIG1hbmFnZXIpCndhaXRfdGVhbWxlYWRlciAtLT4gZGF0YQoKCnByb2ZpbGUgLS0-IGFzc29jaWF0ZV92aXNpdG9yW2FwcGx5IHRvIHRlYW0gPGJyLz4gYXMgdmlzaXRvcl0Kc2V0cHcgLS4gcGFzc3dvcmQgLi0-IGFzc29jaWF0ZV92aXNpdG9yCmFzc29jaWF0ZV92aXNpdG9yIC0tPiB3YWl0X3Zpc2l0b3Iod2FpdCBmb3IgPGJyLz4gYXBwcm92YWwgYnkgPGJyLz4gIHRlYW0gbWFuYWdlcikKCnByb2ZpbGUgLS0-IGFwcGx5X3JvbGVbYXBwbHkgd2l0aCA8YnIvPnJvbGU6IExPQywgRUMsPGJyLz4gaW5kZXBlbmRlbnQgdmlzaXRvciwgLi4uXQphcHBseV9yb2xlIC0tPiB3YWl0X3JvbGUod2FpdCBmb3IgPGJyLz5hcHByb3ZhbCBieTxici8-ICBvcmdhbmlzZXJzKQoKcHJvZmlsZSAtLT4gYXBwbHlfbG9jW2FwcGx5IGFzIGxvY2FsIG9yZ2E6PGJyLz4gdGltZSBrZWVwZXIsIGd1aWRlXQphcHBseV9sb2MgLS0-IHdhaXRfbG9jKHdhaXQgZm9yIGFwcHJvdmFsPGJyLz4gYnkgIExPQykKd2FpdF9sb2MgLS0-IGRhdGEKCg #}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {% if tournaments|length == 0 or upcomming|length > 0 %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Apply</h3>
+                    </div>
+                    {% if tournaments|length > 0 %}
+                    {% else %}
+                        <div class="box-body">
+                            Currently no Tournaments open for registration.
+                        </div>
+                    {% endif %}
+                    {% if upcomming|length > 0 %}
+                        <div class="box-footer no-padding">
+                            <table class="table table-striped">
+                                <tr>
+                                    <th>Upcomming Tournaments</th>
+                                    <th>Registration opens</th>
+                                </tr>
+                                {% for t in upcomming %}
+                                    <tr>
+                                        <td>{{ t }}</td>
+                                        <td>{{ t.registration_open|date:"c" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if object_list|length > 0 %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Pending Applications</h3>
+                        </div>
+                        <div class="box-body no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Tournament</th>
+                                        <th>Role</th>
+                                        <th>Team</th>
+                                        <th></th>
+                                    </tr>
+                                    {% for appl in object_list %}
+                                        <tr>
+                                            <td>
+                                                {{ appl.tournament }}
+                                            </td>
+                                            <td>
+                                                {{ appl.participation_role }}
+                                            </td>
+                                            <td>
+                                                {% if appl.origin %}
+                                                    {{ appl.origin }}
+                                                {% elif appl.team %}
+                                                    {{ appl.team.origin }}
+                                                {% endif %}
+                                            </td>
+                                            <td><a href="{% url "registration:withdraw_application" appl.id %}" class="btn btn-danger">withdraw</a></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if jurors|length > 0 %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Pending Juror Applications</h3>
+                        </div>
+                        <div class="box-body no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Tournament</th>
+                                    </tr>
+                                    {% for att in jurors %}
+                                        <tr>
+                                            <td>
+                                                {{ att.tournament }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endblock %}

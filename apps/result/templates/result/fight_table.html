@@ -1,0 +1,74 @@
+<table class="table table-striped">
+    {% if fight.info|length == 4 %}
+        {% for i in "xxxxxxxxxxxxx" %}
+            <col style="width:7.7%">
+        {% endfor %}
+    {% else %}
+        {% for i in "xxxxxxxxxx" %}
+            <col style="width:10%">
+        {% endfor %}
+    {% endif %}
+    <tbody>
+        <tr>
+            <th></th>
+            {% for stage in fight.info %}
+                <th colspan="3">Stage {{ forloop.counter }}
+                {% for rej in stage.rejections %}
+                    <span class="badge bg-red">{{ rej }}</span>
+                {% endfor %}<span class="badge bg-green">{{ stage.presented }}</span>
+                </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th></th>
+            {% for stage in fight.info %}
+                <th>{{ stage.teams.rep }}</th>
+                <th>{{ stage.teams.opp }}</th>
+                <th>{{ stage.teams.rev }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td></td>
+            {% for stage in fight.info %}
+                <td>{{ stage.persons.rep }}</td>
+                <td>{{ stage.persons.opp }}</td>
+                <td>{{ stage.persons.rev }}</td>
+            {% endfor %}
+        </tr>
+        {% for juror in fight.grades %}
+            <tr>
+                <td>{{ juror.first_name.0 }}. {{ juror.last_name }}</td>
+                {% for stage in juror.grades %}
+                    <td>{{ stage.rep|floatformat:"0" }}</td>
+                    <td>{{ stage.opp|floatformat:"0" }}</td>
+                    <td {% if not forloop.last %}style="border-right: 2px solid #f4f4f4;"{% endif %}>{{ stage.rev|floatformat:"0" }}</td>
+                {%  endfor %}
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>Average:</td>
+            {% for stage in fight.info %}
+                <td>{{ stage.average.rep|floatformat:2 }}</td>
+                <td>{{ stage.average.opp|floatformat:2 }}</td>
+                <td>{{ stage.average.rev|floatformat:2 }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Factor:</td>
+            {% for stage in fight.info %}
+                <td>{{ stage.factors.rep|floatformat:1 }}</td>
+                <td>{{ stage.factors.opp|floatformat:1 }}</td>
+                <td>{{ stage.factors.rev|floatformat:1 }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Points:</th>
+            {% for stage in fight.info %}
+                <th>{{ stage.w_average.rep|floatformat:2 }}</th>
+                <th>{{ stage.w_average.opp|floatformat:2 }}</th>
+                <th>{{ stage.w_average.rev|floatformat:2 }}</th>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+

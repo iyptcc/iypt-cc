@@ -1,0 +1,78 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n flags %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Placeholder Teams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Team List
+                            <button class="btn btn-info" onclick="javascript:openBeamer();">display beamer</button>
+                        </h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th></th>
+                                    <th>Team</th>
+                                    <th>Display</th>
+                                    <td>Assign</td>
+                                </tr>
+                                {% for team in teams %}
+                                <tr>
+                                    <td>{{ team.origin|flag_image }}</td>
+                                    <td>{{ team.origin.name }}</td>
+                                    <td><button class="btn btn-primary" onclick='beamerwindow.setOrigin("{% if team.origin.short %}{{ team.origin.short }}{% else %}{{ team.origin.name }}{% endif %}", "{{ team.origin|flag_url }}")'>display</button></td>
+                                    <td>
+                                        {% comment %}<select>
+                                            <option>---</option>
+                                            {% for phteam in phteams %}
+                                                <option {% if phteam == team.teamplaceholder %}selected="selected"{% endif %}>{{ phteam.name|slice:"5:" }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% endcomment %}
+                                        <input type="text" value="{{ team.teamplaceholder.name|slice:"5:" }}" />
+                                        <button class="btn btn-primary" onclick="setNumber(this,{{ team.pk }})">set</button>
+                                        <i id="checkmark-{{ team.pk }}" class="fa"></i>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
+
+{% block javascripts_inline %}
+    <script language="JavaScript">
+        var beamerwindow = null
+        function openBeamer() {
+            beamerwindow = window.open("{% url "plan:phbeamer" %}", "beamerwindow" ) ; //"_blank"); //, "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+        }
+        function setNumber(obj,teamid) {
+            console.log(obj);
+            sel=$(obj).siblings("input")[0];
+            $.post("/plan/placeholder/teams/draw/"+teamid+"/for/"+sel.value,{csrfmiddlewaretoken: '{{ csrf_token }}'}).done(function (data) {
+                console.log(data)
+                $('#checkmark-'+data['assigned']).addClass('fa-check');
+            });
+            console.log(sel);
+            beamerwindow.setNumber(sel.value)
+        }
+    </script>
+{% endblock %}

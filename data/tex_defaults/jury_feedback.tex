@@ -1,0 +1,48 @@
+(% block header %)
+\setlength{\parindent}{0em}
+\setlength{\parskip}{.5em}
+\usepackage{booktabs}
+\usepackage{tabularx}
+(% endblock %)
+
+(% block content %)
+
+	(% for team in teams -%)
+		\section*{Jury Feedback Form for PF(( round )), room (( room ))}
+
+		Team: (( team ))
+
+		Captain's signature:
+
+		\vskip 5mm
+		Feedback for the chair (( chair.firstname )) (( chair.lastname )) (tick as appropriate):
+
+		\begin{tabularx}{\textwidth}{L{90mm}cccc} \toprule
+        		                  & excellent & good & average & poor \\ \midrule
+		Time management           & $\square$ & $\square$ & $\square$ & $\square$\\
+		Jury question management  & $\square$ & $\square$ & $\square$ & $\square$\\
+		Overall performance       & $\square$ & $\square$ & $\square$ & $\square$\\ \midrule
+		\multicolumn{5}{l}{ Comments:\newline \vspace{2cm} } \\ \bottomrule
+		\end{tabularx}
+
+		\vskip 5mm
+		Feedback for the jury (tick as appropriate):
+
+		\begin{tabularx}{\textwidth}{L{35mm}ccccC{54mm}} \toprule
+ 		Juror name & excellent & good & average & poor & comments \\
+        \midrule (( chair.firstname )) (( chair.lastname ))& $\square$ & $\square$ & $\square$ & $\square$ & \vspace{15mm} \\
+		(% for juror in jurors -%)
+			\midrule (( juror.fistname )) (( juror.lastname ))& $\square$ & $\square$ & $\square$ & $\square$ & \vspace{15mm} \\
+		(% endfor %)
+		\bottomrule
+		\end{tabularx}
+
+		This form is filled in on a voluntary basis by teams for each round and submitted to the IYPT office. Information will
+		be used to provide statistical information about the perception of the appearance of individual jurors and chairs and
+		for giving them anonymized feedback.
+
+        By submitting this form you help us to make the juries better.
+        \newpage
+	(% endfor %)
+
+(% endblock %)

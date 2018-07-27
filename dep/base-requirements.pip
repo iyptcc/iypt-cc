@@ -1,0 +1,33 @@
+Django>=2.0.1,<2.0.99
+django-bootstrap3
+django_extensions
+django_select2
+django-debug-toolbar
+#-e git+https://github.com/felix-engelmann/django-formtools#egg=django_formtools
+#django-formtools
+# @e5b85d634259ed020b08cb53a918cde1d2da4ce7
+unidecode
+PyYAML
+celery
+python-memcached
+django-celery-results
+coverage
+django-downloadview
+jinja2
+Pillow
+django-codemirror2
+django-ordered-model
+django-registration
+django-bootstrap3-datetimepicker-2
+pipdeptree
+psutil
+markdown
+django-dbbackup
+django-tellme
+django_countries
+urllib3
+requests<=2.15
+docker
+channels_redis
+channels
+django-hijack

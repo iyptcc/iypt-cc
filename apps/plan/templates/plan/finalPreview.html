@@ -1,0 +1,55 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Create Final{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Preview</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            {% for stage in stages %}
+                            <div class="col-md-3">
+                                <div class="box box-info">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Stage {{ forloop.counter }}</h3>
+                                    </div>
+                                    <div class="box-body">
+                                        {% for team in stage %}
+                                            <p>
+                                                {{ team.1 }}: {{ team.0.team }}
+                                            </p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Create</h3>
+                    </div>
+                    <div class="box-body">
+                        <form action="" method="post">{% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            <p>
+                                <input class="btn btn-success" type="submit" value="{% trans 'Create' %}">
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endblock %}

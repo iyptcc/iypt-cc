@@ -1,0 +1,70 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Tournament{% endblock %}
+
+    {% block page_content %}
+        <form method="post">
+        {% for round in form.rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for f in round %}
+                                    <div class="col-md-3">
+                                        <div class="box {% if f.1.errors or f.0.errors %}box-danger{% else %}box-info{% endif %}">
+                                            <div class="box-header with-border">
+                                                <h3 class="box-title"> {{ f.0.label }} {{ f.0 }}</h3>
+                                            </div>
+                                            <div class="box-body">
+                                                {{ f.1.errors }}
+                                                {{ f.1 }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box {% if form.errors %}box-danger{% else %}box-success{% endif %}">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Save</h3>
+                    </div>
+                    <div class="box-body">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <h4>Please correct the following error</h4>
+                            {{ form.non_field_errors }}
+                        {% endif %}
+                        {% buttons %}
+                            <input class="btn btn-success" type="submit" value="Save">
+                        {% endbuttons %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        </form>
+    {% endblock %}
+
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

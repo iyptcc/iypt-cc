@@ -1,0 +1,126 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Fight Publishing{% endblock %}
+
+    {% block page_content %}
+        <form action="" method="post">
+        {% for round in form.rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}
+                                <span class="label label-default">ranking {{ round.0.rank_check }}</span>
+                                <span class="label label-default">schedule {{ round.0.sched_check }}</span>
+                            </h3>
+                            <div class="box-tools pull-right">
+                                <a href="{% url "fight:genpdfrank" forloop.counter %}" class="btn btn-sm btn-success"><i class="fa fa-cog"></i></a>
+                                {% if round.0.pdf_rank %}
+                                    <a href="{% url "fight:pdfrank" forloop.counter %}" class="btn-sm btn-info"><i class="fa fa-file-pdf-o"></i></a>
+                                {% endif %}
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body no-padding">
+                            <table class="table table-striped">
+                                <col style="width:6%">
+                                {% for fight in round %}
+                                    <col style="width:6%">
+                                {% endfor %}
+                                <tbody>
+                                    <tr>
+                                        <th></th>
+                                        {% for fight in round %}
+                                            <th>
+                                                {{ fight.grade_check.label }}
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <th>valid</th>
+                                        {% for fight in round %}
+                                            <td>
+                                                {% if fight.valid %}
+                                                    <i class="fa fa-check text-success"></i>
+                                                {% else %}
+                                                    <i class="fa fa-close text-danger"></i>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <th>preview</th>
+                                        {% for fight in round %}
+                                            <td>
+                                                {{ fight.preview_check }}
+                                                <a href="{% url "fight:genpdfpreview" fight.fight_id %}" class="btn btn-sm btn-success"><i class="fa fa-cog"></i></a>
+                                                {% if fight.pdf_preview %}
+                                                    <a href="{% url "fight:pdfpreview" fight.fight_id %}" class="btn-sm btn-info"><i class="fa fa-file-pdf-o"></i></a>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <th>grades</th>
+                                        {% for fight in round %}
+                                            <td>
+                                                {{ fight.grade_check }}
+                                                <a href="{% url "fight:genpdfresult" fight.fight_id %}" class="btn btn-sm btn-success"><i class="fa fa-cog"></i></a>
+                                                {% if fight.pdf_result %}
+                                                    <a href="{% url "fight:pdfresult" fight.fight_id %}" class="btn-sm btn-info"><i class="fa fa-file-pdf-o"></i></a>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <th>partial grades</th>
+                                        {% for fight in round %}
+                                            <td>
+                                                <div style="width: 100px;">
+                                                {{ fight.partial_file }}
+                                                </div>
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Save
+                            </h3>
+                        </div>
+                        <div class="box-body">
+                            {% if form.errors %}
+                                <h4>Please correct the following errors</h4>
+                                {{ form.non_field_errors }}
+                            {% endif %}
+                            {% csrf_token %}
+                            {% bootstrap_field form.protection %}
+                            {% bootstrap_field form.password %}
+                            <input type="submit" class="btn btn-success" value="Publish"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endblock %}
+
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

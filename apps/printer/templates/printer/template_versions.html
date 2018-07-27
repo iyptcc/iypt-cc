@@ -1,0 +1,52 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+{% block styles_inline %}
+    <style>
+        pre {
+            max-height:300px;
+            max-width: 100%;
+        }
+    </style>
+{% endblock %}
+
+    {% block page_title %}Templates{% endblock %}
+
+    {% block page_content %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Template Versions</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Author</th>
+                                    <th>Source</th>
+                                    <th></th>
+                                </tr>
+                                {% for tmp in object_list %}
+                                    <tr>
+                                        <td>{{ tmp.creation }}</td>
+                                        <td>
+                                            {{ tmp.author }}
+                                        </td>
+                                        <td>
+                                            <pre>
+{{ tmp.src }}
+                                            </pre>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

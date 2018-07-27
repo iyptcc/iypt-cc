@@ -1,0 +1,59 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n dashboard %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Possible Jurors{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Email link ({{ persons|length }}) <input class="btn btn-success" type="submit" value="{% trans 'Back' %}">
+                                    </h3>
+                                    {% for field in form %}
+                                        {{ field.as_hidden }}
+                                    {% endfor %}
+                                    {% csrf_token %}
+                                    <input type="hidden" name="{{ stage_field }}" value="2" />
+                                    <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                                    <input type="hidden" name="action" value="{{ action }}" />
+                                </div>
+                                <div class="box-body">
+                                    <a href="mailto:?bcc={% for p in persons %}{{ p.email }}{% if not forloop.last %},{% endif %}{% endfor %}">{% for p in persons %}{{ p.email }}{% if not forloop.last %}, {% endif %}{% endfor %}</a>
+                                </div>
+                                <div class="box-body no-padding table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                            </tr>
+                                            {% for person in persons %}
+                                            <tr>
+                                                <td>{{ person.obj.person.user.first_name }} {{ person.obj.person.user.last_name }}</td>
+                                                <td>{{ person.obj.person.user.email }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

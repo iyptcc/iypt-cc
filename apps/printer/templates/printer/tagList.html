@@ -1,0 +1,42 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Tags{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Tag List <a href="{% url "printer:create_tag" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Color</th>
+                                    <th>Type</th>
+                                    <th></th>
+                                </tr>
+                                {% for tag in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ tag.name }}
+                                    </td>
+                                    <td>{{ tag.color}}</td>
+                                    <td>{{ tag.type }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "printer:change_tag" tag.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "printer:delete_tag" tag.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

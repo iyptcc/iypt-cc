@@ -1,0 +1,31 @@
+{% for p in s.free %}
+    <span class="badge bg-green">{{ p }}</span>
+{% endfor %}
+<ul>
+    <li>rejected by Reporter:
+        {% for p in s.a %}
+            <span class="badge bg-red">{{ p }}</span>
+        {% endfor %}
+    </li>
+    <li>presented by Reporter:
+        {% for p in s.b %}
+            <span class="badge bg-red">{{ p }}</span>
+        {% endfor %}
+    </li>
+    <li>opposed by Opponent:
+        {% for p in s.c %}
+            <span class="badge bg-red">{{ p }}</span>
+        {% endfor %}
+    </li>
+    <li>presented by Opponent:
+        {% for p in s.d %}
+            <span class="badge bg-red">{{ p }}</span>
+        {% endfor %}
+    </li>
+</ul>
+lifted bans:
+<ul>
+    {% for b in s.lifted %}
+        <li>{{ b }}</li>
+    {% endfor %}
+</ul>

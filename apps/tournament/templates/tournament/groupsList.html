@@ -1,0 +1,48 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Groups{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Group List <a href="{% url "tournament:create_pgroup" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Permissions</th>
+                                    <th></th>
+                                </tr>
+                                {% for group in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ group.0.name }}
+                                        {%  if group.0.tournament_set.count > 1 %}
+                                            <span class="label label-info">shared</span>
+                                        {% endif %}
+                                    </td>
+                                    <td> {{ group.0.permissions.all|join:"<br>" }}</td>
+                                    <td>
+                                        {% if not group.1 or group.0.tournament_set.count > 1 %}
+                                            <a class="btn btn-primary disabled" href="">edit</a>
+                                            <a class="btn btn-danger disabled" href="">delete</a>
+                                        {% else %}
+                                            <a class="btn btn-primary" href="{% url "tournament:change_pgroup" group.0.id %}">edit</a>
+                                            <a class="btn btn-danger" href="">delete</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

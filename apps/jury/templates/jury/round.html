@@ -1,0 +1,209 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+{% load flags %}
+
+{% block styles_inline %}
+    <style>
+        .fight-jury {
+            padding: 0;
+            min-height: 10px;
+            list-style-type: none;
+        }
+    </style>
+    <style>
+        .flag-container-72 {
+            height:13px;
+            overflow: hidden;
+            display: inline;
+        }
+        .flag-image-72 {
+            height: 18px;
+            margin-top: -2px;
+        }
+    </style>
+{% endblock %}
+
+    {% block page_title %}Tournament{% endblock %}
+
+    {% block page_content %}
+        <form id="target" action="" method="post">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ round.order }}
+                                <span class="label label-primary">possible chairs</span>
+                                <span class="label label-info">experienced</span>
+                                <span class="label label-warning">inexperienced</span>
+                                <span class="label label-default">local <i class="fa fa-bullseye text-success"></i></span>
+                                <span class="label label-default">teamleaders <i class="fa fa-group text-danger"></i></span>
+                            </h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for fight in round.fight_set.all %}
+                                    <div class="col-md-4">
+                                        <div class="box box-info fight-box" data-fight="{{ fight.id }}">
+                                            <!-- Apply any bg-* class to to the icon to color it -->
+                                            <div class="box-header with-border">
+                                                <h4 class="box-title">
+                                                    Room {{ fight.room.name }}
+                                                    {% for teamatt in fight.stage_set.all.0.stageattendance_set.all %}
+                                                        {{ teamatt.team.origin|flag_image }}
+                                                    {% endfor %}
+                                                </h4>
+                                                <div class="box-tools pull-right">
+                                                    <a class="btn btn-box-tool" href="{% url 'jury:fight' fight.id %}"><i class="fa fa-edit"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="box-body">
+                                                <ul class="fight-jury fight-chair">
+                                                {% for juroratt in fight.jurorsession_set.all %}
+                                                    {% if juroratt.role.type == '0ch' %}
+                                                        {% include "jury/inc/juror_label.html" with juror=juroratt.juror %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                            <div class="box-footer">
+                                                <ul class="fight-jury fight-jurors">
+                                                {% for juroratt in fight.jurorsession_set.all %}
+                                                    {% if juroratt.role.type == '1ju' %}
+                                                        {% include "jury/inc/juror_label.html" with juror=juroratt.juror %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                            <div class="box-footer">
+                                                <ul class="fight-jury fight-nonvoting">
+                                                {% for juroratt in fight.jurorsession_set.all %}
+                                                    {% if juroratt.role.type == '2nv' %}
+                                                        {% include "jury/inc/juror_label.html" with juror=juroratt.juror %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div><!-- /.info-box -->
+                                    </div>
+                                    {% if forloop.counter|divisibleby:3  %}
+                                        </div>
+                                        <div class="row">
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Action</h3>
+                        </div>
+                        <div class="box-body">
+                            {{ form.errors }}
+                            <input class="btn btn-success" type="submit" value="save" />
+                            {% csrf_token %}
+                            <div id="hidden_form"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Free Jurors</h3>
+                        </div>
+                        <div class="box-body">
+                            <ul class="fight-jury fight-free">
+                                {% for juror in free_jurors %}
+                                    {% include "jury/inc/juror_label.html" with juror=juror %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endblock %}
+
+
+{% block javascripts_inline %}
+    <script>
+        $(function() {
+            $( ".fight-jury" ).sortable({
+                connectWith: ".fight-jury",
+                receive: function(event, ui) {
+                    var $this = $(this);
+                    if ($this.children('li').length > 1 && $this.hasClass('fight-chair')) {
+                        $(ui.sender).sortable('cancel');
+                    }
+                    else {
+                        $this.children('li').sort(sort_li)
+                            .appendTo($this); // append again to the list
+                        // sort function callback
+                        indicator = $(ui.item).find('.ro-ind-{{ round.order }}');
+                        console.log(indicator)
+                        indicator.removeClass();
+                        indicator.addClass('ro-ind-{{ round.order }} fa');
+                        if($this.hasClass('fight-chair')){
+                            indicator.addClass('fa-dot-circle-o');
+                        }
+                        else if($this.hasClass('fight-jurors')){
+                            indicator.addClass('fa-circle');
+                        }
+                        else if($this.hasClass('fight-nonvoting')){
+                            indicator.addClass('fa-eye');
+                        }
+                        else if($this.hasClass('fight-free')){
+                            indicator.addClass('fa-circle-o');
+                        }
+
+                        function sort_li(a, b) {
+                            return ($(b).data('name')) < ($(a).data('name')) ? 1 : -1;
+                        }
+                    }
+                }
+            });
+            $( "#target" ).submit(function( event ) {
+
+                $(".fight-box").each(function (idx) {
+                    var $this = $(this);
+
+                    console.log("fight:")
+                    console.log($this.data('fight'))
+                    var fight = $this.data('fight')
+
+                    var $chair = $this.find(".fight-chair")
+                    var cid=$chair.children("li").first().data('juror')
+                    if(cid){
+                        console.log("chair:")
+                        console.log(cid)
+                        $("#hidden_form").append('<input name="fight_'+fight+'_chair" value="'+cid+'" type="hidden">')
+                    }
+                    var $jurors = $this.find(".fight-jurors")
+
+                    $jurors.children("li").each(function (idx) {
+                        var juror = $(this).data('juror')
+                        if(juror){
+                            console.log("jurors:")
+                            console.log(idx+": "+juror)
+                            $("#hidden_form").append('<input name="fight_'+fight+'_juror" value="'+juror+'" type="hidden">')
+                        }
+                    })
+
+                    var $nonvoting = $this.find(".fight-nonvoting")
+
+                    $nonvoting.children("li").each(function (idx) {
+                        var juror = $(this).data('juror')
+                        if(juror){
+                            console.log("jurors:")
+                            console.log(idx+": "+juror)
+                            $("#hidden_form").append('<input name="fight_'+fight+'_nonvoting" value="'+juror+'" type="hidden">')
+                        }
+                    })
+                });
+                //event.preventDefault();
+            });
+         });
+    </script>
+{% endblock %}

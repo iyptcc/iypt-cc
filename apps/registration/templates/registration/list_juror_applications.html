@@ -1,0 +1,41 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Applications{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Applications of Jurors</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th></th>
+                                </tr>
+                                {% for att in object_list %}
+                                    <tr>
+                                        <td>
+                                            {{ att.first_name }} {{ att.last_name }}
+                                        </td>
+                                        <td>
+                                            {% for r in att.roles.all %}<span class="label label-info">{{ r }}</span> {% endfor %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url "registration:accept_juror_application" att.id %}" class="btn btn-success">accept</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

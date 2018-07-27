@@ -1,0 +1,31 @@
+.idea
+
+*.py[cod]
+
+*.pyc
+
+*.sqlite3
+
+.directory
+
+/venv
+/env
+/env-d110
+/oldenv
+/scratch
+
+# coverage
+/htmlcov
+.coverage
+
+/static
+/media
+
+# utf confusing
+
+/categories.json
+/confusables.json
+
+bandit.html
+
+/ccmodels*

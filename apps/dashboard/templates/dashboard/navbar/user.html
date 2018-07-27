@@ -1,0 +1,30 @@
+{% load dashboard i18n %}
+
+<li class="dropdown user user-menu">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <img src="{% avatar_url user %}" class="user-image" alt="User Image">
+        <span class="hidden-xs">{% firstof user.get_short_name user.get_username %}</span>
+    </a>
+
+    <ul class="dropdown-menu">
+        <li class="user-header">
+            <img src="{% avatar_url user %}" class="img-circle" alt="User Image">
+            <p>
+                {% firstof user.get_full_name user.get_username %}
+                <small>{{ user.date_joined }}</small>
+            </p>
+        </li>
+        <li class="user-footer">
+            <div class="pull-left">
+                <a class="btn btn-default btn-flat" href="{% url 'dashboard:password' %}">
+                    {% trans 'Change password' %}
+                </a>
+            </div>
+            <div class="pull-right">
+                <a class="btn btn-default btn-flat" href="{% url 'dashboard:logout' %}">
+                    {% trans 'Log out' %}
+                </a>
+            </div>
+        </li>
+    </ul>
+</li>

@@ -1,0 +1,65 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Fight Validation{% endblock %}
+
+    {% block page_content %}
+        {% for round in rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}</h3>
+                            <a class="btn btn-info" href="{% url "fight:clocks" forloop.counter %}"><i class="fa fa-clock-o"></i></a>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body no-padding">
+                            <table class="table table-striped">
+                                <col style="width:6%">
+                                {% for fight in round %}
+                                    <col style="width:6%">
+                                {% endfor %}
+                                <tbody>
+                                    <tr>
+                                        <th></th>
+                                        {% for fight in round %}
+                                            <th>
+                                                {{ fight.name }}
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <th>locked</th>
+                                        {% for fight in round %}
+                                            <th>
+                                                {% if fight.locked %}
+                                                    <i class="fa fa-check text-success"></i>
+                                                {% else %}
+                                                    <i class="fa fa-close text-danger"></i>
+                                                {% endif %}
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <th>valid</th>
+                                        {% for fight in round %}
+                                            <th>
+                                                {% if fight.valid %}
+                                                    <i class="fa fa-check text-success"></i>
+                                                {% else %}
+                                                    <a href="{% url "fight:fightpre" fight.pk %}" class="btn btn-primary">chk</a>
+                                                {% endif %}
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}

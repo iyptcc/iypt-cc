@@ -1,0 +1,42 @@
+<div class="box box-primary">
+    <div class="box-header with-border">
+        <h3 class="box-title">Preview</h3>
+    </div>
+    <div class="box-body">
+        <p>
+        You apply with the following profile values to the tournament. They will be visible to the user accepting or declining the Application.
+        </p>
+        <div class="row">
+            {% for a in attrs %}
+                <div class="col-md-4">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ a.name }}</h3>
+                        </div>
+                        <div class="box-body">
+                            {% if a.set %}
+                                {% if a.type == "boolean" %}
+                                    {{ a.value|yesno:"Yes,No" }}
+                                {% elif a.type == "image" %}
+                                    <a href="{% url "registration:file_property" 'u' a.apv.user.id a.apv.id a.value.url %}">{{ a.value.url }}</a>
+                                {% elif a.type == "pdf" %}
+                                    <a href="{% url "registration:file_property" 'u' a.apv.user.id a.apv.id a.value.url %}">{{ a.value.url }}</a>
+                                {% elif a.value %}
+                                    {{ a.value }}
+                                {% else %}
+                                    <ul>
+                                        {% for v in a.list %}
+                                            <li>{{ v }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            {% else %}
+                                <i>no value</i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

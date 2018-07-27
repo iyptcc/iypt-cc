@@ -1,0 +1,5 @@
+-r requirements.pip
+bandit
+faker
+pycountry
+isort

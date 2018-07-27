@@ -1,0 +1,6 @@
+-r base-requirements.pip
+psycopg2
+redis
+gunicorn
+django-redis
+raven

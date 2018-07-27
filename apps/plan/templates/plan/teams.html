@@ -1,0 +1,46 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+{% load flags %}
+
+
+    {% block page_title %}Teams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                <form method="post" role="form">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Team List <input class="btn btn-danger" type="submit" name="_delete" value="delete selected"> <input class="btn btn-primary" type="submit" name="_competing" value="toggle competing"></h3>
+                        {% csrf_token %}
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th></th>
+                                    <th>Country</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Members</th>
+                                    <th>TeamLeader-Jurors</th>
+                                </tr>
+                                {% for choice_id, choice_label in form.teams.field.choices %}
+                                <tr>
+                                    <td>
+                                        <input name="teams" value="{{ choice_id }}" type="checkbox">
+                                    </td>
+                                    <td>{{ choice_label.origin.name }}</td>
+                                    <td>{% if not choice_label.is_competing %}<i class="fa fa-warning"></i> not competing{% endif %}</td>
+                                    <td>{{ choice_label.origin|flag_image }}</td>
+                                    <td>{% for member in choice_label.get_students %}{% if not forloop.first %}, {% endif %}{{ member.full_name }}{% endfor %}</td>
+                                    <td>{% for member in choice_label.get_leaders %}{% if not forloop.first %}, {% endif %}{{ member.full_name }}{% endfor %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

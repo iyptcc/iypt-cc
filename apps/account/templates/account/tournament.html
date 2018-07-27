@@ -1,0 +1,97 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Tournament{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Participating</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" role="form">
+                            {% if form.errors %}
+                                <p class="errornote">
+                                    {% if form.errors.items|length == 1 %}
+                                        {% trans "Please correct the error below." %}
+                                    {% else %}
+                                        {% trans "Please correct the errors below." %}
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+
+                            {% csrf_token %}
+                            <p>{% trans "Please select your active tournament" %}</p>
+                            {% bootstrap_form form %}
+                            {% buttons %}
+                                <input class="btn btn-primary btn-flat" type="submit" value="{% trans 'Change Tournament' %}">
+                            {% endbuttons %}
+
+                            You can apply for a new participation in a tournament under <a href="{% url "registration:applications" %}">registration - my applications</a>.
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% if skin %}
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Interface</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" role="form">
+                            {% csrf_token %}
+                            <p>{% trans "Please select your skin for current tournament" %}</p>
+                            {% bootstrap_form skin %}
+                            {% buttons %}
+                                <input class="btn btn-info btn-flat" type="submit" name="_skin" value="{% trans 'Change Skin' %}">
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="col-md-6">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Roles</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                {% for role in roles %}
+                                <tr>
+                                    <td>{{ role }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="box box-info collapsed-box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Permissions</h3>
+                        <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                            </div>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                {% for perm in permissions %}
+                                <tr>
+                                    <td>{{ perm }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

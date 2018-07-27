@@ -1,0 +1,79 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n dashboard %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Attendees{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Attendees ({{ persons|length }}) <input class="btn btn-success" type="submit" value="{% trans 'Apply' %}">
+                                    </h3>
+                                    {% for field in form %}
+                                        {{ field.as_hidden }}
+                                    {% endfor %}
+                                    {% csrf_token %}
+                                    <input type="hidden" name="{{ stage_field }}" value="2" />
+                                    <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                                    <input type="hidden" name="action" value="{{ action }}" />
+                            </div>
+                                <div class="box-body no-padding table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Team</th>
+                                                <th>Roles</th>
+                                                <th>Verified Juror</th>
+                                                {% for ap in change_aps %}
+                                                    <th>{{ ap }}</th>
+                                                {% endfor %}
+                                            </tr>
+                                            {% for person in persons %}
+                                                <tr>
+                                                    <td>
+                                                        {{ person.full_name }}
+                                                    </td>
+                                                    <td>
+                                                        {% for t in person.obj.teammember_set.all %}
+                                                            <span class="label label-default">{{ t.team.origin.name }}</span>
+                                                        {% endfor %}
+                                                    </td>
+                                                    <td>
+                                                        {% for role in person.obj.roles.all %}<span class="label label-default">{{ role.name }}</span> {% endfor %}
+                                                    </td>
+                                                <td>
+                                                    {% if att_data|hash:person.obj.id|hash:"juror" %}
+                                                        <span><i class="fa fa-check"></i></span>
+                                                    {% endif %}
+                                                </td>
+                                                {% for dat in person.data %}
+
+                                                    <td {% if dat.changed %} class="bg-warning"{% endif %}>{% if dat.value != None %}{{ dat.value }}{% endif %}</td>
+                                                {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Assign Tournaments{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                <form action="" method="post">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Assign to persons <input class="btn btn-success" type="submit" name="_do" value="perform change"></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Tournaments</th>
+                                </tr>
+                                {% for person in persons %}
+                                    <tr>
+                                        <td>
+                                            {{ person.full_name }}
+                                        </td>
+                                        <td>
+                                            {{ person.username }}
+                                        </td>
+                                        <td>
+                                            {% for tournament in person.tournaments %}<span class="label label-default">{{ tournament }}</span> {% endfor %}
+                                            {% for tournament in person.tournaments_new %}<span class="label label-success">{{ tournament }}</span> {% endfor %}
+                                            {% for tournament in person.tournaments_del %}<span class="label label-danger">{{ tournament }}</span> {% endfor %}
+                                            {% for tournament in person.tournaments_del_na %}<span class="label label-danger"><i class="fa fa-warning"></i> {{ tournament }}</span> {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {{ field.as_hidden }}
+                    {% endfor %}
+                    <input type="hidden" name="action" value="{{ action }}" />
+                    <input type="hidden" name="{{ stage_field }}" value="2" />
+                    <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                </form>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Objects which will be deleted</h3>
+                    </div>
+                    <div class="box-body">
+                        <ul>
+                            {{ objs|unordered_list }}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

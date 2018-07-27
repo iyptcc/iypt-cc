@@ -1,0 +1,4 @@
+{% if user.user %}
+{% else %}
+<span data-toggle="tooltip" title="{{ user.first_name }} {{ user.last_name }}">{{ user.preferred_name }}</span>
+{% endif %}

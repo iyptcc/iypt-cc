@@ -1,0 +1,42 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Applications{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Applications for Roles</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th></th>
+                                </tr>
+                                {% for appl in object_list %}
+                                    <tr>
+                                        <td>
+                                            {{ appl.applicant.user.first_name }} {{ appl.applicant.user.last_name }}
+                                        </td>
+                                        <td>
+                                            {{ appl.participation_role }}
+                                        </td>
+                                        <td>
+                                            <a href="{% url "registration:accept_role_application" appl.id %}" class="btn btn-success">accept</a>
+                                            <a href="{% url "registration:decline_role_application" appl.id %}" class="btn btn-danger">decline</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

@@ -1,0 +1,36 @@
+(% block header %)
+\usepackage{tabularx}
+\parindent0pt
+(% endblock %)
+(% block content %)
+
+\begin{center}
+\LARGE \uppercase{Juror Assignment in Round (( round ))}
+\bigskip
+\end{center}
+\begin{tabularx}{\textwidth}{@{}X@{}X@{}X}
+(% for fight in fights -%)
+    \begin{minipage}[t]{\linewidth}
+    \section*{(( fight.room ))}
+    \textbf{(( fight.chair.0 )) (( fight.chair.1 ))}
+
+    (% for j in fight.jurors %)
+        (( j.0 )) ((  j.1 ))
+    (% endfor %)
+
+    (% for j in fight.nonvoting %)
+        {\lightfont (( j.0 )) ((  j.1 )) (non-voting)}
+    (% endfor %)
+    \end{minipage}\bigskip (%- if loop.index is divisibleby 3  %) \\ (% else %) & (% endif %)
+(%- endfor %) \\
+\end{tabularx}\bigskip
+
+\begin{tabularx}{\textwidth}{@{}X}
+    \begin{minipage}[t]{\linewidth}
+    \section*{Free}
+
+    (% for j in free %)(( j.0 )) ((  j.1 ))(% if not loop.last %), (% endif %)(% endfor %)
+
+    \end{minipage}\bigskip
+\end{tabularx}
+(% endblock %)

@@ -1,0 +1,193 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Persons{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-10">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary collapsed-box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Actions</h3>
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">delete</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
+                                                </div>
+                                            </div>
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">Juror</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.conflicting }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <input class="btn btn-success" type="submit" name="_juror" value="create Jurors of selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set role</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.roles }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_add_roles" value="set roles for selected">
+                                                        <input class="btn btn-danger" type="submit" name="_del_roles" value="delete roles from selected">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set group</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.groups }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_add_groups" value="set groups for selected">
+                                                        <input class="btn btn-danger" type="submit" name="_del_groups" value="delete groups from selected">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">print template</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.template }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_print" value="print with template">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">associate to team</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.team }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_team" value="associate">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if form.errors %}
+                                        <div class="col-md-4">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">errors</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% csrf_token %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Persons ({{ form.persons.field.choices|length }})
+                                    </h3>
+                                </div>
+                                <div class="box-body no-padding">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th><input id="checkAll" type="checkbox"> all</th>
+                                                <th>Name</th>
+                                                <th>Team</th>
+                                                <th>Roles</th>
+                                                <th>Groups</th>
+                                            </tr>
+                                            {% for choice_id, choice_label in form.persons.field.choices %}
+                                                <tr>
+                                                    <td>
+                                                        <input name="persons" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                                    </td>
+                                                    <td>
+                                                        {{ choice_label.full_name }}
+                                                    </td>
+                                                    <td>
+                                                        {% for tm in choice_label.teammember_set.all %}{{ tm.team.origin.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                                    </td>
+                                                    <td>
+                                                        {% for role in choice_label.roles.all %}<span class="label label-default">{{ role.name }}</span> {% endfor %}
+                                                    </td>
+                                                    <td>
+                                                        {% for group in choice_label.groups.all %}<span class="label label-default">{{ group.name }}</span> {% endfor %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Filter</h3>
+                    </div>
+                    <div class="box-body">
+                        {% include "plan/inc/filter.html" with filters=filters %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

@@ -1,0 +1,116 @@
+(% block documentclass %)landscape(% endblock %)
+
+(% block content %)
+\begin{center}
+\LARGE \uppercase{Results for Fight: Round (( round )), Room (( room ))}
+\bigskip
+\end{center}
+\begin{center}
+\boldfont
+(% for rank in ranking %)
+    (( rank.team )): (( rank.points )) \ \ \
+(%- endfor %)
+\end{center}
+
+\begin{tabular}{ll@{\hskip 1cm}(% for stage in stages[:2] -%)
+     cccl@{\hskip 1cm}
+(%- endfor %)}
+    & (% for stage in stages[:2] -%)
+     & \multicolumn{3}{c}{\boldfont Stage (( stage.order ))} &
+(%- endfor %)\\
+{\lightfont Team} &
+(% for stage in stages[:2] -%)
+     & (( stage.reporter_team )) & (( stage.opponent_team )) & (( stage.reviewer_team )) &
+(%- endfor %)\\
+{\lightfont Person} &
+(% for stage in stages[:2] -%)
+     & (( stage.reporter_person_firstname[0] )). (( stage.reporter_person_lastname )) &
+        (( stage.opponent_person_firstname[0] )). (( stage.opponent_person_lastname )) &
+        (( stage.reviewer_person_firstname[0] )). (( stage.reviewer_person_lastname )) &
+(%- endfor %)\\
+{\lightfont Problem} &
+ (% for stage in stages[:2] -%)
+     & \multicolumn{3}{c}{presented: (( stage.presented[0] )) ,
+     rejected (% for rej in stage.rejected %)(% if not loop.first %),
+     (% endif %)(( rej[0] ))(% endfor %) } &
+(%- endfor %)\\
+\cline{1-1}
+\cline{3-5}
+\cline{7-9}
+  (% for juror in jurors %)
+      (( juror.firstname )) (( juror.lastname )) &
+           (% for stage in juror.stages[:2] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+  (% endfor %)
+\cline{1-1}
+\cline{3-5}
+\cline{7-9}
+{\lightfont Average} &
+(% for stage in average[:2] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+{\lightfont Factor} &
+(% for stage in factor[:2] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+{\lightfont Points} &
+(% for stage in points[:2] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+\end{tabular}
+\vspace{1cm}
+
+\begin{tabular}{ll@{\hskip 1cm}(% for stage in stages[2:] -%)
+     cccl@{\hskip 1cm}
+(%- endfor %)} &
+     (% for stage in stages[2:] -%)
+     & \multicolumn{3}{c}{\boldfont Stage (( stage.order ))} &
+(%- endfor %)\\
+{\lightfont Team} &
+(% for stage in stages[2:] -%)
+     & (( stage.reporter_team )) & (( stage.opponent_team )) & (( stage.reviewer_team )) &
+(%- endfor %)\\
+{\lightfont Person} &
+(% for stage in stages[2:] -%)
+     & (( stage.reporter_person_firstname[0] )). (( stage.reporter_person_lastname )) &
+        (( stage.opponent_person_firstname[0] )). (( stage.opponent_person_lastname )) &
+        (( stage.reviewer_person_firstname[0] )). (( stage.reviewer_person_lastname )) &
+(%- endfor %)\\
+{\lightfont Problem} &
+ (% for stage in stages[2:] -%)
+     & \multicolumn{3}{c}{presented: (( stage.presented[0] )) ,
+     rejected (% for rej in stage.rejected %)(% if not loop.first %),
+     (% endif %)(( rej[0] ))(% endfor %) } &
+(%- endfor %)\\
+\cline{1-1}
+\cline{3-5}
+(% if stages|length > 3 %)
+\cline{7-9}
+(% endif %)
+  (% for juror in jurors %)
+      (( juror.firstname )) (( juror.lastname )) &
+           (% for stage in juror.stages[2:] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+  (% endfor %)
+  \cline{1-1}
+\cline{3-5}
+(% if stages|length > 3 %)
+\cline{7-9}
+(% endif %)
+{\lightfont Average} &
+(% for stage in average[2:] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+{\lightfont Factor} &
+(% for stage in factor[2:] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+{\lightfont Points} &
+(% for stage in points[2:] -%)
+               & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
+          (% endfor %)\\
+\end{tabular}
+
+(% endblock %)

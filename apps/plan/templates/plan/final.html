@@ -1,0 +1,77 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Final{% endblock %}
+
+    {% block page_content %}
+        <form action="" method="post">
+            {% if form.get_rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Teams (possibly preliminary)</h3>
+                        </div>
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Order</th>
+                                        <th>Rank</th>
+                                        <th>Team</th>
+                                        <th>TSP</th>
+                                        {% for r in form.get_rounds %}
+                                            <th>Round {{ r }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    {% for t in form.get_teams %}
+                                        <tr>
+                                            <td>{{ t.0 }}</td>
+                                            <td><b>{{ t.1.rank }}</b>
+                                            </td>
+                                            <td>{{ t.1.team }}{% if t.1.all_won %}
+                                                    <i class="fa fa-star text-yellow"></i>
+                                                {% endif %}
+                                            </td>
+                                            <td><b>{{ t.1.tsp|floatformat:1 }}</b></td>
+                                            {% for sp in t.1.sp %}
+                                                <td>{{ sp.0 }}{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div class="box box-{% if form.get_rounds %}success{% else %}danger{% endif %}">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Create</h3>
+                        </div>
+                        <div class="box-body">
+                            {% if not form.get_rounds %}
+                            <p>
+                                A final fight exists which must first be deleted before creating a new one.
+                            </p>
+                            {% endif %}
+                            <a href="{% url "plan:finaldel" %}" class="btn btn-danger">delete final</a>
+                            <input class="btn btn-success {% if not form.get_rounds %}disabled{% endif %}" {% if not form.get_rounds %}disabled{% endif %} type="submit" value="create final" />
+                            <input type="hidden" name="{{ stage_field }}" value="1" />
+                            {% csrf_token %}
+
+                            {% if form.errors %}
+                                <h4>Please correct the following error</h4>
+                                {{ form.non_field_errors }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endblock %}

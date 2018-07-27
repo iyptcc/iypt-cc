@@ -1,0 +1,53 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Tournament{% endblock %}
+
+    {% block page_content %}
+        {% for round in rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            {% for fight in round %}
+                                <div class="btn-group">
+                                    <a href="{% url 'fight:fightjury' fight.pk %}"
+                                        class="btn {% if fight.locked and not editall %}disabled{% endif %}
+                                                {% if fight.my and fight.locked %}
+                                                    btn-info
+                                                {% elif fight.my %}
+                                                    btn-primary
+                                                {% else %} btn-default{% endif %}">
+                                        {{ fight.name }}
+                                    </a>
+                                    <button type="button" class="btn {% if fight.locked and not editall %}disabled{% endif %}
+                                            {% if fight.my and fight.locked %}
+                                                    btn-info
+                                                {% elif fight.my %}
+                                                    btn-primary
+                                                {% else %} btn-default{% endif %}
+                                                dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Stages</span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        {% for s in fight.stages %}
+                                            <li><a href="{% url 'fight:fight' fight.pk forloop.counter %}">Stage {{ forloop.counter }}</a></li>
+                                        {% endfor %}
+                                        <li><a href="{% url 'fight:fightpre' fight.pk %}">Check</a></li>
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}

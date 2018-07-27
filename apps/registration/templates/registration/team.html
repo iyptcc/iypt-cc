@@ -1,0 +1,217 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Team{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Manage Team {{ team.origin.name }} {% if not team.is_competing %}<i class="fa fa-warning"></i> not competing{% endif %}</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <input type="submit" value="save" class="btn btn-success">
+                        </form>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Members</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Trn. Role</th>
+                                    <th>poss. Juror</th>
+                                    <th>Group Manager</th>
+                                    <th></th>
+                                    {% for apn in apname %}
+                                        <th>{{ apn }}</th>
+                                    {% endfor %}
+
+                                </tr>
+                                {% for mem in members %}
+                                    <tr>
+                                        <td>{% include "account/inc/name.html" with user=mem.attendee %}</td>
+                                        <td><span class="label label-primary">{{ mem.role }}</span></td>
+                                        <td>{% for r in mem.proles %}<span class="label label-info">{{ r }}</span> {% endfor %}</td>
+                                        <td>
+                                            {% if mem.juror %}
+                                                {% if mem.accepted %}
+                                                    <span class="label label-success"><i class="fa fa-check"></i></span>
+                                                {% else %}
+                                                    <span class="label label-warning"><i class="fa fa-cog"></i> pending</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>{% if mem.manager %}<i class="fa fa-check"></i>{% endif %}</td>
+                                        <td>
+                                            <div class="btn-group-vertical">
+                                                <a href="{% url "registration:team_member_edit" team.origin.slug mem.id %}" class="btn btn-success">edit</a>
+                                                <a href="{% url "registration:team_member_data" team.origin.slug mem.id %}" class="btn btn-primary">edit data</a>
+                                                <a href="{% url "registration:team_member_delete" team.origin.slug mem.id %}" class="btn btn-danger">delete</a>
+                                            </div>
+                                        </td>
+                                        {% for dat in mem.data %}
+                                            {% if dat.needed %}
+                                                {% if dat.value or dat.prelim %}
+                                                <td {% if dat.prelim %}class="bg-warning"{% endif %}>{{ dat.value }} {% if dat.prelim %}({{ dat.prelim }}){% endif %}</td>
+                                                {% elif dat.image %}
+                                                    <td><a href="{% url "registration:file_property" 'a' mem.attendee.id dat.image.id dat.image.url %}">{{ dat.image.url }}</a></td>
+                                                {% elif dat.file %}
+                                                    <td><a href="{% url "registration:file_property" 'a' mem.attendee.id dat.file.id dat.file.url %}">{{ dat.file.url }}</a></td>
+                                                {% elif dat.list %}
+                                                    <td>{{ dat.list|join:', ' }}</td>
+                                                {% elif dat.required %}
+                                                    <td class="bg-danger">--</td>
+                                                {% elif dat.optional %}
+                                                    <td class="bg-warning">--</td>
+                                                {% endif %}
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Team Limits</h3>
+                    </div>
+                    <div class="box-bodyno-padding">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>lower limit</th>
+                                    <th>member count</th>
+                                    <th>upper limit</th>
+                                </tr>
+                                {% for role, lim in limits.items %}
+                                    <tr class="{% if lim.exceed %}bg-danger{% elif lim.undercut %}bg-warning{% endif %}">
+                                        <td>{{ role.name }}</td>
+                                        <td>{{ role.members_min|default:"0"  }}</td>
+                                        <td>
+                                            ≤ {{ lim.value }} ≤
+                                        </td>
+                                        <td>{{ role.members_max|default:"∞" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Expected Fees (total {{ fees_sum }}) <a class="btn btn-primary" href="{% url "registration:team_payment" team.origin.slug %}">pay</a></h3>
+                    </div>
+                    <div class="box-bodyno-padding">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Fee</th>
+                                    <th>Amount</th>
+                                </tr>
+                                {% for fee in fees %}
+                                    <tr>
+                                        <td>{{ fee.name }}</td>
+                                        <td>{{ fee.amount  }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Applications</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Team Role</th>
+                                    <th>Participation Role</th>
+                                    <th></th>
+                                </tr>
+                                {% for app in applications %}
+                                    <tr>
+                                        <td>{{ app.applicant.user.first_name }} {{ app.applicant.user.last_name }}</td>
+                                        <td>{{ app.team_role }}</td>
+                                        <td>{{ app.participation_role }}</td>
+                                        <td>
+                                            <a href="{% url "registration:team_member_accept" team.origin.slug app.id %}" class="btn btn-success">accept</a>
+                                            <a href="{% url "registration:team_member_decline" team.origin.slug app.id %}" class="btn btn-danger">delete</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Data Logs</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Value</th>
+                                    <th>Member</th>
+                                    <th>Change Author</th>
+                                    <th>Change Time</th>
+                                </tr>
+                                {% for log in data_logs %}
+                                    <tr>
+                                        <td>{{ log.property.name }}</td>
+                                        <td>{% if log.toString %}{{ log.toString }}{% else %}<i>value unset</i>{% endif %}</td>
+                                        <td>{{ log.attendee }}</td>
+                                        <td>{{ log.author }}</td>
+                                        <td>{{ log.creation|date:"c" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

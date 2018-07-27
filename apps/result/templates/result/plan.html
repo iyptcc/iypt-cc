@@ -1,0 +1,99 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Tournament{% endblock %}
+
+    {% block page_content %}
+        {% for round in rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary collapsed-box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{% if round.0.final %}Final{% else %}Round {{ round.0.order }}{% endif %}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for fight in round %}
+                                    <div class="col-md-12">
+                                        {% if not fight.preview %}
+                                            <div data-url="{% url 'result:fight_table' tournament fight.order fight.room|slugify %}" class="ajax-box box box-info collapsed-box">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title"><b>{{ fight.room }}:</b>
+                                                        <div style="display: inline-block;line-height: 24px;">
+                                                        {% for t in fight.result %}
+                                                            <a class="label label-info" href="{% url 'result:team' tournament t.slug %}">{{ t.name }}: {{ t.sp|floatformat:1 }}{% if t.won %} <i class="fa fa-star text-yellow"></i>{% endif %}</a>
+                                                        {% endfor %}
+                                                        </div>
+                                                    </h4>
+                                                    <div class="box-tools pull-right">
+                                                        <a href="{% url 'result:fight' tournament fight.order fight.room|slugify %}" class="label label-primary">detail</a>
+                                                        <button class="btn btn-box-tool ajax-load" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="box-body table-responsive no-padding">
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="box box-warning collapsed-box">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title"><b>{{ fight.room }}:</b>
+                                                        <div style="display: inline-block;line-height: 24px;">
+                                                        {% for t in fight.teams %}
+                                                            <a class="label label-default" href="{% url 'result:team' tournament t.origin.slug %}">{{ t.origin.name }}</a>
+                                                        {% endfor %}
+                                                        </div>
+                                                    </h4>
+                                                    <div class="box-tools pull-right">
+                                                        <a href="{% url 'result:fight' tournament fight.order fight.room|slugify %}" class="label label-primary">detail</a>
+                                                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="box-body">
+                                                    <div class="row">
+                                                        {% for s in fight.preview %}
+                                                            <div class="col-md-{% if fight.preview|length == 3 %}4{% else %}3{% endif %}">
+                                                                <div class="box box-warning">
+                                                                    <div class="box-header with-border">
+                                                                        <h4 class="box-title">Stage {{ forloop.counter }}</h4>
+                                                                    </div>
+                                                                    <div class="box-body">
+                                                                        <p>Reporter: {{ s.rep.origin.name }}</p>
+                                                                        <p>Opponent: {{ s.opp.origin.name }}</p>
+                                                                        <p>Reviewer: {{ s.rev.origin.name }}</p>
+                                                                        {% include 'result/preview_part.html' with s=s %}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {%  endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+        $(".ajax-box").each( function() {
+            url = $(this).data('url');
+            $(this).boxRefresh({
+                source: url,
+                trigger: ".ajax-load",
+                onLoadDone: (function () {
+                    this.find(".ajax-load").off('click');
+                })
+            })
+        });
+    </script>
+{% endblock %}

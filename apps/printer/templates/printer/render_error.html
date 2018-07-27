@@ -1,0 +1,31 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n json_nice %}
+
+    {% block page_title %}Error{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Error</h3>
+                    </div>
+                    <div class="box-body">
+{{ err }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Context</h3>
+                    </div>
+                    <div class="box-body">
+                        <pre>
+{{ context|jsonniceify }}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

@@ -1,0 +1,16 @@
+(% block documentclass %)landscape(% endblock %)
+
+(% block header %)
+\usepackage{longtable}
+(% endblock %)
+
+(% block content %)
+
+\begin{longtable}{lll}
+\textbf{Name}&\textbf{email}&\textbf{Team}\\
+(% for person in persons %)
+(( person.first_name )) (( person.last_name ))&(( person.email ))&(( person.team|join(", ") )) \\
+(% endfor %)
+\end{longtable}
+
+(% endblock %)

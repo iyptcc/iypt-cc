@@ -1,0 +1,23 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block meta_extra %}
+        <meta http-equiv="refresh" content="5" />
+    {% endblock %}
+
+    {% block page_title %}Assign Jurors{% endblock %}
+
+    {% block page_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">in Progress</h3>
+                        </div>
+                        <div class="box-body">
+                            Pending
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endblock %}

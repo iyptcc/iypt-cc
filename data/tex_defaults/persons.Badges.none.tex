@@ -1,0 +1,125 @@
+\documentclass{minimal}
+
+\usepackage[top=2cm, left=0.5cm, bottom=1cm, right=0.5cm, a4paper]{geometry}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\usepackage{fontspec}
+
+\newfontfamily{\rolefont}{SourceSansPro-Bold}
+\newfontfamily{\namefont}{SourceSansPro-Bold}
+\newfontfamily{\logofont}{SourceSansPro-Bold}
+\newfontfamily{\instfont}{SourceSansPro-Regular}
+
+\def\badgeW{7.4cm}
+\def\badgeH{10.5cm}
+
+(% macro badge(first_name='first_name', last_name='last_name', affiliation='affiliation', role='???',  bgcolor='pink', barcode_id=0, background=False) -%)
+%
+	\def\affil{((affiliation))}%
+    \def\rolestr{((role))}%
+    \def\bgcolor{((bgcolor))}%
+%
+    (%- if role == "???" %)%
+    	\def\rolestr{?\kern-0.2cm?\kern-0.2cm?}%
+    (%- endif %)%
+%
+%
+	\begin{tikzpicture}[
+		every node/.style={text depth=0mm},
+        hole/.style={draw=none, color=white, line width=0.1mm},
+        cut/.style={draw, color=gray, line width=0.2mm},
+	]
+	% bb
+	\draw[thick,use as bounding box] (-4mm,-4mm) rectangle (\badgeW+4mm,\badgeH+4mm);
+		\begin{scope}%[rotate=-90, every node/.style={transform shape}]
+			% outer border and fill, do this seperately for printing process
+			\fill[fill=\bgcolor] (-2mm,-2mm) rectangle (\badgeW+2mm, \badgeH+2mm);
+            	\draw[black, line width=8mm]
+					(2mm, 2mm) rectangle (\badgeW-2mm, \badgeH-2mm);
+			% horizontal bar
+			\begin{scope}[xshift=-7.875cm,yshift=\badgeH/2-6mm,x=10.2cm,y=10.2cm]
+        		\colorlet{dpggreen}{green}
+        		\colorlet{dpgblue}{blue}
+        	\end{scope}
+      \begin{scope}[yshift=\badgeH/2-6mm, xshift=6mm+10.5mm]
+        \fill[black] (-6mm-10.5mm,0) -- (0,0)
+          .. controls (-0.30mm,0.24mm) and (-0.55mm,0.4mm) .. (-0.879mm,0.719mm)
+          .. controls (-1.24mm,1.07mm) and (-1.61mm,1.47mm) .. (-1.971mm,1.920mm)
+          .. controls (-2.32mm,2.35mm) and (-2.66mm,2.84mm) .. (-2.943mm,3.359mm)
+          .. controls (-3.22mm,3.87mm) and (-3.48mm,4.43mm) .. (-3.661mm,5.023mm)
+          .. controls (-3.84mm,5.61mm) and (-3.96mm,6.24mm) .. (-3.994mm,6.904mm)
+          .. controls (-4.10mm,9.24mm) and (-4.21mm,10.9mm) .. (-4.282mm,12.00mm)
+          -| cycle
+        ;
+      \end{scope}
+      \begin{scope}[yshift=\badgeH/2-6mm, xshift=6mm+10.5mm+3.375mm]
+        \fill[black] (0,0)
+          .. controls (0.30mm,0.24mm) and (0.55mm,0.4mm) .. (0.879mm,0.719mm)
+          .. controls (1.24mm,1.07mm) and (1.61mm,1.47mm) .. (1.971mm,1.920mm)
+          .. controls (2.32mm,2.35mm) and (2.66mm,2.84mm) .. (2.943mm,3.359mm)
+          .. controls (3.22mm,3.87mm) and (3.48mm,4.43mm) .. (3.661mm,5.023mm)
+          .. controls (3.84mm,5.61mm) and (3.96mm,6.24mm) .. (3.994mm,6.904mm)
+          .. controls (4.10mm,9.24mm) and (4.21mm,10.9mm) .. (4.282mm,12.00mm)
+          -| ({\badgeW-(6mm+10.5mm+3.375mm)},0mm) -- cycle
+        ;
+      \end{scope}
+
+			\node[gray, font=\logofont\fontsize{9}{9.5}\selectfont, align=left]
+				at (\badgeW/2+1mm, \badgeH/2) {German\\Young Physicists’\\Tournament};
+
+			% top hole
+			\fill[black] (\badgeW/2+6mm,\badgeH) -- ++(0,-6mm) -- ++(-3mm,-3mm) -- ++(-6mm,0) -- ++ (-3mm,3mm) |- cycle;
+			\draw[hole] (\badgeW/2,\badgeH-4.5mm) circle (1mm);
+			% role
+			\node[font=\rolefont\fontsize{132}{132}\selectfont]
+				at (\badgeW/2,3/4*\badgeH-1mm) {\rolestr};
+
+			% name
+			\node[font=\namefont\fontsize{21}{21}\selectfont]
+				at (\badgeW/2,20mm+2*28mm/3) {((first_name))};
+			\node[font=\namefont\fontsize{21}{21}\selectfont]
+                at (\badgeW/2,20mm+1*28mm/3) {((last_name))};
+			% separator
+			%\draw[line width=0.3mm] (1,2) -- ++(\badgeW-2cm,0);
+			\draw[line width=0.3mm] (0.85,2.3) -- ++(\badgeW-17mm,0);
+			% inst
+			\node[font=\instfont\fontsize{13}{13}\selectfont, align=center]
+				 at (\badgeW/2,18mm) {\affil};
+
+			% cut marks
+            (% if not background %)
+			\draw[cut] (-2mm,-0.1mm) -- ++(4mm,0mm); \draw[cut] (-0.1mm,-2mm) -- ++(0mm,4mm);
+			\draw[cut] (-2mm,\badgeH+0.1mm) -- ++(4mm,0mm); \draw[cut] (-0.1mm,\badgeH-2mm) -- ++(0mm,4mm);
+			\draw[cut] (\badgeW-2mm,-0.1mm) -- ++(4mm,0mm); \draw[cut] (\badgeW+0.1mm,-2mm) -- ++(0mm,4mm);
+			\draw[cut] (\badgeW-2mm,\badgeH+0.1mm) -- ++(4mm,0mm); \draw[cut] (\badgeW+0.1mm,\badgeH-2mm) -- ++(0mm,4mm);
+            (% endif %)
+		\end{scope}
+	\end{tikzpicture}%
+(%- endmacro %)
+
+
+\begin{document}%
+\begin{center}%
+(% for batch in persons|batch(4, "") %)%
+	(% for b in batch %)%
+        (% if b %)%
+        	(( badge( b.first_name, b.last_name, b.roles[0] ) ))%
+        (% else %)%
+        	\tikz \draw[thick,use as bounding box] (-4mm,-4mm) rectangle (\badgeW+4mm,\badgeH+4mm);%
+        (% endif %)%
+        (% if loop.index is divisibleby(2) %)\\(% endif %)%
+    (% endfor %)%
+        \newpage
+      	(% for b in [batch[1],batch[0],batch[3],batch[2]] -%)%
+            (% if b %)%
+                (( badge( b.first_name, b.last_name, b.roles[0], background=True ) ))%
+            (% else %)%
+                \tikz \draw[thick,use as bounding box] (-4mm,-4mm) rectangle (\badgeW+4mm,\badgeH+4mm);%
+            (% endif %)%
+            (% if loop.index is divisibleby(2) %)\\(% endif %)%
+       	(% endfor %)
+(% endfor %)%
+\end{center}%
+\end{document}

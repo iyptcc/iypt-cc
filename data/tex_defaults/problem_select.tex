@@ -1,0 +1,76 @@
+(% block header %)
+\pagestyle{empty}
+\usepackage{multicol}
+\parindent0pt
+\parsep2ex
+(% endblock %)
+
+(% block geometry %)right=2cm, left=2cm, top=3.5cm, bottom=1cm(% endblock %)
+
+(% block content %)
+
+	(% for team in teams -%)
+		\begin{center}
+    {\boldfont 30\textsuperscript{th} International Young Physicists’ Tournament\medskip
+
+    2017}\medskip
+
+    Please state which problem you select for the (( round ))\textsuperscript{th} PF!\bigskip
+
+\end{center}
+
+\setlength\extrarowheight{10pt}
+
+\begin{tabular}{llL{8cm}}
+    \textbf{Team} & \textbf{(( team ))} & \\
+    \hline
+    1\textsuperscript{st} choice: & No.\ \ \ \ \ \ \ \ , &\\\hline
+    2\textsuperscript{nd} choice: & No.\ \ \ \ \ \ \ \ ,&\\\hline
+    3\textsuperscript{rd} choice: & No.\ \ \ \ \ \ \ \ ,&\\\hline
+\end{tabular}\bigskip
+
+{\footnotesize
+{\blackfont IYPT-Regulations section IX/2 (Version 2015):}
+ The following special rules apply to the last Selective PF:
+
+The  procedure  of  challenge  is  omitted.  All  teams  may  choose  the  problem  to
+present. The only exception is that a team may not present
+a problem, which they
+presented earlier in the Selective Fights, and all problems presented in one group
+must be different. In case teams of one group choose the same problem, priority
+is given to the team with the higher
+TSP (see section XI).
+
+A
+team has to select its problems and submit this selection before it leaves the
+competition  room  after  the  previous  PF.
+The  choice  must  be  made  public
+immediately.
+
+
+The problem which a team presents in this PF may not be presented again in the
+Final PF by the
+same team.}
+
+\begin{center}
+ Please give this form
+ to one of the organizers as soon as possible
+ !
+ \end{center}\bigskip
+
+ \noindent\begin{tabular}{l}
+ \makebox[3in]{\hrulefill}\\
+ Signature Team Captain \\
+ \end{tabular}\bigskip
+
+
+Problems of the 30\textsuperscript{th} IYPT:
+ \begin{multicols}{3}
+	(% for p in problems %)
+    	(( p[0] )). (( p[1] ))
+    (% endfor %)
+\end{multicols}
+        \newpage
+	(% endfor %)
+
+(% endblock %)

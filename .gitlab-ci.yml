@@ -4,24 +4,24 @@ stages:
   - test
 
 django_test:
+  image: "python:3"
   stage: test
   script:
-    - if [ ! -e env/bin/python3 ]; then virtualenv -p /usr/bin/python3 env; fi;
-    - env/bin/pip install --upgrade pip
-    - env/bin/pip install --upgrade packaging appdirs
-    - env/bin/pip install --upgrade -r dep/test-requirements.pip
+    - pip install --upgrade pip
+    - pip install --upgrade packaging appdirs
+    - pip install --upgrade -r dep/test-requirements.pip
     - mkdir -p src
     - cd src && git clone https://github.com/felix-engelmann/django-formtools
     - cd django-formtools && git checkout e5b85d634259ed020b08cb53a918cde1d2da4ce7
-    - ../../env/bin/python setup.py install
+    - python setup.py install
     - cd ../../
-    - env/bin/isort -c
-    - env/bin/bandit -r . -x apps/dashboard/static,env,static,scratch -f json -o bandit.json || true
-    - env/bin/bandit -r . -x apps/dashboard/static,env,static,scratch -f html -o bandit.html || true
-    - env/bin/python -m coverage run --omit "env/*","*/migrations/*" manage.py test apps.dashboard.tournament_tests --verbosity=2
-    - env/bin/python -m coverage report -m | tee coverage.log
+    - isort -c
+    - bandit -r . -x apps/dashboard/static,env,static,scratch -f json -o bandit.json || true
+    - bandit -r . -x apps/dashboard/static,env,static,scratch -f html -o bandit.html || true
+    - python -m coverage run --omit "env/*","*/migrations/*" manage.py test apps.dashboard.tournament_tests --verbosity=2
+    - python -m coverage report -m | tee coverage.log
     - grep "^TOTAL" coverage.log | awk '{print "covered " $4;}'
-    - env/bin/python -m coverage html
+    - python -m coverage html
   artifacts:
     paths:
     - htmlcov/

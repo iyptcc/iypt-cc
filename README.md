@@ -2,6 +2,10 @@
 
 GLUE is the main orchestrating component for the IYPT control center.
 
+## Contact
+
+For any questions regarding contribution, vulnerability disclosure or installation, please contact [fe-iyptcc@nlogn.org](mailto:fe-iyptcc@nlogn.org).
+
 ## CI
 
 the project is built and tested in the Gitlab CI with status

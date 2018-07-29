@@ -14,7 +14,7 @@ except:
 try:
     from .secret_sentry import *
 except:
-    pass
+    RAVEN_DSN = "https://52709813eb5d4fc599da7f7c3de5359d@sentry.iypt.nlogn.org/2"
 
 RAVEN_CONFIG = {
     'dsn': RAVEN_DSN,

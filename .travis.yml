@@ -1,0 +1,13 @@
+language: python
+  python:
+    - "3.6"
+  install:
+    - pip install --upgrade pip
+    - pip install --upgrade packaging appdirs
+    - pip install --upgrade -r dep/test-requirements.pip
+    - mkdir -p src
+    - cd src && git clone https://github.com/felix-engelmann/django-formtools
+    - cd django-formtools && git checkout e5b85d634259ed020b08cb53a918cde1d2da4ce7
+    - python setup.py install
+  script:
+    - python -m coverage run --omit "env/*","*/migrations/*" manage.py test apps.dashboard.tournament_tests --verbosity=2

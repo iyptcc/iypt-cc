@@ -1,6 +1,20 @@
 {% extends "dashboard/base-layout.html" %}
 {% load bootstrap3 i18n %}
 
+    {% block styles_inline %}
+    <style>
+        .flag-container-72 {
+            height:13px;
+            margin-left: 3px;
+            overflow: hidden;
+            display: inline;
+        }
+        .flag-image-72 {
+            height: 18px;
+            margin-top: -2px;
+        }
+    </style>
+    {% endblock %}
 
     {% block page_title %}Team {{ team.origin.name }}{% endblock %}
 
@@ -25,7 +39,7 @@
                                 </div>
                             </div>
                             <div class="box-body table-responsive no-padding">
-                                {% include 'result/fight_table.html' with fight=fight %}
+                                {% include 'result/fight_table.html' with fight=fight tournament=tournament %}
                             </div>
                         </div>
                     {% else %}

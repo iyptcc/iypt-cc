@@ -64,10 +64,35 @@ class Migration(migrations.Migration):
             field=models.OneToOneField(auto_created=True, default='', on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='registration.Property'),
             preserve_default=False,
         ),
+        migrations.AlterField(
+            model_name='attendeepropertyvalue',
+            name='property',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='registration.AttendeeProperty'),
+        ),
+        migrations.AlterField(
+            model_name='attendeeproperty',
+            name='required',
+            field=models.ManyToManyField(blank=True, related_name='required_properties', to='account.ParticipationRole'),
+        ),
+        migrations.AlterField(
+            model_name='attendeeproperty',
+            name='optional',
+            field=models.ManyToManyField(blank=True, related_name='optional_properties', to='account.ParticipationRole'),
+        ),
         migrations.AddField(
             model_name='userproperty',
             name='property_ptr',
             field=models.OneToOneField(auto_created=True, default='', on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='registration.Property'),
             preserve_default=False,
+        ),
+        migrations.AlterField(
+            model_name='userpropertyvalue',
+            name='property',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='registration.UserProperty'),
+        ),
+        migrations.AlterField(
+            model_name='attendeeproperty',
+            name='user_property',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='registration.UserProperty'),
         ),
     ]

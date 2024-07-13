@@ -1,0 +1,73 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n flags tz %}
+
+    {% block styles_inline %}
+    <style>
+        .flag-container-72 {
+            height:13px;
+            margin-left: 3px;
+            overflow: hidden;
+            display: inline;
+        }
+        .flag-image-72 {
+            height: 18px;
+            margin-top: -2px;
+        }
+    </style>
+    {% endblock %}
+
+    {% block page_title %}Registered Teams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ teams | length }} Teams</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Flag</th>
+                                    <th>TZ</th>
+                                    {% for ev in events %}
+                                        <th>{{ ev.name }}</th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <th></th>
+                                    <td>UTC</td>
+                                    {% for ev in events %}
+                                        <th>{{ ev.time_start|utc|date:'D M j H:i' }} <br>
+                                            until<br>
+                                            {{ ev.time_end|utc|date:'D M j H:i' }}</th>
+                                    {% endfor %}
+                                </tr>
+                                {% for origin in teams %}
+                                <tr>
+                                    <td>{{ origin.name }}</td>
+                                    <td>{{ origin|flag_image }}</td>
+                                    <td>{{ origin.timezone }}</td>
+                                {% timezone origin.timezone %}
+                                    {% for ev in events %}
+                                        <th>{{ ev.time_start|date:'D M j H:i' }} {%  if ev.time_start|date:'G'|add:"0" < 6 %}<i class="fa fa-sun-o text-orange"></i>{% endif %}
+                                            {%  if ev.time_start|date:'G'|add:"0" > 20 %}<i class="fa fa-moon-o text-blue"></i>{% endif %}<br>
+                                        until<br>
+                                            {{ ev.time_end|date:'D M j H:i' }} {%  if ev.time_end|date:'G'|add:"0" < 6 %}<i class="fa fa-sun-o text-orange"></i>{% endif %}
+                                            {%  if ev.time_end|date:'G'|add:"0" > 20 %}<i class="fa fa-moon-o text-blue"></i>{% endif %}</th>
+                                    {% endfor %}
+                                {% endtimezone %}
+                                </tr>
+                                {% empty %}
+                                    <tr><td>no teams yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

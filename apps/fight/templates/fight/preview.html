@@ -62,6 +62,27 @@
                                                 </div>
                                             </div>
                                         {% endif %}
+                                        <div class="box box-info">
+                                            <div class="box-header with-border">
+                                                <h3 class="box-title">Prelim Result</h3>
+                                            </div>
+                                            <div class="box-body no-padding">
+                                                <table class="table table-responsive">
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>cur</th>
+                                                        <th>fact</th>
+                                                        <th>est.</th>
+                                                    </tr>
+                                                    {% for t in result %}
+                                                    <tr>
+                                                        <td>{{ t.name }}</td><td>{{ t.sp|floatformat:1 }}</td><td>{{ t.factors }} of {{ t.total_factor }}</td><td>{{ t.estimate|floatformat:1 }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </table>
+
+                                            </div>
+                                        </div>
                                         <div class="box box-success">
                                             <div class="box-header with-border">
                                                 <h3 class="box-title">Save</h3>
@@ -106,19 +127,41 @@
                                                                     <p>Opponent (Team {{ stage.teams.opp }})</p>
                                                                 <p>{{ stage.persons.opp }}</p>
                                                             </th>
+                                                            {%  if stage.teams.rev %}
                                                             <th>
                                                                 <p>Reviewer (Team {{ stage.teams.rev }})</p>
                                                                 <p>{{ stage.persons.rev }}</p>
                                                             </th>
+                                                            {% endif %}
                                                         </tr>
                                                         {% for juror in stage.jurors %}
                                                             <tr>
-                                                                <td>{{ juror.name }}</td>
-                                                                <td {% if not juror.rep %} class="bg-red"{% endif %}>{{ juror.rep }}</td>
-                                                                <td {% if not juror.opp %} class="bg-red"{% endif %}>{{ juror.opp }}</td>
-                                                                <td {% if not juror.rev %} class="bg-red"{% endif %}>{{ juror.rev }}</td>
+                                                                <td>{{ juror.name }} {% if not juror.voting %}<i class="fa fa-warning"></i> non-voting{% endif %}</td>
+                                                                <td {% if not juror.rep and juror.voting %} class="bg-red"{% endif %}>{% if juror.rep_partial %}1{% for g in juror.rep_partial %}<span  data-toggle="tooltip" title="{{ g.group.name }}">{% if g.value > 0 %}+{% endif %}{{ g.value }}</span>{% endfor %} = {% endif %} {{ juror.rep }}</td>
+                                                                <td {% if not juror.opp and juror.voting %} class="bg-red"{% endif %}>{% if juror.opp_partial %}1{% for g in juror.opp_partial %}<span  data-toggle="tooltip" title="{{ g.group.name }}">{% if g.value > 0 %}+{% endif %}{{ g.value }}</span>{% endfor %} = {% endif %}{{ juror.opp }}</td>
+                                                                {%  if stage.teams.rev %}
+                                                                <td {% if not juror.rev and juror.voting %} class="bg-red"{% endif %}>{% if juror.rev_partial %}1{% for g in juror.rev_partial %}<span  data-toggle="tooltip" title="{{ g.group.name }}">{% if g.value > 0 %}+{% endif %}{{ g.value }}</span>{% endfor %} = {% endif %}{{ juror.rev }}</td>
+                                                                {% endif %}
                                                             </tr>
                                                         {% endfor %}
+                                                        <tr style="border-top: 2px solid black;">
+                                                            <td>Average:</td>
+                                                                <td>{{ stage.average.rep|floatformat:2 }}</td>
+                                                                <td>{{ stage.average.opp|floatformat:2 }}</td>
+                                                                <td>{{ stage.average.rev|floatformat:2 }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Factor:</td>
+                                                                <td>{{ stage.factors.rep|floatformat:1 }}</td>
+                                                                <td>{{ stage.factors.opp|floatformat:1 }}</td>
+                                                                <td>{{ stage.factors.rev|floatformat:1 }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Points:</th>
+                                                                <th>{{ stage.w_average.rep|floatformat:2 }}</th>
+                                                                <th>{{ stage.w_average.opp|floatformat:2 }}</th>
+                                                                <th>{{ stage.w_average.rev|floatformat:2 }}</th>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>

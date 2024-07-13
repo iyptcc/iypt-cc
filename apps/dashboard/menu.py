@@ -8,12 +8,22 @@ from django.urls import resolve, reverse
 
 
 class MenuItem(object):
-    COLOR_AQUA = 'aqua'
-    COLOR_GREEN = 'green'
-    COLOR_RED = 'red'
-    COLOR_YELLOW = 'yellow'
+    COLOR_AQUA = "aqua"
+    COLOR_GREEN = "green"
+    COLOR_RED = "red"
+    COLOR_YELLOW = "yellow"
 
-    def __init__(self, uid, label, route, route_args=None, icon=False, badge=False, badge_color=None, badges=None):
+    def __init__(
+        self,
+        uid,
+        label,
+        route,
+        route_args=None,
+        icon=False,
+        badge=False,
+        badge_color=None,
+        badges=None,
+    ):
         self.__active = False
         self.__parent = None
         self.__children = []
@@ -29,7 +39,7 @@ class MenuItem(object):
         else:
             self.badges = badges
             if type(badges) == tuple:
-                self.badges =[badges]
+                self.badges = [badges]
 
     @property
     def active(self):
@@ -110,7 +120,7 @@ class MenuItem(object):
     def url(self):
         if (self.route is not None) and (self.route != "#"):
             return reverse(self.route, kwargs=self.route_args)
-        return ''
+        return ""
 
 
 class Menu(object):
@@ -131,7 +141,7 @@ class Menu(object):
             if item.has_children():
                 self.__display_by_session(session, item.children)
 
-            item.display = session.get('menu-display-%d'%item.uid,False)
+            item.display = session.get("menu-display-%d" % item.uid, False)
 
     def __path_equals_route(self, path, route):
         resolved = False
@@ -141,17 +151,13 @@ class Menu(object):
         except:
             pass
 
-        if hasattr(resolved,"namespaces"):
-            return resolved and resolved.namespace+":"+resolved.url_name == route
-        return resolved and ":".join(resolved.namespaces+[resolved.url_name]) == route
+        if hasattr(resolved, "namespaces"):
+            return resolved and resolved.namespace + ":" + resolved.url_name == route
+        return resolved and ":".join(resolved.namespaces + [resolved.url_name]) == route
 
     def activate_by_context(self, context):
-        self.__display_by_session(
-            context.get('request').session, self.items.values()
-        )
-        self.__activate_by_path(
-            context.get('request').path, self.items.values()
-        )
+        self.__display_by_session(context.get("request").session, self.items.values())
+        self.__activate_by_path(context.get("request").path, self.items.values())
 
     def add_item(self, item):
         if isinstance(item, MenuItem):
@@ -159,7 +165,7 @@ class Menu(object):
 
     @property
     def items(self):
-        return OrderedDict(sorted(self.__items.items(),key=lambda x:x[0]))
+        return OrderedDict(sorted(self.__items.items(), key=lambda x: x[0]))
 
     @items.setter
     def items(self, items):

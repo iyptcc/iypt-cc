@@ -1,0 +1,31 @@
+meta:
+  cost: {consec-4: 17, meet: 24, no-4: 4, total: 45}
+  d_4fight: 4
+  max_4fight: 5
+  n_meet_multiple: 24
+  name: IYPT schedule
+  role_violations: 0
+  rooms: [A, B, C, D]
+  simulation_rounds: 30000
+  teams: 14
+rounds:
+- - {name: A, obs: 2, opp: 1, rep: 3, rev: 4}
+  - {name: B, obs: 8, opp: 6, rep: 7, rev: 5}
+  - {name: C, opp: 10, rep: 9, rev: 11}
+  - {name: D, opp: 12, rep: 14, rev: 13}
+- - {name: A, obs: 14, opp: 9, rep: 5, rev: 3}
+  - {name: B, obs: 12, opp: 8, rep: 2, rev: 10}
+  - {name: C, opp: 11, rep: 6, rev: 1}
+  - {name: D, opp: 4, rep: 13, rev: 7}
+- - {name: A, obs: 3, opp: 13, rep: 6, rev: 8}
+  - {name: B, obs: 5, opp: 10, rep: 11, rev: 4}
+  - {name: C, opp: 1, rep: 12, rev: 14}
+  - {name: D, opp: 7, rep: 2, rev: 9}
+- - {name: A, obs: 1, opp: 4, rep: 8, rev: 9}
+  - {name: B, obs: 10, opp: 6, rep: 7, rev: 14}
+  - {name: C, opp: 2, rep: 5, rev: 13}
+  - {name: D, opp: 12, rep: 11, rev: 3}
+- - {name: A, obs: 4, opp: 13, rep: 9, rev: 6}
+  - {name: B, obs: 2, opp: 8, rep: 14, rev: 11}
+  - {name: C, opp: 5, rep: 1, rev: 7}
+  - {name: D, opp: 3, rep: 10, rev: 12}

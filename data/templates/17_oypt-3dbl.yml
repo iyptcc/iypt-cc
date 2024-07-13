@@ -1,0 +1,138 @@
+meta:
+  name: onlineYPT (3 doubles 1-6)
+  rooms:
+  - A
+  - B
+  - C
+  - D
+  - E
+  - F
+  - G
+  - H
+  teams: 17
+rounds:
+- - name: A
+    opp: 3
+    rep: 1
+  - name: B
+    opp: 4
+    rep: 2
+  - name: C
+    opp: 7
+    rep: 5
+  - name: D
+    opp: 8
+    rep: 6
+  - name: E
+    opp: 10
+    rep: 9
+  - name: F
+    opp: 12
+    rep: 11
+  - name: G
+    opp: 14
+    rep: 13
+  - name: H
+    obs: 17
+    opp: 16
+    rep: 15
+- - name: A
+    opp: 5
+    rep: 15
+  - name: B
+    opp: 9
+    rep: 16
+  - name: C
+    opp: 4
+    rep: 11
+  - name: D
+    opp: 3
+    rep: 14
+  - name: E
+    opp: 13
+    rep: 1
+  - name: F
+    opp: 7
+    rep: 10
+  - name: G
+    opp: 8
+    rep: 17
+  - name: H
+    obs: 12
+    opp: 2
+    rep: 6
+- - name: A
+    opp: 4
+    rep: 7
+  - name: B
+    opp: 6
+    rep: 16
+  - name: C
+    opp: 17
+    rep: 10
+  - name: D
+    opp: 5
+    rep: 14
+  - name: E
+    opp: 11
+    rep: 9
+  - name: F
+    opp: 15
+    rep: 2
+  - name: G
+    opp: 1
+    rep: 12
+  - name: H
+    obs: 3
+    opp: 8
+    rep: 13
+- - name: A
+    opp: 17
+    rep: 12
+  - name: B
+    opp: 13
+    rep: 15
+  - name: C
+    opp: 1
+    rep: 10
+  - name: D
+    opp: 5
+    rep: 2
+  - name: E
+    opp: 7
+    rep: 11
+  - name: F
+    opp: 6
+    rep: 3
+  - name: G
+    opp: 16
+    rep: 8
+  - name: H
+    obs: 14
+    opp: 9
+    rep: 4
+- - name: A
+    opp: 16
+    rep: 7
+  - name: B
+    opp: 9
+    rep: 12
+  - name: C
+    opp: 14
+    rep: 8
+  - name: D
+    opp: 10
+    rep: 6
+  - name: E
+    opp: 15
+    rep: 3
+  - name: F
+    opp: 2
+    rep: 17
+  - name: G
+    opp: 13
+    rep: 4
+  - name: H
+    obs: 11
+    opp: 1
+    rep: 5

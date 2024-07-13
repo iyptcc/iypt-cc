@@ -4,10 +4,16 @@ from bootstrap3_datetime.widgets import DateTimePicker as OrigDateTimePicker
 class DateTimePicker(OrigDateTimePicker):
 
     class Media:
-        js=('moment/min/moment.min.js',
-            'moment-timezone/builds/moment-timezone-with-data.min.js',
-            'bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',)
-        css = {'all': ('bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',), }
+        js = (
+            "moment/min/moment.min.js",
+            "moment-timezone/builds/moment-timezone-with-data.min.js",
+            "bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js",
+        )
+        css = {
+            "all": (
+                "bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css",
+            ),
+        }
 
     js_template = """
 <script>

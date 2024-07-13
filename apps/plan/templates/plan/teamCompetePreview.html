@@ -18,6 +18,9 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Competing</th>
+                                    {% if problems %}
+                                        <th>Problems</th>
+                                    {% endif %}
                                 </tr>
                                 {% for t in teams %}
                                     <tr>
@@ -27,6 +30,10 @@
                                         <td>
                                             {% if t.competing %}competing{% else %}not competing{% endif %}
                                         </td>
+                                        {% if problems %}
+                                            <td>{% for p in t.problems %}<span class="label label-success"> {{ p }}</span> {% endfor %}
+                                                {% for p in t.del_problems %}<span class="label label-danger"> {{ p }}</span> {% endfor %}</td>
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                             </tbody>

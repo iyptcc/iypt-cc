@@ -46,6 +46,69 @@
                         </div>
                     </div>
                 </div>
+                {% if previous %}
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Previous Attendances</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            {% for prev in previous %}
+                                <div class="col-md-4">
+                                    <div class="box box-primary">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">{{ prev.attendee.tournament }}</h3>
+                                        </div>
+                                        {% if prev.juror %}
+                                        <div class="box-body no-padding">
+                                            <table class="table table-striped">
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Role</th>
+                                                        <th>Round</th>
+                                                        <th>Bias</th>
+                                                    </tr>
+                                                    {% for js in prev.jurorsessions %}
+                                                        <tr>
+                                                            <td>{{ js.jurorsession.role }}</td>
+                                                            <td>{{ js.jurorsession.fight.round.order }}</td>
+                                                        <td>{{ js.bias }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="box-footer">
+                                            <dl>
+                                              <dt>Conflicts:</dt>
+                                              <dd>{{ prev.juror.conflicting.all | join:", " }}</dd>
+                                                <dt>Experience:</dt>
+                                              <dd>{% if prev.juror.experience == 1 %}<i class="fa fa-arrow-up"></i>{% endif %}
+                                                    {% if prev.juror.experience == 0 %}<i class="fa fa-arrow-right"></i>{% endif %}
+                                                    {% if prev.juror.jurorexperience == -1 %}<i class="fa fa-arrow-down"></i>{% endif %}</dd>
+                                        {% else %}
+                                            <div class="box-body">
+                                            <dl>
+                                        {% endif %}
+
+                                                <dt>Roles:</dt>
+                                                <dd>{{ prev.attendee.roles.all | join:", " }}</dd>
+                                                <dt>Team:</dt>
+                                                <dd>{% for tm in prev.attendee.teammember_set.all %}{{ tm.team.origin.name }}: {{ tm.role }} {% endfor %}</dd>
+                                            </dl>
+                                            <span class="label label-default">{% if juror.juror.local %}Local Juror{% endif %}</span>
+                                                    <span class="label label-default">{% if juror.juror.possible_chair %}Possible Chair{% endif %}</span>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if form %}
                 <div class="box box-success">
                     <div class="box-header with-border">
                         <h3 class="box-title">Accept</h3>
@@ -55,11 +118,14 @@
                             {% bootstrap_form form %}
                             {% csrf_token %}
                             <p>
-                                <input class="btn btn-success" type="submit" value="{% trans 'Accept' %}">
+                                <input class="btn btn-success" type="submit" name="_accept" value="{% trans 'Accept' %}">
+
+                                <input class="btn btn-danger" type="submit" name="_reject" value="{% trans 'Reject' %}">
                             </p>
                         </form>
                     </div>
                 </div>
+                {% endif %}
                 {% if missing|length > 0 %}
                     <div class="box box-danger">
                     <div class="box-header with-border">

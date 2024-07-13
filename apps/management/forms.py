@@ -8,34 +8,39 @@ from apps.tournament.models import Tournament
 class TournamentEditForm(forms.ModelForm):
     class Meta:
         model = Tournament
-        fields = ['name', 'slug', 'groups']
+        fields = ["name", "slug", "groups", "allow_oauth"]
 
-        widgets = {
-            'groups': Select2MultipleWidget()
-        }
+        widgets = {"groups": Select2MultipleWidget()}
+
 
 class SetPasswordForm(forms.Form):
 
-    password = forms.CharField(label="Password",
+    password = forms.CharField(
+        label="Password",
         strip=False,
         widget=forms.PasswordInput,
         required=False,
-        help_text="Leave empty for unusable password."
+        help_text="Leave empty for unusable password.",
     )
+
 
 class UDEditForm(forms.ModelForm):
 
     class Meta:
         model = UserProperty
-        fields = ['name', 'type']
+        fields = ["name", "type"]
 
         widgets = {
-            'type': Select2Widget(),
+            "type": Select2Widget(),
         }
+
 
 class PropertyChoiceForm(forms.ModelForm):
     class Meta:
         model = PropertyChoice
         fields = ("name",)
 
-PropertyChoiceFormSet = forms.inlineformset_factory(UserProperty,PropertyChoice, PropertyChoiceForm, extra=2)
+
+PropertyChoiceFormSet = forms.inlineformset_factory(
+    UserProperty, PropertyChoice, PropertyChoiceForm, extra=2
+)

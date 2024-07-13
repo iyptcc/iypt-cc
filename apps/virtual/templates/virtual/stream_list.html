@@ -1,0 +1,51 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Streams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Stream List <a href="{% url "virtual:create_stream" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Access</th>
+                                    <th>stream name</th>
+                                    <th>hls</th>
+                                    <th>mpd</th>
+                                    <th>subdomains</th>
+                                    <th>external</th>
+                                    <th></th>
+                                </tr>
+                                {% for stream in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ stream.name }}
+                                    </td>
+                                    <td>{% for r in stream.access.all %}<span class="label label-default">{{ r }}</span> {% endfor %}</td>
+                                    <td>{{ stream.stream_name }}</td>
+                                    <td>{{ stream.hls_format }}</td>
+                                    <td>{{ stream.mpd_format }}</td>
+                                    <td>{% for s in stream.streamedgeserver_set.all %}<span class="label label-default">{{ s.url }}</span> {% endfor %}</td>
+                                    <td>{{ stream.external_link }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "virtual:change_stream" stream.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "virtual:delete_stream" stream.id %}">delete</a>
+                                        <a class="btn btn-info" href="{% url "virtual:streamedges" stream.id %}">edges</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

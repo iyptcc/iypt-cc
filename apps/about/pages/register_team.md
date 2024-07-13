@@ -11,7 +11,7 @@ Every participant of the tournament has to [create an account](account.md) in th
 1. The team leader or team manager should then apply for the team under [**Registration - My Applications**](/registration/list).
 
     There is a list of tournaments which have a currently open registration period.
-    Select the one you want to participate in and click **Apply for team manager**
+    Select the one you want to participate in and click **Apply for team manager**, or **Apply as IOC**. *For the IYPT, only the IOC can apply*.
 
     If the tournament has a pre-registration phase, the same person, presumeably the responsible IOC member should apply as team manager.
 

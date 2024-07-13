@@ -1,0 +1,109 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+{% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Import Participation Data{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Role Mapping
+                           </h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Old Name</th>
+                                    <th>Old Type</th>
+                                    <th>New Type</th>
+                                    <th>New Name</th>
+                                </tr>
+                                {% for m,v in map.items %}
+                                    <tr>
+                                        <td>{{ m.name }}</td>
+                                        <td>{{ m.type }}</td>
+                                        <td>{{ v.type }}</td>
+                                        <td>{{ v.name }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Attendee Properties List
+                           </h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>type</th>
+                                    <th>required for</th>
+                                    <th>optional for</th>
+                                    <th>required if true</th>
+                                    <th>edit multiple</th>
+                                    <th>Reason</th>
+                                    <th>User Property</th>
+                                    <th>Application Required</th>
+                                    <th></th>
+
+                                </tr>
+                                {% for ap in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ ap.name }}
+                                    </td>
+                                    <td>{{ ap.type }}</td>
+                                    <td>{% for req in ap.required %}<span class="label label-{% if req is None %}danger{% else %}default{% endif %}">{{ req }}</span> {% endfor %}</td>
+                                    <td>{% for opt in ap.optional %}<span class="label label-{% if opt is None %}danger{% else %}default{% endif %}">{{ opt }}</span> {% endfor %}</td>
+                                    <td>{{ ap.required_if }}</td>
+                                    <td>{{ ap.edit_multi }}</td>
+                                    <td>{{ ap.data_utilisation }}</td>
+                                    <td>{{ ap.user_property }}</td>
+                                    <td>{% for req in ap.apply_required %}<span class="label label-{% if req is None %}danger{% else %}default{% endif %}">{{ req }}</span> {% endfor %}</td>
+                                    <td>{% if ap.manager_confirmed %}<span class="label label-info">with confirmation</span>{% endif %}
+                                    {% if ap.hidden %}<span class="label label-info">hidden</span>{% endif %}</td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Import</h3>
+                    </div>
+                    <div class="box-body">
+                        <form action="" method="post">{% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            <p>
+                                <input class="btn btn-success btn-flat" type="submit" value="Import">
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

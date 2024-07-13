@@ -1,0 +1,28 @@
+---
+  meta:
+    name: Polish Semifinals
+    teams: 7
+    rooms:
+    - A
+    - B
+    
+  rounds:
+  - - name: A
+      rep: 1
+      opp: 2
+      rev: 3
+      obs: 4
+    - name: B
+      rep: 5
+      opp: 6
+      rev: 7
+    
+  - - name: A
+      rep: 7
+      opp: 6
+      rev: 2
+      obs: 1
+    - name: B
+      rep: 4
+      opp: 3
+      rev: 5

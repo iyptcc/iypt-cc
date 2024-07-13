@@ -12,6 +12,7 @@
                         <div class="box-header with-border">
                             <h3 class="box-title">Round {{ forloop.counter }}</h3>
                             <a class="btn btn-info" href="{% url "fight:clocks" forloop.counter %}"><i class="fa fa-clock-o"></i></a>
+                            <a href="{% url "fight:timing" forloop.counter %}" class="btn btn-primary">timing</a>
                             <div class="box-tools pull-right">
                                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                             </div>
@@ -52,6 +53,7 @@
                                                 {% else %}
                                                     <a href="{% url "fight:fightpre" fight.pk %}" class="btn btn-primary">chk</a>
                                                 {% endif %}
+                                                <a href="{% url "fight:fightscan" fight.pk %}" class="btn btn-primary">scans</a>
                                             </th>
                                         {% endfor %}
                                     </tr>

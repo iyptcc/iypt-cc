@@ -15,11 +15,13 @@ if 'DB_NAME' in os.environ:
             'HOST': os.environ['DB_SERVICE'],
             'PORT': os.environ['DB_PORT']
         }
-   }
+    }
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(os.path.join(BASE_DIR, 'db' ),'db.sqlite3'),
+            'NAME': os.path.join(os.path.join(BASE_DIR, 'db'), 'db.sqlite3'),
         }
     }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

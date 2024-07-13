@@ -9,13 +9,15 @@
             <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Problem List <a href="{% url "tournament:create_problem" %}" class="btn btn-success">add</a></h3>
+                        <h3 class="box-title">Problem List <a href="{% url "tournament:create_problem" %}" class="btn btn-success">add</a> <a href="{% url "tournament:import_problems" %}" class="btn btn-info">import</a></h3>
                     </div>
                     <div class="box-body no-padding">
                         <table class="table table-striped">
                             <tbody>
                                 <tr>
                                     <th>#</th>
+                                    <td>presented</td>
+                                    <td>rejected</td>
                                     <th>Title</th>
                                     <th>Description</th>
                                     <th></th>
@@ -25,6 +27,8 @@
                                     <td>
                                         {{ problem.number }}
                                     </td>
+                                    <td>{{ problem.presented_in.all|length }} : {% for s in problem.presented_in.all %}<span class="label label-default">{{ s.fight.round.order }} {{ s.fight.room.name }}-{{ s.order }}</span> {% endfor %}</td>
+                                    <td>{{ problem.stage_set.all|length }} : {% for s in problem.stage_set.all %}<span class="label label-default">{{ s.fight.round.order }} {{ s.fight.room.name }} - {{ s.order }}</span> {% endfor %}</td>
                                     <td>{{ problem.title }}</td>
                                     <td>{{ problem.description }}</td>
                                     <td>

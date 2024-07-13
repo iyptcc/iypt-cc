@@ -6,10 +6,10 @@ from django.contrib.messages import get_messages
 
 
 class NotificationItem(object):
-    TYPE_ERROR = 'red'
-    TYPE_INFO = 'aqua'
-    TYPE_SUCCESS = 'green'
-    TYPE_WARNING = 'yellow'
+    TYPE_ERROR = "red"
+    TYPE_INFO = "aqua"
+    TYPE_SUCCESS = "green"
+    TYPE_WARNING = "yellow"
 
     def __init__(self, message=None, icon=None, tp=None, uid=None):
         self.__uid = uid
@@ -49,12 +49,13 @@ class NotificationList(object):
 def user_messages(sender, **kwargs):
     # sender is an instance of Menu class
 
-    request=kwargs['context']['request']
+    request = kwargs["context"]["request"]
     if request.user.is_authenticated:
 
         storage = get_messages(request)
         for message in storage:
-            n=NotificationItem(message=message.message, tp=message.level)
+            n = NotificationItem(message=message.message, tp=message.level)
             sender.add_notification(n)
+
 
 NotificationList.show_signal.connect(user_messages)

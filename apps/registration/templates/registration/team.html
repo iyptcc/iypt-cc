@@ -1,10 +1,15 @@
 {% extends "dashboard/base-layout.html" %}
-{% load bootstrap3 i18n %}
+{% load bootstrap3 i18n dashboard %}
 
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
 
     {% block page_title %}Team{% endblock %}
 
     {% block page_content %}
+        <form method="post" role="form">
         <div class="row">
             <div class="col-md-12">
                 <div class="box box-primary">
@@ -12,67 +17,131 @@
                         <h3 class="box-title">Manage Team {{ team.origin.name }} {% if not team.is_competing %}<i class="fa fa-warning"></i> not competing{% endif %}</h3>
                     </div>
                     <div class="box-body">
-                        <form method="post">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="box box-primary">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">join settings</h3>
+                                    </div>
+                                    <div class="box-body">
+                                        {% bootstrap_field form.join_password %}
+                                        {% bootstrap_field form.notify_applications %}
+                                    </div>
+                                    <div class="box-footer">
+                                            <input type="submit" value="save" name="_save" class="btn btn-success">
+                                    </div>
+                                </div>
+                            </div>
+                            {% if team.storage_link %}
+                                <div class="col-md-4">
+                                    <div class="box box-primary">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Upload Space</h3>
+                                        </div>
+                                        <div class="box-body">
+                                            You can upload files for the team: <a href="{{ team.storage_link }}" target="_blank">{{ team.storage_link }}</a>.<br>
+                                            This link may be shared with team members for them to upload.
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
                             {% csrf_token %}
-                            {% bootstrap_form form %}
-                            <input type="submit" value="save" class="btn btn-success">
-                        </form>
+                            <div class="col-md-12">
+                                <div class="box box-primary">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">set parameters</h3>
+                                    </div>
+                                    <div class="box-body no-padding table-responsive">
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                <tr>
+                                                    <th></th>
+                                                    {% for apf in form.get_aps_forms %}
+                                                        <td>{{  apf.name }}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                                <tr>
+                                                    <td>set</td>
+                                                    {% for apf in form.get_aps_forms %}
+                                                        <td>{{ apf.set_field }}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                                <tr>
+                                                    <td>value</td>
+                                                    {% for apf in form.get_aps_forms %}
+                                                        <td>{{ apf.field }}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="box-footer">
+                                        <input class="btn btn-primary" type="submit" name="_set_parameters" value="set parameters">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </form>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="box box-default">
+                <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Members</h3>
+                        <h3 class="box-title">Attendees ({{ form.obj_list.field.choices|length }})
+                        </h3>
                     </div>
                     <div class="box-body no-padding table-responsive">
                         <table class="table table-striped">
                             <tbody>
                                 <tr>
+                                    <th><input id="checkAll" type="checkbox"> all</th>
                                     <th>Name</th>
-                                    <th>Role</th>
-                                    <th>Trn. Role</th>
-                                    <th>poss. Juror</th>
-                                    <th>Group Manager</th>
-                                    <th></th>
-                                    {% for apn in apname %}
-                                        <th>{{ apn }}</th>
-                                    {% endfor %}
-
+                                        <th>Role</th>
+                                        <th>Trn. Role</th>
+                                        <th>poss. Juror</th>
+                                        <th>acting Juror</th>
+                                        <th>Group Manager</th>
+                                        <th></th>
+                                        {% for apn in apname %}
+                                            <th>{{ apn }}</th>
+                                        {% endfor %}
                                 </tr>
-                                {% for mem in members %}
+                                {% for choice_id, choice_label in form.obj_list.field.choices %}
                                     <tr>
-                                        <td>{% include "account/inc/name.html" with user=mem.attendee %}</td>
-                                        <td><span class="label label-primary">{{ mem.role }}</span></td>
-                                        <td>{% for r in mem.proles %}<span class="label label-info">{{ r }}</span> {% endfor %}</td>
                                         <td>
-                                            {% if mem.juror %}
-                                                {% if mem.accepted %}
+                                            <input name="obj_list" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                        </td>
+                                            <td>{% include "account/inc/name.html" with user=choice_label.attendee %}</td>
+                                        <td><span class="label label-primary">{{ choice_label.role }}</span></td>
+                                        <td>{% for r in choice_label.attendee.roles.all %}<span class="label label-info">{{ r }}</span> {% endfor %}</td>
+                                        <td>
+                                            {% if att_data|hash:choice_id|hash:"possiblejuror" %}
+                                                {% if att_data|hash:choice_id|hash:"accepted" %}
                                                     <span class="label label-success"><i class="fa fa-check"></i></span>
                                                 {% else %}
                                                     <span class="label label-warning"><i class="fa fa-cog"></i> pending</span>
                                                 {% endif %}
                                             {% endif %}
                                         </td>
-                                        <td>{% if mem.manager %}<i class="fa fa-check"></i>{% endif %}</td>
+                                        <td>{% if att_data|hash:choice_id|hash:"juror" %}<i class="fa fa-check"></i>{% endif %}</td>
+                                        <td>{% if choice_label.manager %}<i class="fa fa-check"></i>{% endif %}</td>
                                         <td>
                                             <div class="btn-group-vertical">
-                                                <a href="{% url "registration:team_member_edit" team.origin.slug mem.id %}" class="btn btn-success">edit</a>
-                                                <a href="{% url "registration:team_member_data" team.origin.slug mem.id %}" class="btn btn-primary">edit data</a>
-                                                <a href="{% url "registration:team_member_delete" team.origin.slug mem.id %}" class="btn btn-danger">delete</a>
+                                                <a href="{% url "registration:team_member_edit" team.origin.slug choice_id %}" class="btn btn-success">edit</a>
+                                                <a href="{% url "registration:team_member_data" team.origin.slug choice_id %}" class="btn btn-primary">edit data</a>
+                                                <a href="{% url "registration:team_member_delete" team.origin.slug choice_id %}" class="btn btn-danger">delete</a>
                                             </div>
                                         </td>
-                                        {% for dat in mem.data %}
+                                        {% for dat in att_data|hash:choice_id|hash:"data" %}
                                             {% if dat.needed %}
                                                 {% if dat.value or dat.prelim %}
                                                 <td {% if dat.prelim %}class="bg-warning"{% endif %}>{{ dat.value }} {% if dat.prelim %}({{ dat.prelim }}){% endif %}</td>
                                                 {% elif dat.image %}
-                                                    <td><a href="{% url "registration:file_property" 'a' mem.attendee.id dat.image.id dat.image.url %}">{{ dat.image.url }}</a></td>
+                                                    <td><a href="{% url "registration:file_property" 'a' choice_label.attendee.id dat.image.id dat.image.url %}">{{ dat.image.url }}</a></td>
                                                 {% elif dat.file %}
-                                                    <td><a href="{% url "registration:file_property" 'a' mem.attendee.id dat.file.id dat.file.url %}">{{ dat.file.url }}</a></td>
+                                                    <td><a href="{% url "registration:file_property" 'a' choice_label.attendee.id dat.file.id dat.file.url %}">{{ dat.file.url }}</a></td>
                                                 {% elif dat.list %}
                                                     <td>{{ dat.list|join:', ' }}</td>
                                                 {% elif dat.required %}
@@ -84,7 +153,6 @@
                                                 <td></td>
                                             {% endif %}
                                         {% endfor %}
-
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -93,6 +161,7 @@
                 </div>
             </div>
         </div>
+        </form>
         <div class="row">
             <div class="col-md-12">
                 <div class="box box-primary">
@@ -121,10 +190,11 @@
                             </tbody>
                         </table>
                     </div>
-                </form>
+
                 </div>
             </div>
         </div>
+        {% if team.tournament.bank_expected_fee %}
         <div class="row">
             <div class="col-md-12">
                 <div class="box box-primary">
@@ -147,10 +217,10 @@
                             </tbody>
                         </table>
                     </div>
-                </form>
                 </div>
             </div>
         </div>
+        {% endif %}
         <div class="row">
             <div class="col-md-12">
                 <div class="box box-default">
@@ -215,3 +285,16 @@
             </div>
         </div>
     {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

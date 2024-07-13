@@ -1,0 +1,116 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n dashboard static graph_color %}
+
+    {% block page_title %}Assign Jurors{% endblock %}
+
+    {% block page_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Stats</h3>
+                        </div>
+                        <div class="box-body">
+                            total duration, etc {{ states }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">overview</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="chart">
+                                <canvas id="lineChart" height="300" width="1024"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <script src="/static/AdminLTE/bower_components/moment/moment.js"></script>
+    <script src="/static/js/Chart.min.js"></script>
+{% endblock %}
+
+{% block javascripts_inline %}
+
+    <script language="javascript">
+
+        var color = Chart.helpers.color;
+		var conf = {
+			type: 'line',
+			data: {
+				/*labels: [ // Date Objects
+					newDate(0),
+					newDate(1),
+					newDate(2),
+					newDate(3),
+					newDate(4),
+					newDate(5),
+					newDate(6)
+				],*/
+				datasets: [
+                    {% for f in fights %}
+				    {
+					label: '{{ f.fight.room.name }}',
+					backgroundColor: "rgba({{ f.fight.room.name|rgbFromName }}, 1)",
+					borderColor: "rgba({{ f.fight.room.name|rgbFromName }}, 1)",
+                    type: 'line',
+					pointRadius: 3,
+                lineTension: 0,
+					fill: false,
+					data: [
+                        {% for d in f.data %}
+					    {
+						x: "{{ d.server_time|date:'Y-m-d H:i:s' }}",
+						y: {{ d.elapsed }}
+					},
+                        {% endfor %}
+                    ],
+				},
+                    {% endfor %}
+				]
+			},
+			options: {
+				title: {
+					text: 'Chart.js Time Scale'
+				},
+				scales: {
+					xAxes: [{
+						type: 'time',
+						time: {
+							parser: 'YYYY-MM-DD HH:mm:ss',
+							// round: 'day'
+							tooltipFormat: 'll HH:mm:ss'
+						},
+						scaleLabel: {
+							display: true,
+							labelString: 'Date'
+						}
+					}],
+					yAxes: [{
+						scaleLabel: {
+							display: true,
+							labelString: 'value'
+						}
+					}]
+				},
+			}
+		};
+
+    window.onload = function() {
+			var ctx = document.getElementById('lineChart').getContext('2d');
+			window.myLine = new Chart(ctx, conf);
+		};
+
+
+    </script>
+
+{% endblock %}

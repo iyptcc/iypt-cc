@@ -1,0 +1,207 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n static flags %}
+
+{% block styles_inline %}
+    <style>
+
+    .flag-container-72 {
+                height:13px;
+                overflow: hidden;
+                display: inline;
+            }
+            .flag-image-72 {
+                height: 18px;
+                margin-top: -10px;
+            }
+
+    .profile-image {
+position: relative;
+display: inline-block;
+margin: 10px;
+}
+
+.profile-image .flag-container-72 {
+position: absolute;
+bottom: 0;
+right: 0;
+margin: -3px -6px;
+}
+    </style>
+{% endblock %}
+
+    {% block page_title %}Virtual Tournament{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Halls</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            {% for hall in halls %}
+                                <div class="col-md-3">
+                                    <div class="box box-primary">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">{{ hall.obj.name }}
+                                            </h3>
+                                        </div>
+                                        <div class="box-body">
+                                            {% for pr in hall.obj.hallrole_set.all %}<span class="label label-default">{{ pr.role }} : {{ pr.get_mode_display }}</span> {% endfor %}
+                                            <span class="label label-success">{{ hall.bbb_role }}</span>
+                                            <span class="label label-primary">{{ hall.bbb_name }}</span>
+                                            <p>{{ hall.obj.description | default:'' }}</p>
+                                        </div>
+                                        <div class="box-footer">
+                                            <a href="{% url "virtual:joinhall" hall.obj.pk %}" class="btn btn-primary">join room</a>
+                                        </div>
+                                        <div class="box-footer">
+                                            {% for att in hall.obj.virtual_attendees.all %}
+                                                {% if att.active_user.avatar %}
+                                                    <div class="profile-image">
+                                                        <img src="{% url 'virtual:avatar' att.active_user.user.id %}" style="width:45px;" class="img-circle" data-toggle="tooltip" title="{{ att.full_name }}" alt="Name">
+                                                        {% if att.team_set.first %}
+                                                            {{ att.team_set.first.origin|flag_image }}
+                                                        {% endif %}
+                                                      </div>
+                                                {% else %}
+                                                    <div class="profile-image">
+                                                        <img src="{% static 'user-circle-regular.png' %}" style="width:45px;" class="{{ class|default:'img-circle' }}" data-toggle="tooltip" title="{{ att.full_name }}" alt="Name">
+                                                        {% if att.team_set.first %}
+                                                            {{ att.team_set.first.origin|flag_image }}
+                                                        {% endif %}
+                                                      </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for att in hall.obj.virtual_guests.all %}
+                                                    <img src="{% static 'user-circle-solid.png' %}" style="width:45px;" class="{{ class|default:'img-circle' }}" data-toggle="tooltip" title="{{ att.name }}" alt="Name">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            {% for stream in streams %}
+                                <div class="col-md-3">
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">{{ stream.name }}
+                                            </h3>
+                                        </div>
+                                        <div class="box-body">
+                                            {% for pr in stream.access.all %}<span class="label label-default">{{ pr }}</span> {% endfor %}
+                                        </div>
+                                        <div class="box-footer">
+                                            <a href="{% url "virtual:stream" stream.id %}" class="btn btn-primary">watch stream</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% for round in rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary {% if not round.obj.currently_active %}collapsed-box{% endif %}">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa {% if round.obj.currently_active %}fa-minus{% else %}fa-plus{% endif %}"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for fight in round.fights %}
+                                    <div class="col-md-3">
+                                        <div class="box box-primary">
+                                            <div class="box-header with-border">
+                                                <h3 class="box-title">Fight {{ fight.name }}
+                                                </h3>
+                                                {% for t in fight.teams %}
+                                                            <span class="label label-default">{{ t.origin.name }}</span>
+                                                    {% endfor %}
+                                            </div>
+                                            <div class="box-body">
+                                                {% for r in fight.roles %}
+                                                    <span class="label label-info">{{ r }}</span>
+                                                {% endfor %}
+                                                <span class="label label-success">{{ fight.bbb_role }}</span>
+                                                <span class="label label-primary">{{ fight.bbb_name }}</span>
+                                            </div>
+                                            <div class="box-footer">
+                                                <a href="{% url "virtual:join" fight.pk %}" class="btn btn-primary">join room</a>
+
+                                                <div class="btn-group">
+                                                    <a href="#"
+                                                        class="btn  btn-success">
+                                                        Clocks
+                                                    </a>
+                                                    <button type="button" class="btn btn-success
+                                                                dropdown-toggle" data-toggle="dropdown">
+                                                        <span class="caret"></span>
+                                                        <span class="sr-only">Stages</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        {% for s in fight.stages %}
+                                                            <li><a href="{% url 'virtual:clock' fight.pk forloop.counter %}">Stage {{ forloop.counter }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                {% if fight.is_juror %}
+                                                <div class="btn-group">
+                                                    <a href="{% url 'virtual:fight' fight.pk 1 %}"
+                                                        class="btn  btn-warning">
+                                                        Grading
+                                                    </a>
+                                                    <button type="button" class="btn btn-warning
+                                                                dropdown-toggle" data-toggle="dropdown">
+                                                        <span class="caret"></span>
+                                                        <span class="sr-only">Stages</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        {% for s in fight.stages %}
+                                                            <li><a href="{% url 'virtual:fight' fight.pk forloop.counter %}">Stage {{ forloop.counter }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                {% endif %}
+                                                {% if fight.roles and room_show_grades %}
+                                                    <a href="{% url "virtual:prelim" fight.pk %}" class="btn btn-primary">Grades</a>
+                                                {% endif %}
+                                            </div>
+                                            <div class="box-footer">
+                                                {% for att in fight.obj.virtual_attendees.all %}
+
+                                                    {% if att.active_user.avatar %}
+                                                        <div class="profile-image">
+                                                        <img src="{% url 'virtual:avatar' att.active_user.user.id %}" style="width:45px;" class="img-circle" data-toggle="tooltip" title="{{ att.full_name }}" alt="Name">
+                                                        {% if att.team_set.first %}
+                                                            {{ att.team_set.first.origin|flag_image }}
+                                                        {% endif %}
+                                                      </div>
+                                                    {% else %}
+                                                        <div class="profile-image">
+                                                        <img src="{% static 'user-circle-regular.png' %}" style="width:45px;" class="{{ class|default:'img-circle' }}" data-toggle="tooltip" title="{{ att.full_name }}" alt="Name">
+                                                        {% if att.team_set.first %}
+                                                            {{ att.team_set.first.origin|flag_image }}
+                                                        {% endif %}
+                                                      </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% for att in fight.obj.virtual_guests.all %}
+                                                    <img src="{% static 'user-circle-solid.png' %}" style="width:45px;" class="{{ class|default:'img-circle' }}" data-toggle="tooltip" title="{{ att.name }}" alt="Name">
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}

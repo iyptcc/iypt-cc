@@ -18,6 +18,11 @@
                             <h3 class="box-title">Round {{ forloop.counter }}
                                 <span class="label label-default">ranking {{ round.0.rank_check }}</span>
                                 <span class="label label-default">schedule {{ round.0.sched_check }}</span>
+                                <span class="label label-default">jury {{ round.0.jury_check }}</span>
+                                <span class="label label-default">active {{ round.0.active_check }}</span>
+                                <span class="label label-default">only fixed {{ round.0.fixed_check }}</span>
+                                <span class="label label-default">feedback locked {{ round.0.fblocked_check }}</span>
+                                <span class="label label-default">reviews {{ round.0.review_check }}</span>
                             </h3>
                             <div class="box-tools pull-right">
                                 <a href="{% url "fight:genpdfrank" forloop.counter %}" class="btn btn-sm btn-success"><i class="fa fa-cog"></i></a>
@@ -88,6 +93,26 @@
                                             </td>
                                         {% endfor %}
                                     </tr>
+                                    <tr>
+                                        <th>single sheets</th>
+                                        {% for fight in round %}
+                                            <td>
+                                                <div style="width: 100px;">
+                                                {{ fight.single_publish }}
+                                                </div>
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <th>slides</th>
+                                        {% for fight in round %}
+                                            <td>
+                                                <div style="width: 100px;">
+                                                {{ fight.slides_publish }}
+                                                </div>
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
 
                                 </tbody>
                             </table>
@@ -109,6 +134,7 @@
                                 {{ form.non_field_errors }}
                             {% endif %}
                             {% csrf_token %}
+                            {% bootstrap_field form.slides_public %}
                             {% bootstrap_field form.protection %}
                             {% bootstrap_field form.password %}
                             <input type="submit" class="btn btn-success" value="Publish"/>

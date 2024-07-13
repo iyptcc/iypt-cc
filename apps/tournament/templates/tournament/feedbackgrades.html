@@ -1,0 +1,40 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Feedback Grades{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Grades List <a href="{% url "tournament:create_feedbackgrade" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Value</th>
+                                    <th></th>
+                                </tr>
+                                {% for ap in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ ap.name }}
+                                    </td>
+                                    <td>{{ ap.value }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "tournament:change_feedbackgrade" ap.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "tournament:delete_feedbackgrade" ap.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

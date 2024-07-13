@@ -1,10 +1,6 @@
 {% extends "dashboard/base-layout.html" %}
 {% load bootstrap3 i18n %}
 
-    {% block stylesheets %}
-        {{ block.super }}
-        {{ form.media.css }}
-    {% endblock %}
 
     {% block page_title %}Tournament{% endblock %}
 
@@ -13,24 +9,26 @@
             <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Round {{ fights.0.round.order }} clocks</h3>
+                        <h3 class="box-title">Round {{ stages.0.0.fight.round.order }} clocks</h3>
                     </div>
                     <div class="box-body">
                         <div class="row">
-                            {% for f in fights %}
-                                <div class="col-md-12">
+                            {% for sts in stages %}
+                                <div class="col-md-6">
                                     <div class="box box-info">
                                         <div class="box-header with-border">
-                                            <h3 class="box-title"> {{ f.room.name }}</h3>
+                                            <h3 class="box-title"> Stage {{ sts.0.order }}</h3>
                                         </div>
                                         <div class="box-body">
-                                            <div class="progress">
-                                                {% for p in phases %}
-                                                    <div class="progress-bar progress-bar-{% if forloop.counter|divisibleby:2 %}info{% else %}primary{% endif %}" role="progressbar" id="bar-{{ f.id }}-{{ p.id }}" style="width:{% widthratio p.duration total_duration 100 %}%">
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
-                                            <p id="stage-{{ f.id }}">blub</p>
+                                            {% for s in sts %}
+                                                <div>{{ s.fight.room.name }} <p style="display: inline;" id="stage-{{ s.fight.id }}-{{ s.order }}">blub</p></div>
+                                                <div class="progress">
+                                                    {% for p in phases %}
+                                                        <div class="progress-bar progress-bar-{% if forloop.counter|divisibleby:2 %}info{% else %}primary{% endif %}" role="progressbar" id="bar-{{ s.fight.id }}-{{ s.order }}-{{ p.id }}" style="width:{% widthratio p.duration total_duration 100 %}%">
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>
@@ -42,15 +40,9 @@
         </div>
     {% endblock %}
 
-
-{% block javascripts %}
-    {{ block.super }}
-    {{ form.media.js }}
-{% endblock %}
-
 {% block javascripts_inline %}
+    <script src="/static/reconnecting-websocket/reconnecting-websocket.min.js"></script>
     <script>
-        var fightIDs = [{% for f in fights %}{{ f.id }},{% endfor %}];
 
         var phases = new Array();
 
@@ -69,52 +61,45 @@
             this.current_time = 0;
           }
 
-        console.log(fightIDs)
-
-        fightIDs.forEach(function (elem) {
             var socketProto = 'wss://';
 
             if (location.protocol != 'https:') {
                 var socketProto = 'ws://';
             }
 
-            sock = new WebSocket(
-            socketProto + window.location.host +
-            '/ws/clock/' + elem + '/control/');
+                sock = new ReconnectingWebSocket(
+                    socketProto + window.location.host +
+                    '/ws/clocks/' + {{ stages.0.0.fight.round.order }} + '/');
 
-        sock.onmessage = function(e) {
-            var data = JSON.parse(e.data);
-            var message = data['state'];
-            console.log(message)
-            var before = true
-            for(i=0;i<phases.length;i++)
-            {
-                if(phases[i].id == parseInt(message["id"]))
-                {
-                    console.log("found phase")
-                    before = false
-                    $("#bar-"+elem+"-"+phases[i].id).css("width",(100*message["elapsed"]/{{ total_duration }})+"%")
-                }
-                else if(before)
-                {
-                    $("#bar-"+elem+"-"+phases[i].id).css("width",(100*phases[i].duration/{{ total_duration }})+"%")
-                }
-                else
-                {
-                    $("#bar-"+elem+"-"+phases[i].id).css("width","0%")
-                }
-            }
+                sock.onmessage = function (e) {
+                    var data = JSON.parse(e.data);
+                    var message = data['state'];
+                    var fight = data['fight']
+                    var stage = data['stage']
+                    console.log(message)
+                    var before = true;
+                    for (i = 0; i < phases.length; i++) {
+                        if (phases[i].id == parseInt(message["id"])) {
+                            console.log("found phase")
+                            before = false
+                            console.log(self)
+                            $("#bar-" + fight + "-" + stage + "-" + phases[i].id).css("width", (100 * message["elapsed"] /{{ total_duration }}) + "%")
+                        } else if (before) {
+                            $("#bar-" + fight + "-" + stage + "-" + phases[i].id).css("width", (100 * phases[i].duration /{{ total_duration }}) + "%")
+                        } else {
+                            $("#bar-" + fight + "-" + stage + "-" + phases[i].id).css("width", "0%")
+                        }
+                    }
 
-            var elap = parseInt(message['elapsed'])
-            $("#stage-"+elem).text(Math.floor(elap/60)+":"+("000" + (elap%60)).slice(-2)+" : "+ message["name"])
-            //document.querySelector('#clock-state').innerHTML = (message['elapsed']+": "+ message["name"]);
-        };
+                    var elap = parseInt(message['elapsed'])
+                    $("#stage-" + fight+"-"+stage).text(Math.floor(elap / 60) + ":" + ("000" + (elap % 60)).slice(-2) + " : " + message["name"])
+                    //document.querySelector('#clock-state').innerHTML = (message['elapsed']+": "+ message["name"]);
+                };
 
-        sock.onclose = function(e) {
-            console.error(e)
-            console.error('Chat socket closed unexpectedly');
-        };
-        })
+                sock.onclose = function (e) {
+                    console.error(e)
+                    console.error('Chat socket closed unexpectedly');
+                };
 
     </script>
 {% endblock%}

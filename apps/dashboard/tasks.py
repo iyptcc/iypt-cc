@@ -5,10 +5,10 @@ import django.dispatch
 
 
 class Task(object):
-    COLOR_AQUA = 'aqua'
-    COLOR_GREEN = 'green'
-    COLOR_RED = 'red'
-    COLOR_YELLOW = 'yellow'
+    COLOR_AQUA = "aqua"
+    COLOR_GREEN = "green"
+    COLOR_RED = "red"
+    COLOR_YELLOW = "yellow"
 
     def __init__(self, title, progress, color=None, uid=None, url=None):
         self.__uid = uid

@@ -1,0 +1,28 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Problem Grading Sheet{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">JSON</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" role="form">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <input type="hidden" name="{{ stage_field }}" value="1" />
+                            {% buttons %}
+                                <input class="btn btn-primary btn-flat" type="submit" value="{% trans 'Preview' %}">
+                            {% endbuttons %}
+                        </form>
+                        <a class="btn btn-danger" href="{% url "tournament:gradingdelete" %}">delete grading sheet</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

@@ -1,0 +1,52 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+        {{ form.media.js }}
+    {% endblock %}
+
+
+    {% block page_title %}Streams{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Edit Stream</h3>
+                    </div>
+                    <div class="box-body">
+                        <form action="" method="post">{% csrf_token %}
+                            {% bootstrap_form form %}
+                            <input type="submit" class="btn btn-success" value="Save" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% if urls %}
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Debugging Format</h3>
+                        </div>
+                        <div class="box-body no-padding">
+                            <table class="table table-striped">
+                                {% for url in urls %}
+                                    <tr>
+                                        <td>{{ url }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

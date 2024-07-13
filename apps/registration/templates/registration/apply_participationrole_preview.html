@@ -14,16 +14,25 @@
                         <h3 class="box-title">Apply</h3>
                     </div>
                     <div class="box-body">
-                        <form action="" method="post">{% csrf_token %}
-                            {% for field in form %}
-                                {{ field.as_hidden }}
-                            {% endfor %}
-                            <input type="hidden" name="{{ stage_field }}" value="2" />
-                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                        <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
                             <p>
-                                <input class="btn btn-success" type="submit" value="{% trans 'Apply' %}">
+                            {% if wizard.steps.prev %}
+                            <button name="wizard_goto_step" class="btn btn-info" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+                            {% endif %}
+                            <input type="submit" value="apply" class="btn btn-success"/>
                             </p>
-                        </form>
+
+                            {{ wizard.management_form }}
+                            {% if wizard.form.forms %}
+                                {{ wizard.form.management_form }}
+                                {% for form in wizard.form.forms %}
+                                    {% bootstrap_form form %}
+                                {% endfor %}
+                            {% else %}
+                                {% bootstrap_form wizard.form %}
+                            {% endif %}
+                    </form>
                     </div>
                 </div>
                 {% else %}

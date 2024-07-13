@@ -1,0 +1,28 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Virtual Tournament{% endblock %}
+
+    {% block page_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Public links for {{ hall }}{{ fight }}</h3>
+                        </div>
+                        <div class="box-body">
+                        <ul>
+                            {% for link in links %}
+                                {% if hall %}
+                                    <li><a href="{% url "result:hall" link.slug link.hall link.role link.sig %}">{{ link.role }}</a></li>
+                                {% elif fight %}
+                                    <li><a href="{% url "result:room" link.slug link.fight link.role link.sig %}">{{ link.role }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endblock %}

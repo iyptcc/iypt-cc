@@ -1,0 +1,63 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Member Statistics{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h4 class="box-title" style="">Member Statistics
+                        </h4>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                <tr>
+                                    <th>Attendee</th>
+                                    <th>Mean</th>
+                                </tr>
+                                {% for member in members %}
+                                    <tr>
+                                        <td>{{ member.obj.full_name }}</td>
+                                        <td>{{ member.total|floatformat:2 }}</td>
+                                        {% for p in member.perfs %}
+                                            <td>{{ p.0 }} as {{ p.1.name }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+            </div>
+            {% for l in top_role %}
+            <div class="col-md-12">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h4 class="box-title" style="">Best Role Performances {{ l.0 }}
+                        </h4>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                <tr>
+                                    <th>Attendee</th>
+                                    <th>Mean</th>
+                                </tr>
+                                {% for member in l.1 %}
+                                    <tr>
+                                        <td>{{ member.obj.full_name }}</td>
+                                        <td>{{ member }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endblock %}

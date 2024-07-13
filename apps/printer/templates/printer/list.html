@@ -1,85 +1,178 @@
 {% extends "dashboard/base-layout.html" %}
 {% load bootstrap3 i18n %}
 
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
 
     {% block page_title %}PDFs{% endblock %}
 
     {% block page_content %}
 
         <div class="row">
-            <div class="col-md-12">
-                <div class="box box-primary">
-                <form method="post">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">PDFs
-                        <a class="btn btn-success" href="{% url "printer:upload" %}" >upload</a>
-                        <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
-                        </h3>
-                        {% csrf_token %}
-
-                    </div>
-                    <div class="box-body no-padding">
-                        <table class="table table-striped">
-                            <tbody>
-                                <tr>
-                                    <th></th>
-                                    <th>Name</th>
-                                    <th>State</th>
-                                    <th>File</th>
-                                    <th>rendered</th>
-                                    <th>expire</th>
-                                    <th></th>
-                                    <th>Job</th>
-                                    <th></th>
-                                </tr>
-                                {% for choice_id, pdf in form.pdfs.field.choices %}
-                                    <tr>
-                                        <td>
-                                            <input name="pdfs" value="{{ choice_id }}" type="checkbox">
-                                        </td>
-                                        <td>{{ pdf.pure_name }}</td>
-                                        <td>
-                                            {{ pdf.status }}
-                                        </td>
-                                        <td>
-                                            {{ pdf.file }}
-                                        </td>
-                                        <td>
-                                            {{ pdf.rendered_at|date:'Y b j  H:m:s e' }}
-                                        </td>
-                                        <td>
-                                            {{ pdf.expire_at|date:'Y b j  H:m:s e' }}
-                                        </td>
-                                        <td>
-                                            {% for t in pdf.tags.all %}
-                                                <span class="label label-{{ t.color }}">{{ t.name }}</span>
+            <div class="col-md-10">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary collapsed-box">
+                                <div class="box-header with-border" data-widget="collapse">
+                                    <h3 class="box-title">Actions</h3>
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">delete</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-success">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">merge pdfs</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {% bootstrap_field form.merge_name %}
+                                                    {% bootstrap_field form.merge_pages %}
+                                                    <p>
+                                                    e.g. 2:5,7,10:40:3, empy for all
+                                                        </p>
+                                                    <input class="btn btn-success" type="submit" name="_merge" value="merge selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-success">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">upload</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <a class="btn btn-success" href="{% url 'printer:upload' %}">upload</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-success">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">File Servers</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <table>
+                                                        {% for s in fileservers %}
+                                                        <tr>
+                                                        <td><a href="{% url 'printer:fileserver_list' s.id %}">{{ s.name }}</a></td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% csrf_token %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">PDFs ({{ form.obj_list.field.choices|length }})</h3>
+                                </div>
+                                <div class="box-body no-padding table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th><input id="checkAll" type="checkbox"> all</th>
+                                                <th>Name</th>
+                                                <th>State</th>
+                                                <th>File</th>
+                                                <th>rendered</th>
+                                                <th>expire</th>
+                                                <th></th>
+                                                <th>Job</th>
+                                                <th></th>
+                                            </tr>
+                                            {% for choice_id, pdf in form.obj_list.field.choices %}
+                                            <tr>
+                                                <td>
+                                                    <input name="obj_list" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                                </td>
+                                                <td>{{ pdf.pure_name }}</td>
+                                                <td>
+                                                    {{ pdf.status }}
+                                                </td>
+                                                <td>
+                                                    {{ pdf.file }}
+                                                </td>
+                                                <td>
+                                                    {{ pdf.rendered_at|date:'Y b j  H:m:s e' }}
+                                                </td>
+                                                <td>
+                                                    {{ pdf.expire_at|date:'Y b j  H:m:s e' }}
+                                                </td>
+                                                <td>
+                                                    {% for t in pdf.tags.all %}
+                                                        <span class="label label-{{ t.color }}">{{ t.name }}</span>
+                                                    {% endfor %}
+                                                </td>
+                                                <td>
+                                                    {% if pdf.status == "failure" %}
+                                                        {% if pdf.task_id %}
+                                                            <a href="{% url "printer:tex_error" pdf.task_id %}">{{ pdf.task_id }}</a>
+                                                        {% else %}
+                                                            no job
+                                                        {% endif %}
+                                                    {% elif pdf.status == "error" and pdf.task_id != None %}
+                                                        <a href="{% url "printer:tex_render_error" pdf.task_id %}">{{ pdf.task_id }}</a>
+                                                    {% else %}
+                                                        {{ pdf.task_id }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if pdf.file %}
+                                                        <a href="{% url "printer:file" pdf.file %}" class="btn btn-info"><i class="fa fa-file-pdf-o"></i></a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
                                             {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% if pdf.status == "failure" %}
-                                                {% if pdf.task_id %}
-                                                    <a href="{% url "printer:tex_error" pdf.task_id %}">{{ pdf.task_id }}</a>
-                                                {% else %}
-                                                    no job
-                                                {% endif %}
-                                            {% elif pdf.status == "error" and pdf.task_id != None %}
-                                                <a href="{% url "printer:tex_render_error" pdf.task_id %}">{{ pdf.task_id }}</a>
-                                            {% else %}
-                                                {{ pdf.task_id }}
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if pdf.file %}
-                                                <a href="{% url "printer:file" pdf.file %}" class="btn btn-info"><i class="fa fa-file-pdf-o"></i></a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Filter</h3>
                     </div>
-                </form>
+                    <div class="box-body">
+                        {% include "plan/inc/filter.html" with filters=filters %}
+                    </div>
                 </div>
             </div>
         </div>
     {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

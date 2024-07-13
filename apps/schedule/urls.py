@@ -1,13 +1,13 @@
 from django import forms
-from django.conf.urls import include, url
+from django.urls import path
 
 from .views import GenerateView, show, view
 
-app_name='schedule'
+app_name = "schedule"
 
 urlpatterns = [
-    #url(r'^', include('django.contrib.auth.urls')),
-    url(r'^$', view ,name="list" ),
-    url(r'^view/(?P<id>\d+)$', show ,name="show" ),
-    url(r'^generate/$', GenerateView.as_view() ,name="generate" ),
+    # url(r'^', include('django.contrib.auth.urls')),
+    path("", view, name="list"),
+    path("view/<int:id>", show, name="show"),
+    path("generate/", GenerateView.as_view(), name="generate"),
 ]

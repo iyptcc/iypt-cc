@@ -1,0 +1,55 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}API users{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Api Users List</h3> <a href="{% url "tournament:add_apiuser"%}" class="btn btn-success"> add</a>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Name</th>
+                                    <th>Groups</th>
+                                    <th>Token</th>
+                                    <th>Created</th>
+                                    <th></th>
+                                </tr>
+                                {% for u in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ u.pk }}
+                                    </td>
+                                    <td>
+                                        {{ u.username }}
+                                    </td>
+                                    <td>{{ u.groups.all|join:"<br>" }}</td>
+                                    <td>{% if u.id in visible %}
+                                        iyptcc.{{ u.id }}...
+                                        {% else %}
+                                        <i class="fa fa-eye-slash"></i>
+                                        {% endif %}</td>
+                                    <td>{{ u.auth_token.created|date:'c' }}</td>
+                                    <td>
+                                        <a href="{% url "tournament:delete_apiuser" u.id %}" class="btn btn-danger">delete</a>
+                                        <a href="{% url "tournament:change_apiuser" u.id %}" class="btn btn-info">edit</a>
+                                        <form class="inline" action="{% url "tournament:refresh_apiuser" u.id %}" method="post">{% csrf_token %}
+                                            <input type="submit" value="refresh" class="btn btn-warning"/>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

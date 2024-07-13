@@ -1,2 +1,5 @@
 -r base-requirements.pip
 ipython
+lxml
+django-cors-headers
+setuptools

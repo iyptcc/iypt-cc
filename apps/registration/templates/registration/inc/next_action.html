@@ -16,7 +16,7 @@ apply as possible juror
 </a>{% endif %}
 {% if 'apply_teamleaderjuror' in available_actions %}
 <a href="{% url "registration:apply_preselected_teammember" tournament.slug tournament.team_roles.leader %}" class ="btn btn-warning">
-apply to team as team leader jurur
+apply to team as team leader juror
 </a>{% endif %}
 {% if 'data' in available_actions %}
 <a href="{% url "registration:attendeeproperty"  %}" class ="btn btn-warning">
@@ -29,6 +29,10 @@ associate to team
 {% if 'setpw' in available_actions %}
 <a href="{% url "registration:manageable_teams"  %}" class ="btn btn-warning">
 manage team
+</a>{% endif %}
+{% if 'apply_ioc' in available_actions %}
+<a href="{% url "registration:apply_preselected_participationrole" tournament.slug tournament.roles.ic %}" class ="btn btn-warning">
+apply as IOC
 </a>{% endif %}
 {% if 'apply_manager' in available_actions %}
 <a href="{% url "registration:apply_team" tournament.slug %}" class ="btn btn-warning">

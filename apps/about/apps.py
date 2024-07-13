@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class AboutConfig(AppConfig):
-    name = 'apps.about'
+    name = "apps.about"
 
     def ready(self):
-        import apps.about.signals
+        import apps.about.signals  # noqa: F401

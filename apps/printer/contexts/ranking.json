@@ -1,0 +1,483 @@
+{
+  "flags": {
+    "Australia": {
+      "alpha2": null,
+      "exists": true,
+      "slug": "australia"
+    },
+    "Canada": {
+      "alpha2": null,
+      "exists": true,
+      "slug": "canada"
+    },
+    "Czechia": {
+      "alpha2": null,
+      "exists": true,
+      "slug": "czechia"
+    },
+    "Netherlands": {
+      "alpha2": null,
+      "exists": true,
+      "slug": "netherlands"
+    },
+    "Sweden": {
+      "alpha2": null,
+      "exists": true,
+      "slug": "sweden"
+    },
+    "Thailand": {
+      "alpha2": null,
+      "exists": true,
+      "slug": "thailand"
+    },
+    "United Kingdom": {
+      "alpha2": null,
+      "exists": true,
+      "slug": "united-kingdom"
+    }
+  },
+  "ranks": [
+    {
+      "all_won": true,
+      "members": [
+        {
+          "first_name": "Monica",
+          "last_name": "Smith",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Spencer",
+          "last_name": "Cline",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Kim",
+          "last_name": "Jones",
+          "role": "Member"
+        },
+        {
+          "first_name": "Richard",
+          "last_name": "Jones",
+          "role": "Member"
+        },
+        {
+          "first_name": "Matthew",
+          "last_name": "Brown",
+          "role": "Member"
+        },
+        {
+          "first_name": "Kimberly",
+          "last_name": "Baldwin",
+          "role": "Member"
+        },
+        {
+          "first_name": "Alison",
+          "last_name": "Lopez",
+          "role": "Member"
+        }
+      ],
+      "pk": 3,
+      "rank": 1,
+      "rank_diff": 0,
+      "slug": "canada",
+      "sp": [
+        [
+          "38.9",
+          true,
+          "B"
+        ],
+        [
+          "38.3",
+          true,
+          "B"
+        ],
+        [
+          "39.9",
+          true,
+          "A"
+        ]
+      ],
+      "team": "Canada",
+      "tsp": "117.1"
+    },
+    {
+      "all_won": false,
+      "members": [
+        {
+          "first_name": "Michal",
+          "last_name": "Benes",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Renata",
+          "last_name": "Ruzickova",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Filip",
+          "last_name": "Dvorak",
+          "role": "Member"
+        },
+        {
+          "first_name": "Andrea",
+          "last_name": "Soukupova",
+          "role": "Member"
+        },
+        {
+          "first_name": "Rudolf",
+          "last_name": "Nemec",
+          "role": "Member"
+        },
+        {
+          "first_name": "Lucie",
+          "last_name": "Fialova",
+          "role": "Member"
+        },
+        {
+          "first_name": "Stepanka",
+          "last_name": "Bartosova",
+          "role": "Member"
+        }
+      ],
+      "pk": 6,
+      "rank": 2,
+      "rank_diff": 1,
+      "slug": "czechia",
+      "sp": [
+        [
+          "32.8",
+          false,
+          "B"
+        ],
+        [
+          "39.9",
+          true,
+          "A"
+        ],
+        [
+          "28.4",
+          true,
+          "B"
+        ]
+      ],
+      "team": "Czechia",
+      "tsp": "101.1"
+    },
+    {
+      "all_won": false,
+      "members": [
+        {
+          "first_name": "Ross",
+          "last_name": "Howarth",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Hollie",
+          "last_name": "Thomas",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Mohammad",
+          "last_name": "Roberts",
+          "role": "Member"
+        },
+        {
+          "first_name": "Craig",
+          "last_name": "Wallace",
+          "role": "Member"
+        },
+        {
+          "first_name": "Helen",
+          "last_name": "Sullivan",
+          "role": "Member"
+        },
+        {
+          "first_name": "June",
+          "last_name": "Frost",
+          "role": "Member"
+        },
+        {
+          "first_name": "Jasmine",
+          "last_name": "Richards",
+          "role": "Member"
+        }
+      ],
+      "pk": 1,
+      "rank": 3,
+      "rank_diff": -1,
+      "slug": "united-kingdom",
+      "sp": [
+        [
+          "37.0",
+          true,
+          "A"
+        ],
+        [
+          "35.9",
+          false,
+          "B"
+        ],
+        [
+          "27.9",
+          false,
+          "A"
+        ]
+      ],
+      "team": "United Kingdom",
+      "tsp": "100.8"
+    },
+    {
+      "all_won": false,
+      "members": [
+        {
+          "first_name": "saaythiphy",
+          "last_name": "thnadphimphkaar",
+          "role": "Leader"
+        },
+        {
+          "first_name": "suwichy",
+          "last_name": "twaneyiiym",
+          "role": "Leader"
+        },
+        {
+          "first_name": "thnchay",
+          "last_name": "thhaaraeth",
+          "role": "Member"
+        },
+        {
+          "first_name": "srsiththi",
+          "last_name": "nilesnaa",
+          "role": "Member"
+        },
+        {
+          "first_name": "phchr",
+          "last_name": "buybamrung",
+          "role": "Member"
+        },
+        {
+          "first_name": "mngkhlnaawin",
+          "last_name": "bunyatiirna",
+          "role": "Member"
+        },
+        {
+          "first_name": "wlayesthiiyr",
+          "last_name": "th`ngpradith",
+          "role": "Member"
+        }
+      ],
+      "pk": 4,
+      "rank": 4,
+      "rank_diff": 2,
+      "slug": "thailand",
+      "sp": [
+        [
+          "30.1",
+          false,
+          "B"
+        ],
+        [
+          "34.8",
+          false,
+          "B"
+        ],
+        [
+          "30.8",
+          false,
+          "A"
+        ]
+      ],
+      "team": "Thailand",
+      "tsp": "95.7"
+    },
+    {
+      "all_won": false,
+      "members": [
+        {
+          "first_name": "Johan",
+          "last_name": "Sjoberg",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Daniel",
+          "last_name": "Eriksson",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Sven",
+          "last_name": "Ek",
+          "role": "Member"
+        },
+        {
+          "first_name": "Kristina",
+          "last_name": "Wallin",
+          "role": "Member"
+        },
+        {
+          "first_name": "Aina",
+          "last_name": "Nilsson",
+          "role": "Member"
+        },
+        {
+          "first_name": "Barbro",
+          "last_name": "Holmstrom",
+          "role": "Member"
+        },
+        {
+          "first_name": "Julia",
+          "last_name": "Karlsson",
+          "role": "Member"
+        }
+      ],
+      "pk": 7,
+      "rank": 5,
+      "rank_diff": -1,
+      "slug": "sweden",
+      "sp": [
+        [
+          "32.6",
+          false,
+          "A"
+        ],
+        [
+          "39.3",
+          false,
+          "A"
+        ],
+        [
+          "19.0",
+          false,
+          "B"
+        ]
+      ],
+      "team": "Sweden",
+      "tsp": "90.9"
+    },
+    {
+      "all_won": false,
+      "members": [
+        {
+          "first_name": "Alexandra",
+          "last_name": "Cooper",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Rebecca",
+          "last_name": "Johnson",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Tamara",
+          "last_name": "Marshall",
+          "role": "Member"
+        },
+        {
+          "first_name": "Gregory",
+          "last_name": "Matthews",
+          "role": "Member"
+        },
+        {
+          "first_name": "Kendra",
+          "last_name": "Arellano",
+          "role": "Member"
+        },
+        {
+          "first_name": "Ryan",
+          "last_name": "Roberts",
+          "role": "Member"
+        },
+        {
+          "first_name": "Lindsay",
+          "last_name": "Simpson",
+          "role": "Member"
+        }
+      ],
+      "pk": 2,
+      "rank": 6,
+      "rank_diff": 1,
+      "slug": "australia",
+      "sp": [
+        [
+          "27.6",
+          false,
+          "B"
+        ],
+        [
+          "28.8",
+          false,
+          "A"
+        ],
+        [
+          "17.6",
+          false,
+          "B"
+        ]
+      ],
+      "team": "Australia",
+      "tsp": "74.0"
+    },
+    {
+      "all_won": false,
+      "members": [
+        {
+          "first_name": "Thijs",
+          "last_name": "Furda",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Amy",
+          "last_name": "de Gruil",
+          "role": "Leader"
+        },
+        {
+          "first_name": "Lina",
+          "last_name": "Roosenboom",
+          "role": "Member"
+        },
+        {
+          "first_name": "Tijmen",
+          "last_name": "Paillet",
+          "role": "Member"
+        },
+        {
+          "first_name": "Seth",
+          "last_name": "van Rheineck",
+          "role": "Member"
+        },
+        {
+          "first_name": "Ilse",
+          "last_name": "van Dooren",
+          "role": "Member"
+        },
+        {
+          "first_name": "Maria",
+          "last_name": "Scholten",
+          "role": "Member"
+        }
+      ],
+      "pk": 5,
+      "rank": 7,
+      "rank_diff": -2,
+      "slug": "netherlands",
+      "sp": [
+        [
+          "35.4",
+          false,
+          "A"
+        ],
+        [
+          "31.1",
+          false,
+          "B"
+        ],
+        [
+          "2.9",
+          false,
+          "B"
+        ]
+      ],
+      "team": "Netherlands",
+      "tsp": "69.4"
+    }
+  ],
+  "round": 3
+}

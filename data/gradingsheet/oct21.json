@@ -1,0 +1,84 @@
+{"rep":
+    [{"name":"Report", "minimum":0, "maximum":7, "categories":[
+     {"phenomenon explanation":[
+        {"name": "almost no", "start": -1.3, "end": -0.45},
+        {"name": "some", "start": -0.45, "end": 0.4},
+        {"name": "fair", "start": 0.4, "end": 1.25 },
+        {"name": "good", "start": 1.25, "end": 3},
+        {"name": "detailed Demonstrative", "start": 3, "end": 5.25},
+        {"name": "deep and comprehensable, shows physical insight", "start": 5.25, "end": 7.5}
+     ]},
+     {"theory/model":[
+        {"name": "almost no", "start": -1.3, "end": -0.45},
+        {"name": "some", "start": -0.45, "end": 0.4},
+        {"name": "fair", "start": 0.4, "end": 1.25 },
+        {"name": "good", "start": 1.25, "end": 3},
+        {"name": "quite detailed, correct", "start": 3, "end": 5.25},
+        {"name": "detailed, complex, completely testable", "start": 5.25, "end": 7.5}
+     ]},
+     {"relevant experiments":[
+        {"name": "almost no", "start": -1.3, "end": -0.45},
+        {"name": "some", "start": -0.45, "end": 0.4},
+        {"name": "fair", "start": 0.4, "end": 1.25 },
+        {"name": "good", "start": 1.25, "end": 3},
+        {"name": "multitude of parameters examined OR error analysis", "start": 3, "end": 5.25},
+        {"name": "multitude of parameters examined AND error analysis", "start": 5.25, "end": 7.5}
+     ]},
+     {"comparison between theory and experiment":[
+        {"name": "almost no", "start": -1.3, "end": -0.45},
+        {"name": "some", "start": -0.45, "end": 0.4},
+        {"name": "qualitative agreement", "start": 0.4, "end": 1.25 },
+        {"name": "quantitative agreement", "start": 1.25, "end": 3},
+        {"name": "+ limits discussed", "start": 3, "end": 5.25},
+        {"name": "well fitting, deviations analysed, conclusive", "start": 5.25, "end": 7.5}
+     ]},
+     {"own contribution":[
+        {"name": "almost no", "start": -1.3, "end": -0.45},
+        {"name": "review of sources, cited", "start": -0.45, "end": 0.4},
+        {"name": "some own input", "start": 0.4, "end": 1.25 },
+        {"name": "+ some interesting results", "start": 1.25, "end": 3},
+        {"name": "considerable experimal OR considerable theoretical", "start": 3, "end": 5.25},
+        {"name": "considerable experimal AND considerable theoretical", "start": 5.25, "end": 7.5}
+     ]},
+     {"task fulfillment":[
+        {"name": "misunderstood", "start": -1.3, "end": -0.45},
+        {"name": "partly", "start": -0.45, "end": 0.4},
+        {"name": "average", "start": 0.4, "end": 1.25 },
+        {"name": "some aspects above average", "start": 1.25, "end": 3},
+        {"name": "interesting solution", "start": 3, "end": 5.25},
+        {"name": "greater extent than expected", "start": 5.25, "end": 7.5}
+     ]},
+     {"science communication":[
+        {"name": "unclear chaotic", "start": -1.3, "end": -0.45},
+        {"name": "partly clear", "start": -0.45, "end": 0.4},
+        {"name": "average", "start": 0.4, "end": 1.25 },
+        {"name": "some aspects well done", "start": 1.25, "end": 3},
+        {"name": "overall clear, demonstrative", "start": 3, "end": 5.25},
+        {"name": "+ complex concepts well communicated", "start": 5.25, "end": 7.5}
+     ]}
+    ]},
+    {"name":"Discussion with Opponent", "minimum":0, "maximum":3, "categories":[
+      {"relevant arguments/responses":[
+        {"name": "too few", "start": -0.1, "end": 0.4},
+        {"name": "some", "start": 0.4, "end": 0.9},
+        {"name": "many", "start": 0.4, "end": 1.4 },
+        {"name": "+ data/theory supported", "start": 1.4, "end": 2.7},
+        {"name": "provided deep understanding", "start": 2.7, "end": 3.5}
+     ]},
+     {"reporter's conduct at the discussion":[
+        {"name": "poor", "start": -0.1, "end": 0.4},
+        {"name": "partly fine", "start": 0.4, "end": 0.9},
+        {"name": "good", "start": 0.4, "end": 1.4 },
+        {"name": "some aspects efficient", "start": 1.4, "end": 2.7},
+        {"name": "overall efficient", "start": 2.7, "end": 3.5}
+     ]}
+    ]},
+    {"name":"Answers to Jury, Opponent, and Reviewer's Questions", "minimum":0, "maximum":-2, "categories":[
+        {"answers":[
+        {"name": "concise and correct or no questions asked", "start": 0.5, "end": -0.5},
+        {"name": "some incorrect, inconclusive or too long", "start": -0.5, "end": -1.5},
+        {"name": "deeply incorrect or shows deep misconceptions", "start": -1.5, "end": -2.5 }
+     ]}
+    ]}
+    ]
+}

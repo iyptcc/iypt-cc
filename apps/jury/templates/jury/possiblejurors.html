@@ -15,10 +15,10 @@
                     <form method="post" role="form">
                         <div class="col-md-12">
                             <div class="box box-primary collapsed-box">
-                                <div class="box-header with-border">
+                                <div class="box-header with-border" data-widget="collapse">
                                     <h3 class="box-title">Actions</h3>
                                     <div class="box-tools pull-right">
-                                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                        <button class="btn btn-box-tool"><i class="fa fa-plus"></i></button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -64,6 +64,17 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-success">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">Import from tournament</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {% bootstrap_field form.tournament %}
+                                                    <input class="btn btn-success" type="submit" name="_import" value="import possible jurors">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     {% csrf_token %}
                                 </div>
@@ -93,7 +104,7 @@
                                                 <td>
                                                     <input name="obj_list" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
                                                 </td>
-                                                <td>{{ person.person.user.first_name }} {{ person.person.user.last_name }}</td>
+                                                <td><a href="{% url "jury:possiblejuror" person.id %}">{{ person.person.user.first_name }} {{ person.person.user.last_name }}</a></td>
                                                 <td>{{ person.person.user.email }}</td>
                                                 <td>{% if person.experience == 1 %}<i class="fa fa-arrow-up"></i>{% endif %}
                                                     {% if person.experience == 0 %}<i class="fa fa-arrow-right"></i>{% endif %}
@@ -104,7 +115,7 @@
                                                 <td>{{ person.approved_at|date:"c" }}</td>
                                                 <td>
                                                     {% if not person.approved_by %}
-                                                    <a class="btn btn-success" href="{% url "jury:accept_possiblejuror" person.id %}">approve</a>
+                                                    <a class="btn btn-primary" href="{% url "jury:accept_possiblejuror" person.id %}">manage</a>
                                                     {% endif %}
                                                 </td>
                                             </tr>

@@ -6,13 +6,23 @@
 
     {% block page_content %}
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="box box-success">
                     <div class="box-header with-border">
                         <h3 class="box-title">Client</h3>
                     </div>
                     <div class="box-body">
                         {{ info.client_ip }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Error</h3>
+                    </div>
+                    <div class="box-body">
+                        trigger division by zero <a href="{% url "management:error_debug" %}" class="btn btn-danger">error</a>
                     </div>
                 </div>
             </div>
@@ -27,6 +37,10 @@
                                 <tr>
                                     <td>Django Version</td>
                                     <td>{{ info.django_version }}</td>
+                                </tr>
+                                <tr>
+                                    <td>GLUE Release</td>
+                                    <td>{{ info.glue_release }}</td>
                                 </tr>
                                 {% for i in info.os_version %}
                                     <tr>
@@ -143,6 +157,33 @@
                 </div>
             </div>
             <div class="col-md-3">
+                <div class="box box-warning">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Security</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                {% for i in info.security %}
+                                    <tr>
+                                        <td>{{ i.0 }}</td>
+                                        {% if i.2 %}
+                                            <td>
+                                                {% for el in i.1 %}
+                                                    {{ el }}{% if not forloop.last %}{{ i.2 }}{% endif %}<br/>
+                                                {% endfor %}
+                                            </td>
+                                        {% else %}
+                                            <td>{{ i.1 }}</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <div class="box box-success">
                     <div class="box-header with-border">
                         <h3 class="box-title">Disk</h3>
@@ -175,7 +216,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-12">
                 <div class="box box-success">
                     <div class="box-header with-border">
                         <h3 class="box-title">Environment</h3>
@@ -202,7 +243,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-12">
                 <div class="box box-success">
                     <div class="box-header with-border">
                         <h3 class="box-title">Dependencies ({{ info.virtualenv_dependencies|length }} Packages)</h3>

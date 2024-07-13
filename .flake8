@@ -1,0 +1,33 @@
+[flake8]
+ignore =
+	E501,
+	W503
+exclude =
+    .git,
+    __pycache__,
+    migrations,
+    static,
+    env,
+    env*,
+    env37,
+    oldenv,
+    env-d110,
+    scratch,
+    scripts,
+    src,
+    # exclude TODO apps
+    apps/bank,
+    apps/dashboard,
+    apps/fight,
+    apps/virtual,
+    apps/jury,
+    apps/management,
+    apps/plan,
+    apps/postoffice,
+    apps/printer,
+    apps/registration,
+    apps/result,
+    apps/schedule,
+    apps/team,
+    apps/tournament,
+max-complexity = 10

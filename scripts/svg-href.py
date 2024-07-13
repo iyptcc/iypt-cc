@@ -21,7 +21,6 @@ refmap = {
 "data" : {"path":"registration:attendeeproperty"},
 "associate_experiencedjuror" : {"path":"registration:associate_to_team","attrs":["tournament.slug"]},
 "setpw" : {"path":"registration:manageable_teams"},
-"apply_ioc" : {"path":"registration:"},
 "apply_manager" : {"path":"registration:apply_team","attrs":["tournament.slug"]},
 "associate_role" : {"path":"registration:associate_to_team","attrs":["tournament.slug"]},
 "participate" : {"path":"registration:"},
@@ -29,12 +28,16 @@ refmap = {
 "apply_teamleader" : {"path":"registration:apply_preselected_teammember","attrs":["tournament.slug", "tournament.team_roles.leader"]},
 "associate_visitor" : {"path":"registration:apply_visitor_teammember","attrs":["tournament.slug","'visitor'"]},
 "apply_role" : {"path":"registration:apply_preselected_participationrole","attrs":["tournament.slug", "tournament.roles.vi"]},
+"apply_ioc" : {"path":"registration:apply_preselected_participationrole","attrs":["tournament.slug", "tournament.roles.ic"]},
 "apply_loc" : {"path":"registration:apply_participationrole","attrs":["tournament.slug"]},
 }
 
 ns = {'svg':'http://www.w3.org/2000/svg',
       'xhtml':'http://www.w3.org/1999/xhtml'}
 gs = root.findall(".//svg:g[@class='node']",namespaces=ns)
+
+mermaid_hash = root.get("id")
+root.set("id", "mermaid-hash")
 
 def makelink(div,url):
     # if not stage.startswith("wait_"):
@@ -93,7 +96,13 @@ aa.append("set active tournament")
 aa.append("</a>{% endif %}")
 
 with open(sys.argv[2],'wb+') as f:
-    f.write(etree.tostring(root))
+    fl = etree.tostring(root)
+    print(mermaid_hash)
+    print(type(mermaid_hash))
+    print(type(fl))
+    fl = fl.replace(mermaid_hash.encode(), b'mermaid-hash')
+    fl = fl.replace(b'rect rx="5" ry="5"', b'rect rx="10" ry="10"')
+    f.write(fl)
 
 with open(sys.argv[3],'wb+') as f:
     for al in aa:

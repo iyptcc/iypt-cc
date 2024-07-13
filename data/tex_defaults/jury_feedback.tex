@@ -3,6 +3,8 @@
 \setlength{\parskip}{.5em}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{qrcode}
+
 (% endblock %)
 
 (% block content %)
@@ -10,12 +12,17 @@
 	(% for team in teams -%)
 		\section*{Jury Feedback Form for PF(( round )), room (( room ))}
 
-		Team: (( team ))
+		\begin{minipage}[t]{0.2\textwidth}
+		\colorbox{white}{\qrcode[height=1.4cm]{(( team.signed_id[:12] ))}}
+		\end{minipage}
+		\begin{minipage}[t]{0.7\textwidth}
+		Team: (( team.name ))
 
 		Captain's signature:
 
 		\vskip 5mm
-		Feedback for the chair (( chair.firstname )) (( chair.lastname )) (tick as appropriate):
+		\end{minipage}
+		Feedback for the chair (( chair.first_name )) (( chair.last_name )) (tick as appropriate):
 
 		\begin{tabularx}{\textwidth}{L{90mm}cccc} \toprule
         		                  & excellent & good & average & poor \\ \midrule
@@ -30,9 +37,9 @@
 
 		\begin{tabularx}{\textwidth}{L{35mm}ccccC{54mm}} \toprule
  		Juror name & excellent & good & average & poor & comments \\
-        \midrule (( chair.firstname )) (( chair.lastname ))& $\square$ & $\square$ & $\square$ & $\square$ & \vspace{15mm} \\
+        \midrule (( chair.first_name )) (( chair.last_name ))& $\square$ & $\square$ & $\square$ & $\square$ & \vspace{15mm} \\
 		(% for juror in jurors -%)
-			\midrule (( juror.fistname )) (( juror.lastname ))& $\square$ & $\square$ & $\square$ & $\square$ & \vspace{15mm} \\
+			\midrule (( juror.fistname )) (( juror.last_name ))& $\square$ & $\square$ & $\square$ & $\square$ & \vspace{15mm} \\
 		(% endfor %)
 		\bottomrule
 		\end{tabularx}

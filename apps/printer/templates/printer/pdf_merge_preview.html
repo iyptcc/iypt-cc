@@ -1,0 +1,57 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n dashboard %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}PDF merge{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <form method="post" role="form">
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">merge PDFs <input class="btn btn-success" type="submit" value="{% trans 'Merge' %}">
+                                    </h3>
+                                    {% for field in form %}
+                                        {{ field.as_hidden }}
+                                    {% endfor %}
+                                    {% csrf_token %}
+                                    <input type="hidden" name="{{ stage_field }}" value="2" />
+                                    <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                                    <input type="hidden" name="action" value="{{ action }}" />
+                                    pages {{ pages }}
+                                </div>
+                                <div class="box-body no-padding table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th>Pure Name</th>
+                                                <th>File</th>
+                                            </tr>
+                                            {% for pdf in pdfs %}
+                                            <tr {% if not pdf.file %}class="bg-danger"{% endif %}>
+                                                <td>{{ pdf.pure_name }}</td>
+                                                <td>{{ pdf.file }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Virtual Tournament{% endblock %}
+
+    {% block page_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Room {{ hall.name }} is prepared</h3>
+                            {% for t in fight.teams %}
+                                <span class="label label-default">{{ t.origin.name }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="box-body">
+                            <form method="post">
+                            {% for r in fight.roles %}
+                                <span class="label label-info">{{ r }}</span>
+                            {% endfor %}
+                            {% if form %}{% bootstrap_form form %}{% endif %}
+                            <span class="label label-success">{{ fight.bbb_role }}</span>
+                            <div class="box-footer">
+                                {% if link %}
+                                    <a href="{{ link }}" target="bbb-window" class="btn btn-primary">join room</a>
+                                {% elif form %}
+                                <input type="submit" value="join" class="btn btn-success"/>
+                                {% endif %}
+                            </div>
+                                 {% csrf_token %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endblock %}

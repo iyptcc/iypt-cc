@@ -2,45 +2,181 @@
 {% load bootstrap3 i18n %}
 {% load flags %}
 
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
 
     {% block page_title %}Teams{% endblock %}
 
     {% block page_content %}
         <div class="row">
-            <div class="col-md-12">
-                <div class="box box-primary">
-                <form method="post" role="form">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Team List <input class="btn btn-danger" type="submit" name="_delete" value="delete selected"> <input class="btn btn-primary" type="submit" name="_competing" value="toggle competing"></h3>
-                        {% csrf_token %}
-                    </div>
-                    <div class="box-body no-padding">
-                        <table class="table table-striped">
-                            <tbody>
-                                <tr>
-                                    <th></th>
-                                    <th>Country</th>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Members</th>
-                                    <th>TeamLeader-Jurors</th>
-                                </tr>
-                                {% for choice_id, choice_label in form.teams.field.choices %}
-                                <tr>
-                                    <td>
-                                        <input name="teams" value="{{ choice_id }}" type="checkbox">
-                                    </td>
-                                    <td>{{ choice_label.origin.name }}</td>
-                                    <td>{% if not choice_label.is_competing %}<i class="fa fa-warning"></i> not competing{% endif %}</td>
-                                    <td>{{ choice_label.origin|flag_image }}</td>
-                                    <td>{% for member in choice_label.get_students %}{% if not forloop.first %}, {% endif %}{{ member.full_name }}{% endfor %}</td>
-                                    <td>{% for member in choice_label.get_leaders %}{% if not forloop.first %}, {% endif %}{{ member.full_name }}{% endfor %}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+            <form method="post" role="form">
+                <div class="col-md-12">
+                            <div class="box box-primary collapsed-box">
+                                <div class="box-header with-border" data-widget="collapse">
+                                    <h3 class="box-title">Actions</h3>
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">delete</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <input class="btn btn-danger" type="submit" name="_delete" value="delete selected">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">toggle competing</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_competing" value="toggle competing">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">set storage space</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {% bootstrap_field form.space %}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <input class="btn btn-primary" type="submit" name="_space" value="set storage space">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if problems %}
+                                            <div class="col-md-4">
+                                                <div class="box box-primary">
+                                                    <div class="box-header with-border">
+                                                        <h3 class="box-title">set prepared problems</h3>
+                                                    </div>
+                                                    <div class="box-body">
+                                                        {% bootstrap_field form.problems %}
+                                                    </div>
+                                                    <div class="box-footer">
+                                                        <input class="btn btn-success" type="submit" name="_problems" value="set problems">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="box box-primary">
+                                                    <div class="box-header with-border">
+                                                        <h3 class="box-title">import prepared problems</h3>
+                                                    </div>
+                                                    <div class="box-body">
+                                                        {% bootstrap_field form.prepared_problem %}
+                                                    </div>
+                                                    <div class="box-footer">
+                                                        <input class="btn btn-success" type="submit" name="_prepared" value="import problems">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        <div class="col-md-4">
+                                            <div class="box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">print template</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.template }}
+                                                </div>
+                                                <div class="box-footer">
+                                                    <div class="btn-group">
+                                                        <input class="btn btn-primary" type="submit" name="_print" value="print with template">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if form.errors %}
+                                        <div class="col-md-4">
+                                            <div class="box box-danger">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">errors</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    {{ form.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% csrf_token %}
+                                </div>
+                            </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Team List ({{ form.teams.field.choices|length }})
+                            </h3>
+                            {% csrf_token %}
+                        </div>
+                        <div class="box-body no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th><input id="checkAll" type="checkbox"> all</th>
+                                        <th>Country</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Members</th>
+                                        {% if problems %}
+                                            <th>Prepared Problems</th>
+                                        {% endif %}
+                                        <th>TeamLeader-Jurors</th>
+                                        <th>Associated</th>
+                                    </tr>
+                                    {% for choice_id, choice_label in form.teams.field.choices %}
+                                    <tr>
+                                        <td>
+                                            <input name="teams"  class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                        </td>
+                                        <td>{{ choice_label.origin.name }}</td>
+                                        <td>{% if not choice_label.is_competing %}<i class="fa fa-warning"></i> not competing{% endif %}</td>
+                                        <td>{% if choice_label.origin.publish_participation %}<i class="fa fa-info"></i> public{% endif %}</td>
+                                        <td>{% if choice_label.storage_link %}<a href="{{ choice_label.storage_link }}" target="_blank"><i class="fa fa-file-o"></i></a>{% endif %}</td>
+                                        <td>{{ choice_label.origin|flag_image }}</td>
+                                        <td>{% for member in choice_label.get_students %}{% if not forloop.first %}, {% endif %}{{ member.full_name }}{% endfor %}</td>
+                                        {% if problems %}
+                                            <td>{% for p in choice_label.aypt_prepared_problems.all %}<span class="label label-default">{{ p }}</span> {% endfor %}</td>
+                                        {% endif %}
+                                        <td>{% for member in choice_label.get_leaders %}{% if not forloop.first %}, {% endif %}{{ member.full_name }}{% endfor %}</td>
+                                        <td>{% for member in choice_label.get_associated %}{% if not forloop.first %}, {% endif %}{{ member.full_name }}{% endfor %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

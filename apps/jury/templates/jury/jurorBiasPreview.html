@@ -1,0 +1,49 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Import Biases{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                <form action="" method="post">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Import biases <input class="btn btn-success" type="submit" name="_do" value="perform change"></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    {% for t in tournaments %}
+                                        <th>{{ t.name }}</th>
+                                    {% endfor %}
+                                    <th>Sum</th>
+                                </tr>
+                                {% for person in jurors %}
+                                    <tr>
+                                        <td>{{ person.full_name }}</td>
+                                        {% for w in person.biases %}
+                                            <td {% if not w %}class=""{% endif %}> {{ w }}
+                                            </td>
+                                        {% endfor %}
+                                        <td>{{ person.sum }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {{ field.as_hidden }}
+                    {% endfor %}
+                    <input type="hidden" name="action" value="{{ action }}" />
+                    <input type="hidden" name="{{ stage_field }}" value="2" />
+                    <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

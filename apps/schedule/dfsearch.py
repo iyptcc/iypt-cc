@@ -10,6 +10,7 @@ g_iters = 0
 
 g_found = False
 
+
 def _check_valid(plan):
     meet = [[[] for i in range(g_teams)] for j in range(g_teams)]
 
@@ -19,14 +20,14 @@ def _check_valid(plan):
 
     for ridx, round in enumerate(plan):
         for fidx, fight in enumerate(round):
-            #teams = list(map(lambda x:x[0], fight.templateattendance_set.all().values_list("team")))
-            short_fightstr = "%d - %s"%(ridx + 1, chr(ord('A')+fidx))
-            for rlidx,team1 in enumerate(fight):
+            # teams = list(map(lambda x:x[0], fight.templateattendance_set.all().values_list("team")))
+            short_fightstr = "%d - %s" % (ridx + 1, chr(ord("A") + fidx))
+            for rlidx, team1 in enumerate(fight):
                 if len(fight) == 4:
-                    in4fi[team1-1] += 1
+                    in4fi[team1 - 1] += 1
                 for team2 in fight:
                     if team1 != team2:
-                        meet[team1-1][team2-1].append(short_fightstr)
+                        meet[team1 - 1][team2 - 1].append(short_fightstr)
 
     costmeet = 0
     for team1 in meet:
@@ -34,11 +35,18 @@ def _check_valid(plan):
             if len(team2) > 1:
                 costmeet += 1
     if len(plan) == g_rounds:
-        cost4 = list(filter(lambda x: x < math.floor(optimal4fights) or x > math.ceil(optimal4fights), in4fi))
+        cost4 = list(
+            filter(
+                lambda x: x < math.floor(optimal4fights)
+                or x > math.ceil(optimal4fights),
+                in4fi,
+            )
+        )
     else:
         cost4 = list(filter(lambda x: x > math.ceil(optimal4fights), in4fi))
-    #print(cost4)
-    return costmeet+len(cost4) == 0
+    # print(cost4)
+    return costmeet + len(cost4) == 0
+
 
 def find_next(partial_plan):
 
@@ -46,7 +54,7 @@ def find_next(partial_plan):
 
     g_iters += 1
 
-    if g_iters % 1000==0:
+    if g_iters % 1000 == 0:
         print("%d", g_iters)
         print(partial_plan)
 
@@ -55,8 +63,8 @@ def find_next(partial_plan):
 
     plan = copy.deepcopy(partial_plan)
 
-    #print("called with")
-    #print(plan)
+    # print("called with")
+    # print(plan)
 
     # finish
     if len(plan) == g_rounds and len(plan[-1]) == g_rooms and len(plan[-1][-1]) == 3:
@@ -66,29 +74,32 @@ def find_next(partial_plan):
         return
 
     # start new round
-    #print("in find_next with")
-    #print(partial_plan)
-    #print("len %d len fight %d"%(len(partial_plan[-1]),len(partial_plan[-1][-1])))
-    #print("rooms %d"%g_rooms)
+    # print("in find_next with")
+    # print(partial_plan)
+    # print("len %d len fight %d"%(len(partial_plan[-1]),len(partial_plan[-1][-1])))
+    # print("rooms %d"%g_rooms)
     if len(plan[-1]) == g_rooms and len(plan[-1][-1]) == 3:
         plan.append([[]])
         find_next(plan)
 
-    #handle 4 fight
+    # handle 4 fight
     elif len(plan[-1]) <= g_rooms:
         fullfight = 3
         if len(plan[-1]) <= g_rooms4:
             fullfight = 4
-        #print("fullfight")
-        #print(fullfight)
+        # print("fullfight")
+        # print(fullfight)
         if len(plan[-1][-1]) < fullfight:
             # in 4 fight
             # teams already in round
 
-            #print("add team to fight")
-            tir = list(set(range(1,g_teams+1))-set([item for sublist in plan[-1] for item in sublist]))
-            #print("can add")
-            #print(tir)
+            # print("add team to fight")
+            tir = list(
+                set(range(1, g_teams + 1))
+                - set([item for sublist in plan[-1] for item in sublist])
+            )
+            # print("can add")
+            # print(tir)
             random.shuffle(tir)
             for team in tir:
                 new_plan = copy.deepcopy(plan)
@@ -97,14 +108,13 @@ def find_next(partial_plan):
                 if _check_valid(plan):
                     find_next(new_plan)
         else:
-            #start new 4 fight
-            #print("start new fight")
+            # start new 4 fight
+            # print("start new fight")
             plan[-1].append([])
             find_next(plan)
 
 
-
-def generate_plan(teams,rounds):
+def generate_plan(teams, rounds):
 
     global g_rooms, g_teams, g_rounds, g_rooms4
     g_rounds = rounds
@@ -117,12 +127,12 @@ def generate_plan(teams,rounds):
     plan = []
 
     r = []
-    tnr = list(range(1,teams+1))
+    tnr = list(range(1, teams + 1))
     for r4 in range(room4):
         roomteams = tnr[:4]
         tnr = tnr[4:]
         r.append(roomteams)
-    for r3 in range(rooms-room4):
+    for r3 in range(rooms - room4):
         roomteams = tnr[:3]
         tnr = tnr[3:]
         r.append(roomteams)
@@ -133,5 +143,5 @@ def generate_plan(teams,rounds):
     find_next(plan)
 
 
-if __name__ == '__main__':
-    generate_plan(14,3)
+if __name__ == "__main__":
+    generate_plan(14, 3)

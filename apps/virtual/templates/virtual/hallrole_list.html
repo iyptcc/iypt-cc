@@ -1,0 +1,40 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Hall roles list{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Role Permissions for Hall <span class="label label-default"> {{ hall.name }}</span> <a href="{% url "virtual:create_hallrole" hall.id %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Permission</th>
+                                    <th></th>
+                                </tr>
+                                {% for ro in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ ro.role }}
+                                    </td>
+                                    <td>{{ ro.mode }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "virtual:change_hallrole" hall.id ro.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "virtual:delete_hallrole" hall.id ro.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

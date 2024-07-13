@@ -24,3 +24,7 @@ There is a [FAQ](faq.md), which will be populated by your questions.
 If you want to give feedback about the system, you are always welcome to do so by klicking the feedback button in the top-right corner. It allows you to write a small report and take a screenshot of what you currently see. The tools allows you to highlight specific areas and remove sensitive data.
 
 Thank you for your feedback to help improve the IYPT CC.
+
+## Contribute
+
+This project is open source available at https://github.com/iyptcc/iypt-cc under AGPL license. Feel free to submit issues or pull requests.

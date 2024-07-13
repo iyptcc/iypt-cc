@@ -1,5 +1,5 @@
-Django>=2.0.1,<2.0.99
-django-bootstrap3
+Django
+django-bootstrap3<24
 django_extensions
 django_select2
 django-debug-toolbar
@@ -9,7 +9,8 @@ django-debug-toolbar
 unidecode
 PyYAML
 celery
-python-memcached
+#python-memcached
+pymemcache
 django-celery-results
 coverage
 django-downloadview
@@ -18,16 +19,35 @@ Pillow
 django-codemirror2
 django-ordered-model
 django-registration
-django-bootstrap3-datetimepicker-2
-pipdeptree
+-e git+https://github.com/tutorcruncher/django-bootstrap3-datetimepicker#egg=django-bootstrap3-datetimepicker-2
+# pipdeptree
+-e git+https://github.com/Midnighter/pipdeptree.git@fix/pip-api#egg=pipdeptree
 psutil
 markdown
 django-dbbackup
-django-tellme
+#django-tellme
+-e git+https://github.com/ludrao/django-tellme.git#egg=django-tellme
 django_countries
 urllib3
-requests<=2.15
+requests
 docker
 channels_redis
 channels
 django-hijack
+#django-pwned-passwords
+-e git+https://github.com/slinkymanbyday/django-pwned-passwords.git#egg=django-pwned-passwords
+#-e git+https://github.com/felix-engelmann/django-pwned-passwords@fix-fail-safe#egg=django-pwned-passwords
+djangorestframework
+pypdf
+pdf2image
+pyzbar
+numpy
+opencv-python
+faker
+pycountry
+django-oauth-toolkit
+mattermostdriver
+xlsxwriter
+defusedxml
+paramiko
+django-simple-captcha

@@ -1,0 +1,506 @@
+{
+    "alphabetical": [
+        "Australia",
+        "Canada",
+        "Czechia",
+        "Netherlands",
+        "Sweden",
+        "Thailand",
+        "United Kingdom"
+    ],
+    "final": [
+        {
+            "name": "Thailand",
+            "pk": 4,
+            "slug": "thailand",
+            "sp": "42.5",
+            "won": true
+        },
+        {
+            "name": "Canada",
+            "pk": 3,
+            "slug": "canada",
+            "sp": "42.1",
+            "won": false
+        },
+        {
+            "name": "Czechia",
+            "pk": 6,
+            "slug": "czechia",
+            "sp": "42.0",
+            "won": false
+        }
+    ],
+    "flags": {
+        "Australia": {
+            "alpha2": null,
+            "exists": true,
+            "slug": "australia"
+        },
+        "Canada": {
+            "alpha2": null,
+            "exists": true,
+            "slug": "canada"
+        },
+        "Czechia": {
+            "alpha2": null,
+            "exists": true,
+            "slug": "czechia"
+        },
+        "Netherlands": {
+            "alpha2": "NL",
+            "exists": true,
+            "slug": "netherlands"
+        },
+        "Sweden": {
+            "alpha2": null,
+            "exists": true,
+            "slug": "sweden"
+        },
+        "Thailand": {
+            "alpha2": null,
+            "exists": true,
+            "slug": "thailand"
+        },
+        "United Kingdom": {
+            "alpha2": null,
+            "exists": true,
+            "slug": "united-kingdom"
+        }
+    },
+    "ranks": [
+        {
+            "all_won": true,
+            "pk": 3,
+            "rank": 1,
+            "rank_diff": 0,
+            "slug": "canada",
+            "sp": [
+                [
+                    "38.9",
+                    true,
+                    "B"
+                ],
+                [
+                    "38.3",
+                    true,
+                    "B"
+                ],
+                [
+                    "39.9",
+                    true,
+                    "A"
+                ]
+            ],
+            "team": "Canada",
+            "tsp": "117.1"
+        },
+        {
+            "all_won": false,
+            "pk": 6,
+            "rank": 2,
+            "rank_diff": 0,
+            "slug": "czechia",
+            "sp": [
+                [
+                    "32.8",
+                    false,
+                    "B"
+                ],
+                [
+                    "39.9",
+                    true,
+                    "A"
+                ],
+                [
+                    "27.8",
+                    true,
+                    "B"
+                ]
+            ],
+            "team": "Czechia",
+            "tsp": "100.5"
+        },
+        {
+            "all_won": false,
+            "pk": 4,
+            "rank": 3,
+            "rank_diff": 1,
+            "slug": "thailand",
+            "sp": [
+                [
+                    "30.1",
+                    false,
+                    "B"
+                ],
+                [
+                    "34.8",
+                    false,
+                    "B"
+                ],
+                [
+                    "30.8",
+                    false,
+                    "A"
+                ]
+            ],
+            "team": "Thailand",
+            "tsp": "95.7"
+        },
+        {
+            "all_won": false,
+            "pk": 1,
+            "rank": 4,
+            "rank_diff": -1,
+            "slug": "united-kingdom",
+            "sp": [
+                [
+                    "30.4",
+                    true,
+                    "A"
+                ],
+                [
+                    "35.9",
+                    false,
+                    "B"
+                ],
+                [
+                    "27.9",
+                    false,
+                    "A"
+                ]
+            ],
+            "team": "United Kingdom",
+            "tsp": "94.2"
+        },
+        {
+            "all_won": false,
+            "pk": 7,
+            "rank": 5,
+            "rank_diff": 0,
+            "slug": "sweden",
+            "sp": [
+                [
+                    "15.4",
+                    false,
+                    "A"
+                ],
+                [
+                    "39.3",
+                    false,
+                    "A"
+                ],
+                [
+                    "20.3",
+                    false,
+                    "B"
+                ]
+            ],
+            "team": "Sweden",
+            "tsp": "75.0"
+        },
+        {
+            "all_won": false,
+            "pk": 2,
+            "rank": 6,
+            "rank_diff": 1,
+            "slug": "australia",
+            "sp": [
+                [
+                    "28.8",
+                    false,
+                    "A"
+                ],
+                [
+                    "14.5",
+                    false,
+                    "B"
+                ]
+            ],
+            "team": "Australia",
+            "tsp": "43.3"
+        },
+        {
+            "all_won": false,
+            "pk": 5,
+            "rank": 7,
+            "rank_diff": -1,
+            "slug": "netherlands",
+            "sp": [
+                [
+                    "6.3",
+                    false,
+                    "A"
+                ],
+                [
+                    "31.1",
+                    false,
+                    "B"
+                ],
+                [
+                    "3.5",
+                    false,
+                    "B"
+                ]
+            ],
+            "team": "Netherlands",
+            "tsp": "40.9"
+        }
+    ],
+    "teams": {
+        "Australia": {
+            "captain": [],
+            "leader": [
+                {
+                    "first_name": "Alexandra",
+                    "last_name": "Cooper"
+                },
+                {
+                    "first_name": "Rebecca",
+                    "last_name": "Johnson"
+                }
+            ],
+            "member": [
+                {
+                    "first_name": "Tamara",
+                    "last_name": "Marshall"
+                },
+                {
+                    "first_name": "Gregory",
+                    "last_name": "Matthews"
+                },
+                {
+                    "first_name": "Kendra",
+                    "last_name": "Arellano"
+                },
+                {
+                    "first_name": "Lindsay",
+                    "last_name": "Simpson"
+                }
+            ],
+            "origin": "Australia"
+        },
+        "Canada": {
+            "captain": [],
+            "leader": [
+                {
+                    "first_name": "Monica",
+                    "last_name": "Smith"
+                },
+                {
+                    "first_name": "Spencer",
+                    "last_name": "Cline"
+                }
+            ],
+            "member": [
+                {
+                    "first_name": "Kim",
+                    "last_name": "Jones"
+                },
+                {
+                    "first_name": "Richard",
+                    "last_name": "Jones"
+                },
+                {
+                    "first_name": "Matthew",
+                    "last_name": "Brown"
+                },
+                {
+                    "first_name": "Kimberly",
+                    "last_name": "Baldwin"
+                },
+                {
+                    "first_name": "Alison",
+                    "last_name": "Lopez"
+                }
+            ],
+            "origin": "Canada"
+        },
+        "Czechia": {
+            "captain": [],
+            "leader": [
+                {
+                    "first_name": "Michal",
+                    "last_name": "Benes"
+                },
+                {
+                    "first_name": "Renata",
+                    "last_name": "Ruzickova"
+                }
+            ],
+            "member": [
+                {
+                    "first_name": "Filip",
+                    "last_name": "Dvorak"
+                },
+                {
+                    "first_name": "Andrea",
+                    "last_name": "Soukupova"
+                },
+                {
+                    "first_name": "Rudolf",
+                    "last_name": "Nemec"
+                },
+                {
+                    "first_name": "Lucie",
+                    "last_name": "Fialova"
+                },
+                {
+                    "first_name": "Stepanka",
+                    "last_name": "Bartosova"
+                }
+            ],
+            "origin": "Czechia"
+        },
+        "Netherlands": {
+            "captain": [
+                {
+                    "first_name": "Lina",
+                    "last_name": "Roosenboom"
+                }
+            ],
+            "leader": [
+                {
+                    "first_name": "Thijs",
+                    "last_name": "Furda"
+                },
+                {
+                    "first_name": "Amy",
+                    "last_name": "de Gruil"
+                }
+            ],
+            "member": [
+                {
+                    "first_name": "Tijmen",
+                    "last_name": "Paillet"
+                },
+                {
+                    "first_name": "Seth",
+                    "last_name": "van Rheineck"
+                },
+                {
+                    "first_name": "Ilse",
+                    "last_name": "van Dooren"
+                },
+                {
+                    "first_name": "Maria",
+                    "last_name": "Scholten"
+                }
+            ],
+            "origin": "Netherlands"
+        },
+        "Sweden": {
+            "captain": [
+                {
+                    "first_name": "felix",
+                    "last_name": "felix"
+                }
+            ],
+            "leader": [
+                {
+                    "first_name": "Johan",
+                    "last_name": "Sjoberg"
+                },
+                {
+                    "first_name": "Daniel",
+                    "last_name": "Eriksson"
+                }
+            ],
+            "member": [
+                {
+                    "first_name": "Sven",
+                    "last_name": "Ek"
+                },
+                {
+                    "first_name": "Kristina",
+                    "last_name": "Wallin"
+                },
+                {
+                    "first_name": "Aina",
+                    "last_name": "Nilsson"
+                },
+                {
+                    "first_name": "Barbro",
+                    "last_name": "Holmstrom"
+                },
+                {
+                    "first_name": "Julia",
+                    "last_name": "Karlsson"
+                }
+            ],
+            "origin": "Sweden"
+        },
+        "Thailand": {
+            "captain": [],
+            "leader": [
+                {
+                    "first_name": "saaythiphy",
+                    "last_name": "thnadphimphkaar"
+                },
+                {
+                    "first_name": "suwichy",
+                    "last_name": "twaneyiiym"
+                }
+            ],
+            "member": [
+                {
+                    "first_name": "thnchay",
+                    "last_name": "thhaaraeth"
+                },
+                {
+                    "first_name": "srsiththi",
+                    "last_name": "nilesnaa"
+                },
+                {
+                    "first_name": "phchr",
+                    "last_name": "buybamrung"
+                },
+                {
+                    "first_name": "mngkhlnaawin",
+                    "last_name": "bunyatiirna"
+                },
+                {
+                    "first_name": "wlayesthiiyr",
+                    "last_name": "th`ngpradith"
+                }
+            ],
+            "origin": "Thailand"
+        },
+        "United Kingdom": {
+            "captain": [],
+            "leader": [
+                {
+                    "first_name": "Ross",
+                    "last_name": "Howarth"
+                },
+                {
+                    "first_name": "Hollie",
+                    "last_name": "Thomas"
+                }
+            ],
+            "member": [
+                {
+                    "first_name": "Mohammad",
+                    "last_name": "Roberts"
+                },
+                {
+                    "first_name": "Craig",
+                    "last_name": "Wallace"
+                },
+                {
+                    "first_name": "Helen",
+                    "last_name": "Sullivan"
+                },
+                {
+                    "first_name": "June",
+                    "last_name": "Frost"
+                },
+                {
+                    "first_name": "Jasmine",
+                    "last_name": "Richards"
+                }
+            ],
+            "origin": "United Kingdom"
+        }
+    }
+}

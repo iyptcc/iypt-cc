@@ -1,4 +1,3 @@
-
 import sys
 from multiprocessing import Pool
 
@@ -16,10 +15,9 @@ threads = 4
 if len(sys.argv) > 5:
     treads = int(sys.argv[5])
 
-direc = '.'
+direc = "."
 if len(sys.argv) > 6:
     direc = sys.argv[6]
-
 
 
 def work(file):
@@ -30,29 +28,32 @@ def work(file):
 
     meet, team_rooms, equal_rows, startrole = cal_stats(plan)
 
-    roomnames=[chr(i) for i in range(ord('A'),ord('Z'))]
+    roomnames = [chr(i) for i in range(ord("A"), ord("Z"))]
 
-    m={}
+    m = {}
 
-    doublemeets= 0
+    doublemeets = 0
     for round in meet:
         for fight in round:
             if len(fight) > 1:
                 doublemeets += 1
-    m['n_meet_multiple']=doublemeets
-    m['d_4fight'] = len(team_rooms)-equal_rows
-    m['max_4fight'] = len(team_rooms)
-    m['cost'] = _cost(plan)
-    m['role_violations'] = len(list(filter(lambda x: x > 2, [x for y in startrole for x in y])))
-    m['simulation_rounds'] = simulation
+    m["n_meet_multiple"] = doublemeets
+    m["d_4fight"] = len(team_rooms) - equal_rows
+    m["max_4fight"] = len(team_rooms)
+    m["cost"] = _cost(plan)
+    m["role_violations"] = len(
+        list(filter(lambda x: x > 2, [x for y in startrole for x in y]))
+    )
+    m["simulation_rounds"] = simulation
 
     yamlstr = plan_yaml_dump(teams, plan, roomnames, meta=m)
 
-    with open(file,'w') as f:
+    with open(file, "w") as f:
         f.write(yamlstr)
 
-files = ['%s/result-%04d.yml'%(direc,d) for d in range(runs)]
+
+files = ["%s/result-%04d.yml" % (direc, d) for d in range(runs)]
 
 
 with Pool(processes=treads) as pool:
-    res = pool.map(work,files)
+    res = pool.map(work, files)

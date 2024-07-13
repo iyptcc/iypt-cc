@@ -1,0 +1,40 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}BBB Servers{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Server List <a href="{% url "tournament:create_bbbserver" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>name</th>
+                                    <td>url</td>
+                                    <th></th>
+                                </tr>
+                                {% for server in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ server.name }}
+                                    </td>
+                                    <td>{{ server.api_url }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "tournament:change_bbbserver" server.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "tournament:delete_bbbserver" server.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

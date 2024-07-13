@@ -1,0 +1,62 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Halls{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Hall List <a href="{% url "virtual:create_hall" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>instance</th>
+                                    <th>guest_policy</th>
+                                    <th>start muted</th>
+                                    <th>attendees startable</th>
+                                    <th>disable note</th>
+                                    <th>disable private chat</th>
+                                    <th>disable cam</th>
+                                    <th>permissions</th>
+                                    <th></th>
+                                </tr>
+                                {% for hall in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ hall.name }}
+                                    </td>
+                                    <td>{{ hall.instance }}</td>
+                                    <td>{{ hall.get_guest_policy_display }}</td>
+                                    <td>{% if hall.mute_on_start %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>{% if hall.allow_attendees_to_start_meeting %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>{% if hall.lock_settings_disable_note %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>{% if hall.lock_settings_disable_private_chat %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>{% if hall.lock_settings_disable_cam %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>{% for pr in hall.hallrole_set.all %}<span class="label label-default">{{ pr.role }} : {{ pr.get_mode_display }}</span> {% endfor %}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "virtual:change_hall" hall.id %}">edit</a>
+                                        <a class="btn btn-default" href="{% url "virtual:link_hall" hall.id %}">links</a>
+                                        <a class="btn btn-danger" href="{% url "virtual:delete_hall" hall.id %}">delete</a>
+                                        <a class="btn btn-info" href="{% url "virtual:hallroles" hall.id %}">roles</a>
+                                        {% if not forloop.first %}
+                                        <form class="inline" action="{% url "virtual:move_hall" hall.id "up" %}" method="post">{% csrf_token %}<button class="btn btn-info" type="submit"><i class="fa fa-arrow-up"></i></button></form>
+                                        {% endif %}
+                                        {% if not forloop.last %}
+                                        <form class="inline" action="{% url "virtual:move_hall" hall.id "down" %}" method="post">{% csrf_token %}<button class="btn btn-info" type="submit"><i class="fa fa-arrow-down"></i></button></form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

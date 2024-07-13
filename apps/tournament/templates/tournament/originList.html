@@ -9,9 +9,9 @@
             <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Origin List <a href="{% url "tournament:create_origin" %}" class="btn btn-success">add</a></h3>
+                        <h3 class="box-title">Origin List <a href="{% url "tournament:create_origin" %}" class="btn btn-success">add</a> <a href="{% url "tournament:import_origins" %}" class="btn btn-info">import</a></h3>
                     </div>
-                    <div class="box-body no-padding">
+                    <div class="box-body no-padding table-responsive">
                         <table class="table table-striped">
                             <tbody>
                                 <tr>
@@ -20,6 +20,9 @@
                                     <th>slug</th>
                                     <th>flag</th>
                                     <th>pdf</th>
+                                    <th>teams</th>
+                                    <th>TZ</th>
+                                    <th>possible Managers</th>
                                     <th></th>
                                 </tr>
                                 {% for origin in object_list %}
@@ -31,6 +34,11 @@
                                     <td>{{ origin.slug }}</td>
                                     <td>{{ origin|flag_image }}</td>
                                     <td>{{ origin.flag_pdf }}</td>
+                                    <td>{{ origin.team_set.all|join:", " }}</td>
+                                    <td>{{ origin.timezone }}</td>
+                                    <td>{% for m in origin.possible_managers.all %}
+                                        <span class="label label-default">{{ m.user.get_full_name }} ({{ m.user.email }})</span>
+                                    {% endfor %}</td>
                                     <td>
                                         <a class="btn btn-primary" href="{% url "tournament:change_origin" origin.id %}">edit</a>
                                         <a class="btn btn-danger" href="{% url "tournament:delete_origin" origin.id %}">delete</a>

@@ -18,30 +18,31 @@ class ConfirmedDeleteView(View):
 
     def get(self, request, *args, **kwargs):
 
-        #pr = get_object_or_404(Problem, tournament=request.user.profile.tournament, id=id)
+        # pr = get_object_or_404(Problem, tournament=request.user.profile.tournament, id=id)
 
         objs = self.get_objects(request, *args, **kwargs)
 
         def format_callback(obj):
-            #print("callbacked %s"%(capfirst(obj._meta.verbose_name),) )
+            # print("callbacked %s"%(capfirst(obj._meta.verbose_name),) )
             #
             if type(obj) == JurorGrade:
-                return '%s' % (capfirst(obj._meta.verbose_name),)
+                return "%s" % (capfirst(obj._meta.verbose_name),)
             else:
-                return '%s: %s' % (capfirst(obj._meta.verbose_name), obj)
+                return "%s: %s" % (capfirst(obj._meta.verbose_name), obj)
 
-        collector = NestedObjects(using='default')  # or specific database
-        #collector.collect(objs)
+        collector = NestedObjects(using="default")  # or specific database
         if type(objs) == list:
-            to_delete = []
             for obj in objs:
+                print("process list item", obj)
                 collector.collect([obj])
-                to_delete.append(collector.nested(format_callback))
+            to_delete = collector.nested(format_callback)
         else:
             collector.collect(objs)
             to_delete = collector.nested(format_callback)
 
-        return render(request, "dashboard/delObjPreview.html", context={'objs': to_delete})
+        return render(
+            request, "dashboard/delObjPreview.html", context={"objs": to_delete}
+        )
 
     def post(self, request, *args, **kwargs):
         objs = self.get_objects(request, *args, **kwargs)

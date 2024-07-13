@@ -1,0 +1,90 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Slides{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Import
+                            </h3>
+                        </div>
+                        <div class="box-body">
+                            <form action="" method="post">
+                                {% bootstrap_form redirform %}
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-success" name="_redir" value="Show"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <form action="" method="post" enctype="multipart/form-data">
+        {% for round in form.rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}
+                            </h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                {% for fight in round %}
+                                    <div class="col-md-2">
+                                        <div class="box box-primary">
+                                            <div class="box-header with-border">
+                                                <h3 class="box-title">{{ fight.0.room }}
+                                                </h3>
+                                            </div>
+                                            <div class="box-body">
+                                                {% for st in fight %}
+                                                    {{ st.slides_file.label }}
+                                                    {{ st.slides_file }}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Save
+                            </h3>
+                        </div>
+                        <div class="box-body">
+                            {% if form.errors %}
+                                <h4>Please correct the following errors</h4>
+                                {{ form.non_field_errors }}
+                            {% endif %}
+                            {% csrf_token %}
+                            <input type="submit" class="btn btn-success" value="Save"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endblock %}
+
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

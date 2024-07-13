@@ -3,14 +3,18 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Q
 
-from apps.account.models import ActiveUser
+from apps.account.models import ActiveUser, ApiUser
 
 
 class TournamentModelBackend(ModelBackend):
 
     def _get_group_permissions(self, user_obj):
-        user_groups_field = get_user_model()._meta.get_field('groups')
-        user_groups_query = 'group__%s' % user_groups_field.related_query_name()
+        if isinstance(user_obj, ApiUser):
+            user_groups_query = "group__apiuser"
+            return Permission.objects.filter(**{user_groups_query: user_obj})
+
+        user_groups_field = get_user_model()._meta.get_field("groups")
+        user_groups_query = "group__%s" % user_groups_field.related_query_name()
 
         # additional check if group is active
 
@@ -22,8 +26,9 @@ class TournamentModelBackend(ModelBackend):
         try:
             for r in user_obj.profile.active.roles.all():
                 active_groups |= r.groups.all()
-        except:
+        except AttributeError:
             pass
 
-
-        return Permission.objects.filter(Q(group__in=active_groups) | Q(**{user_groups_query: user_obj}))
+        return Permission.objects.filter(
+            Q(group__in=active_groups) | Q(**{user_groups_query: user_obj})
+        )

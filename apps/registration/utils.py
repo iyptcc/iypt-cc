@@ -1,10 +1,15 @@
 from datetime import datetime
 from io import BytesIO
+from json import JSONEncoder
 
 from django import forms
+from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.db.models import Q
+from django.db.models import Q, QuerySet
+from django.db.models.aggregates import Max
+from django.db.models.expressions import OuterRef, Subquery
 from django.forms.widgets import ClearableFileInput
 from django.utils.html import conditional_escape
 from django_countries import countries
@@ -12,13 +17,22 @@ from django_countries.fields import LazyTypedChoiceField
 from django_select2.forms import Select2MultipleWidget, Select2Widget
 from pytz import timezone
 
-from apps.account.models import ParticipationRole
+from apps.account.models import Attendee, ParticipationRole
 from apps.bank.models import PropertyFee
 from apps.dashboard.datetimefield import DateTimeFieldNonTZ
 from apps.dashboard.datetimepicker import DateTimePicker
-from apps.team.models import TeamRole
+from apps.jury.models import Juror
+from apps.team.models import Team, TeamMember, TeamRole
 
-from .models import AttendeeProperty, AttendeePropertyValue, Property, PropertyValue, UserProperty, UserPropertyValue
+from .models import (
+    ApplicationQuestion,
+    AttendeeProperty,
+    AttendeePropertyValue,
+    Property,
+    PropertyValue,
+    UserProperty,
+    UserPropertyValue,
+)
 from .pdfid.pdfid import PDFiD
 
 
@@ -30,81 +44,131 @@ class PropertyClearableInput(ClearableFileInput):
             if hasattr(value, "instance"):
                 if value.instance != None:
                     if type(value.instance) == AttendeePropertyValue:
-                        typ = 'a'
+                        typ = "a"
                         user = value.instance.attendee.id
                     else:
-                        typ = 'u'
+                        typ = "u"
                         user = value.instance.user.id
 
                     try:
-                        url = value.url.split('/')[-1]
+                        url = value.url.split("/")[-1]
                     except:
                         url = ""
 
-                    context['widget'].update({
-                        "property_type": typ,
-                        "property_user":user,
-                        "property_id":value.instance.id,
-                        "property_url": url
-                    })
+                    context["widget"].update(
+                        {
+                            "property_type": typ,
+                            "property_user": user,
+                            "property_id": value.instance.id,
+                            "property_url": url,
+                        }
+                    )
             else:
-                print("PropertyClearableInput: nonbound existing value: %s"%value)
+                print("PropertyClearableInput: nonbound existing value: %s" % value)
 
         return context
 
+
 class ClearablePermissionFileInput(PropertyClearableInput):
 
-    template_name = 'widget/clearable_file_input.html'
+    template_name = "widget/clearable_file_input.html"
+
 
 class ClearableImageInput(PropertyClearableInput):
 
-    template_name = 'widget/clearable_image_input.html'
+    template_name = "widget/clearable_image_input.html"
+
 
 def pdf_validator(value):
 
     if value is None:
         return None
 
-    if hasattr(value, 'temporary_file_path'):
+    if hasattr(value, "temporary_file_path"):
         file = value.temporary_file_path()
     else:
-        if hasattr(value, 'read'):
+        if hasattr(value, "read"):
             file = BytesIO(value.read())
         else:
-            file = BytesIO(value['content'])
+            file = BytesIO(value["content"])
 
     dom = PDFiD(file)
 
     ispdf = False
-    for k,v in dom.firstChild.attributes.items():
-        if k == 'IsPDF':
-            if v == 'True':
+    for k, v in dom.firstChild.attributes.items():
+        if k == "IsPDF":
+            if v == "True":
                 ispdf = True
 
     if ispdf:
         for kw in dom.firstChild.firstChild.childNodes:
-            #print(kw.attributes.items())
+            # print(kw.attributes.items())
             pass
     if not ispdf:
         raise ValidationError(
-            '%(value)s is not a of filetype pdf',
-            params={'value': value}, )
+            "%(value)s is not a of filetype pdf",
+            params={"value": value},
+        )
+
+
+def field_for_question(question):
+    label = question.name
+    t = question.type
+
+    commargs = {"label": label, "required": False, "help_text": question.help_text}
+
+    if t == ApplicationQuestion.DATETIME:
+        opts = {"format": "YYYY-MM-DDTHH:mmZZ", "sideBySide": True}
+        try:
+            opts["timeZone"] = question.role.tournament.timezone
+        except:
+            pass
+        field = DateTimeFieldNonTZ(
+            widget=DateTimePicker(format="%Y-%m-%dT%H:%M%z", options=opts), **commargs
+        )
+    elif t == ApplicationQuestion.DATE:
+        field = forms.DateField(
+            widget=DateTimePicker(format="%Y-%m-%d", options={"format": "YYYY-MM-DD"}),
+            **commargs
+        )
+    elif t == ApplicationQuestion.INT:
+        field = forms.IntegerField(**commargs)
+    elif t == ApplicationQuestion.STRING:
+        field = forms.CharField(**commargs)
+    elif t == ApplicationQuestion.IMAGE:
+        field = forms.ImageField(widget=ClearableImageInput(), **commargs)
+    elif t == ApplicationQuestion.PDF:
+        field = forms.FileField(
+            widget=ClearablePermissionFileInput(),
+            validators=[pdf_validator],
+            **commargs
+        )
+    elif t == ApplicationQuestion.TEXT:
+        field = forms.CharField(
+            widget=forms.Textarea(attrs={"placeholder": question.help_text}), **commargs
+        )
+    elif t == ApplicationQuestion.BOOLEAN:
+        field = forms.BooleanField(**commargs)
+    elif t == ApplicationQuestion.BOOLEAN_TRUE:
+        field = forms.BooleanField(**commargs)
+    else:
+        raise NotImplementedError("Missing field for question type: %s" % t)
+
+    return field
 
 
 def field_for_property(property, suffix=""):
     label = property.name
     t = property.type
     if suffix:
-        label = "%s (%s)"%(label, suffix)
+        label = "%s (%s)" % (label, suffix)
 
-    help_text=""
+    help_text = ""
     if hasattr(property, "data_utilisation"):
         if property.data_utilisation != None:
             help_text = property.data_utilisation
 
-    commargs = {"help_text":help_text,
-                "label":label,
-                "required": False}
+    commargs = {"help_text": help_text, "label": label, "required": False}
 
     if t == UserProperty.DATETIME:
         opts = {"format": "YYYY-MM-DDTHH:mmZZ", "sideBySide": True}
@@ -112,10 +176,14 @@ def field_for_property(property, suffix=""):
             opts["timeZone"] = property.tournament.timezone
         except:
             pass
-        field = DateTimeFieldNonTZ(widget=DateTimePicker(format='%Y-%m-%dT%H:%M%z',options=opts), **commargs)
+        field = DateTimeFieldNonTZ(
+            widget=DateTimePicker(format="%Y-%m-%dT%H:%M%z", options=opts), **commargs
+        )
     elif t == UserProperty.DATE:
-        field = forms.DateField(widget=DateTimePicker(format='%Y-%m-%d', options={
-            "format": "YYYY-MM-DD"}), **commargs)
+        field = forms.DateField(
+            widget=DateTimePicker(format="%Y-%m-%d", options={"format": "YYYY-MM-DD"}),
+            **commargs
+        )
     elif t == UserProperty.INT:
         field = forms.IntegerField(**commargs)
     elif t == UserProperty.STRING:
@@ -123,12 +191,19 @@ def field_for_property(property, suffix=""):
     elif t == UserProperty.IMAGE:
         field = forms.ImageField(widget=ClearableImageInput(), **commargs)
     elif t == UserProperty.PDF:
-        field = forms.FileField(widget=ClearablePermissionFileInput(),validators=[pdf_validator], **commargs)
+        field = forms.FileField(
+            widget=ClearablePermissionFileInput(),
+            validators=[pdf_validator],
+            **commargs
+        )
     elif t == UserProperty.TEXT:
         field = forms.CharField(widget=forms.Textarea, **commargs)
     elif t == UserProperty.GENDER:
-        field = forms.ChoiceField(choices=((None,'----'),('female',"female"),('male','male')),
-                                  widget=Select2Widget, **commargs)
+        field = forms.ChoiceField(
+            choices=((None, "----"), ("female", "female"), ("male", "male")),
+            widget=Select2Widget,
+            **commargs
+        )
     elif t == UserProperty.BOOLEAN:
         field = forms.NullBooleanField(**commargs)
     elif t == UserProperty.BOOLEAN_TRUE:
@@ -139,11 +214,11 @@ def field_for_property(property, suffix=""):
         field = forms.CharField(max_length=12, **commargs)
     elif t == UserProperty.CHOICE:
         cp = property
-        if hasattr(property,"user_property"):
+        if hasattr(property, "user_property"):
             if property.user_property != None:
                 cp = property.user_property
-        choices = tuple(cp.propertychoice_set.all().values_list("id","name"))
-        choices = ((None,"------"),)+choices
+        choices = tuple(cp.propertychoice_set.all().values_list("id", "name"))
+        choices = ((None, "------"),) + choices
         field = forms.ChoiceField(choices=choices, widget=Select2Widget, **commargs)
     elif t == UserProperty.MULTIPLE_CHOICE:
         cp = property
@@ -151,26 +226,37 @@ def field_for_property(property, suffix=""):
             if property.user_property != None:
                 cp = property.user_property
         choices = tuple(cp.propertychoice_set.all().values_list("id", "name"))
-        field = forms.MultipleChoiceField(choices=choices, widget=Select2MultipleWidget,**commargs)
+        field = forms.MultipleChoiceField(
+            choices=choices, widget=Select2MultipleWidget, **commargs
+        )
     elif t == UserProperty.CONFLICT_ORIGINS:
         if hasattr(property, "tournament"):
             if property.tournament != None:
-                choices = tuple(property.tournament.origin_set.all().values_list("id", "name"))
-                field = forms.MultipleChoiceField(choices=choices, widget=Select2MultipleWidget, **commargs)
+                choices = tuple(
+                    property.tournament.origin_set.all().values_list("id", "name")
+                )
+                field = forms.MultipleChoiceField(
+                    choices=choices, widget=Select2MultipleWidget, **commargs
+                )
         else:
-            raise AttributeError("Conflicting Origins can only be used on Attendee Properties")
+            raise AttributeError(
+                "Conflicting Origins can only be used on Attendee Properties"
+            )
     elif t == UserProperty.COUNTRY:
-        field = LazyTypedChoiceField(choices=[(None,'----')]+list(countries), widget=Select2Widget , **commargs)
+        field = LazyTypedChoiceField(
+            choices=[(None, "----")] + list(countries), widget=Select2Widget, **commargs
+        )
     elif t == UserProperty.PROBLEM:
         problems = []
         for p in property.tournament.problem_set.all():
-            problems.append((p.number,"%d. %s"%(p.number, p.title)))
+            problems.append((p.number, "%d. %s" % (p.number, p.title)))
         choices = ((None, "------"),) + tuple(problems)
         field = forms.ChoiceField(choices=choices, widget=Select2Widget, **commargs)
     else:
         raise NotImplementedError("Missing field for property type: %s" % t)
 
     return field
+
 
 def set_initial_from_valueobject(field, t, valueo):
 
@@ -179,7 +265,7 @@ def set_initial_from_valueobject(field, t, valueo):
         if len(chs):
             field.initial = chs[0]
     elif t == Property.MULTIPLE_CHOICE:
-        field.initial = list(map(str,chs))
+        field.initial = list(map(str, chs))
     elif t == Property.CONFLICT_ORIGINS:
         field.initial = list(valueo.conflict_origins.values_list("id", flat=True))
     else:
@@ -193,7 +279,18 @@ def set_initial_from_valueobject(field, t, valueo):
         else:
             field.initial = value
 
-def update_property(request, property, pv, value, field_format, new_class, new_params, copy_image=False, prelim=False):
+
+def update_property(
+    request,
+    property,
+    pv,
+    value,
+    field_format,
+    new_class,
+    new_params,
+    copy_image=False,
+    prelim=False,
+):
 
     t = property.type
     up = property
@@ -206,9 +303,9 @@ def update_property(request, property, pv, value, field_format, new_class, new_p
 
     if new_class == AttendeePropertyValue:
         if prelim:
-            new_params.update({"confirmed":False})
-            #print("updated params")
-            #print(new_params)
+            new_params.update({"confirmed": False})
+            # print("updated params")
+            # print(new_params)
 
     if t in [Property.MULTIPLE_CHOICE, Property.CHOICE]:
         update = True
@@ -223,9 +320,9 @@ def update_property(request, property, pv, value, field_format, new_class, new_p
             apv.choices_value.add(*cur_choices)
     elif t in [Property.IMAGE, Property.PDF]:
         f = request.FILES.get(field_format % property.id, None)
-        if copy_image and value!=False and f==None:
-            fp = open(value.path, 'rb')
-            f = ContentFile(fp.read(),"copied-%s"%value.name.split('/')[-1])
+        if copy_image and value != False and (value is not None) and f == None:
+            fp = open(value.path, "rb")
+            f = ContentFile(fp.read(), "copied-%s" % value.name.split("/")[-1])
             update = True
         else:
             update = True
@@ -234,7 +331,7 @@ def update_property(request, property, pv, value, field_format, new_class, new_p
                     update = False
 
         if update:
-            params = {PropertyValue.field_name[property.type]:f}
+            params = {PropertyValue.field_name[property.type]: f}
             new_class.objects.create(**new_params, property=property, **params)
     elif t in [Property.CONFLICT_ORIGINS]:
         update = True
@@ -249,7 +346,7 @@ def update_property(request, property, pv, value, field_format, new_class, new_p
             apv.conflict_origins.add(*cur_choices)
     else:
         if property.type == Property.PROBLEM:
-            if value == '':
+            if value == "":
                 value = None
             else:
                 value = int(value)
@@ -257,6 +354,7 @@ def update_property(request, property, pv, value, field_format, new_class, new_p
             apv = new_class.objects.create(**new_params, property=property)
             apv.__setattr__(apv.field_name[property.type], value)
             apv.save()
+
 
 def delete_teamrole(tm):
 
@@ -269,60 +367,142 @@ def delete_teamrole(tm):
         for pr in tm.role.participation_roles.all():
             tm.attendee.roles.remove(pr)
 
+
 def persons_data(attendees, hidden=False):
     if len(attendees) == 0:
-        return ([],[])
+        return ([], [])
     trn = attendees.first().tournament
     aps = []
     if hidden:
-        apoq = AttendeeProperty.objects.filter(tournament=trn).prefetch_related("required", "optional")
+        apoq = AttendeeProperty.objects.filter(tournament=trn).prefetch_related(
+            "required", "optional"
+        )
     else:
-        apoq = AttendeeProperty.user_objects.filter(tournament=trn).prefetch_related("required", "optional")
+        apoq = AttendeeProperty.user_objects.filter(tournament=trn).prefetch_related(
+            "required", "optional"
+        )
 
     apos = []
     for ap in apoq:
-        apos.append({"name": ap.name, "object": ap, "required": set(ap.required.all().values_list("id", flat=True)),
-                     "optional": set(ap.optional.all().values_list("id", flat=True)), "type": ap.type})
+        apos.append(
+            {
+                "name": ap.name,
+                "object": ap,
+                "required": set(ap.required.all().values_list("id", flat=True)),
+                "optional": set(ap.optional.all().values_list("id", flat=True)),
+                "type": ap.type,
+            }
+        )
     for ap in apos:
         aps.append(ap["name"])
 
-    atts={}
+    atts = {}
+
+    att_jurors = Juror.objects.all().values_list("attendee_id", flat=True)
 
     for att in attendees.all().prefetch_related("roles"):
-        at = {"attendee": att, "id": att.id,'juror':False}
-        if hasattr(att,"juror"):
-            if att.juror != None:
-                at["juror"] = True
+        at = {"attendee": att, "id": att.id, "juror": False}
+        # if hasattr(att,"juror"):
+        #    if att.juror != None:
+        if att.id in att_jurors:
+            at["juror"] = True
         dat = []
-        att_roles = set(att.roles.values_list("id",flat=True))
+        att_roles = set(att.roles.values_list("id", flat=True))
+        # apvs = att.attendeepropertyvalue_set.all()
+
+        print("attendee: ", att.full_name)
+        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+            testapv = AttendeePropertyValue.objects.raw(
+                """SELECT  "registration_propertyvalue"."id",
+                    "registration_propertyvalue"."int_value",
+                    "registration_propertyvalue"."string_value",
+                    "registration_propertyvalue"."datetime_value",
+                    "registration_propertyvalue"."date_value",
+                    "registration_propertyvalue"."image_value",
+                    "registration_propertyvalue"."file_value",
+                    "registration_propertyvalue"."text_value",
+                    "registration_propertyvalue"."bool_value",
+                    "registration_propertyvalue"."country_value",
+                   MAX("registration_propertyvalue"."creation"),
+                   "registration_attendeepropertyvalue"."propertyvalue_ptr_id",
+                   "registration_attendeepropertyvalue"."property_id",
+                   "registration_attendeepropertyvalue"."attendee_id",
+                   "registration_attendeepropertyvalue"."confirmed"
+             FROM registration_attendeepropertyvalue INNER JOIN 
+                                "registration_propertyvalue"
+                                 ON ("registration_attendeepropertyvalue"."propertyvalue_ptr_id" = "registration_propertyvalue"."id")
+                                WHERE attendee_id = %s  AND "registration_attendeepropertyvalue"."confirmed" = True
+                                GROUP BY "registration_attendeepropertyvalue"."property_id"; """,
+                params=[att.id],
+            )
+        else:
+            testapv = AttendeePropertyValue.objects.raw(
+                """SELECT DISTINCT ON ("registration_attendeepropertyvalue"."property_id")   "registration_propertyvalue"."id",
+        "registration_propertyvalue"."int_value",
+        "registration_propertyvalue"."string_value",
+        "registration_propertyvalue"."datetime_value",
+        "registration_propertyvalue"."date_value",
+        "registration_propertyvalue"."image_value",
+        "registration_propertyvalue"."file_value",
+        "registration_propertyvalue"."text_value",
+        "registration_propertyvalue"."bool_value",
+        "registration_propertyvalue"."country_value",
+       "registration_propertyvalue"."creation",
+       "registration_attendeepropertyvalue"."propertyvalue_ptr_id",
+       "registration_attendeepropertyvalue"."property_id",
+       "registration_attendeepropertyvalue"."attendee_id",
+       "registration_attendeepropertyvalue"."confirmed"
+ FROM registration_attendeepropertyvalue INNER JOIN 
+                    "registration_propertyvalue"
+                     ON ("registration_attendeepropertyvalue"."propertyvalue_ptr_id" = "registration_propertyvalue"."id")
+                    WHERE attendee_id = %s  AND "registration_attendeepropertyvalue"."confirmed" = True
+                    ORDER BY "registration_attendeepropertyvalue"."property_id", "registration_propertyvalue"."creation" desc; """,
+                params=[att.id],
+            )
+        # for t in testapv:
+        #    print(t)
+        # prefetch_related_objects(testapv, 'property', 'conflict_origins')
+
+        apvsd = {v.property_id: v for v in testapv}
+
+        # sq = att.attendeepropertyvalue_set.filter(property=OuterRef('property')).order_by('-creation')  # deferred execution
+        # apvs = AttendeePropertyValue.objects.filter(pk=Subquery(sq.values('pk')[:1]))
+        # apvsd = {v.property: v for v in apvs}
+        # print(apvsd)
+        # print(apvs.values('int_value','property_id').annotate(latest=Max('creation')))
         for ap in apos:
-            dat_p={"value":None,"needed":True, "required":False, "optional":False}
+            dat_p = {
+                "value": None,
+                "needed": True,
+                "required": False,
+                "optional": False,
+            }
             if len(att_roles & ap["required"]):
                 ls = " (req.)"
-                dat_p["required"]=True
+                dat_p["required"] = True
             elif len(att_roles & ap["optional"]):
                 ls = " (opt.)"
-                dat_p["optional"]=True
-            elif ap['object'].hidden == True:
+                dat_p["optional"] = True
+            elif ap["object"].hidden == True:
                 ls = " (hidd.)"
-                dat_p["optional"]=True
+                dat_p["optional"] = True
             else:
-                dat_p["needed"]=False
+                dat_p["needed"] = False
                 dat.append(dat_p)
                 continue
 
             try:
                 dep_ap = ap["object"].required_if
-                depcheck = att.attendeepropertyvalue_set.filter(property=dep_ap).last().bool_value
-                if depcheck == True:
-                    dat_p["required"]=True
-                    dat_p["optional"]=False
+                if dep_ap is not None:
+                    depcheck = apvsd.get(dep_ap.id).bool_value
+                    if depcheck:
+                        dat_p["required"] = True
+                        dat_p["optional"] = False
             except:
                 pass
 
-
             try:
-                apv = att.attendeepropertyvalue_set.filter(property=ap["object"]).last()
+                apv = apvsd.get(ap["object"].id)
                 chs = apv.choices_value.values_list("name", flat=True)
                 if ap["object"].type == AttendeeProperty.CHOICE:
                     if len(chs):
@@ -330,17 +510,27 @@ def persons_data(attendees, hidden=False):
                 elif ap["object"].type == AttendeeProperty.MULTIPLE_CHOICE:
                     dat_p["list"] = list(chs)
                 elif ap["object"].type == AttendeeProperty.IMAGE:
-                    dat_p["image"] = {"id":apv.id,"url":apv.image_value.url.split("/")[-1]}
+                    dat_p["image"] = {
+                        "id": apv.id,
+                        "url": apv.image_value.url.split("/")[-1],
+                    }
                 elif ap["object"].type == AttendeeProperty.PDF:
-                    dat_p["file"] = {"id":apv.id,"url":apv.file_value.url.split("/")[-1]}
+                    dat_p["file"] = {
+                        "id": apv.id,
+                        "url": apv.file_value.url.split("/")[-1],
+                    }
                 elif ap["object"].type == AttendeeProperty.CONFLICT_ORIGINS:
-                    dat_p["list"] = list(apv.conflict_origins.values_list("name", flat=True))
+                    dat_p["list"] = list(
+                        apv.conflict_origins.values_list("name", flat=True)
+                    )
                 else:
                     val = getattr(apv, apv.field_name[ap["type"]])
                     if val is not None:
                         if type(val) == datetime:
                             try:
-                                zoned = val.astimezone(timezone(apv.attendee.tournament.timezone))
+                                zoned = val.astimezone(
+                                    timezone(apv.attendee.tournament.timezone)
+                                )
                             except:
                                 zoned = val
                             dat_p["value"] = "%s" % zoned
@@ -357,41 +547,63 @@ def persons_data(attendees, hidden=False):
 
     return (atts, aps)
 
-def get_members(trn, team, apoq = None):
-    aps = []
-    if not apoq:
-        apoq = AttendeeProperty.user_objects.filter(tournament=trn).prefetch_related("required","optional")
 
-    apos = []
-    for ap in apoq:
-        apos.append({"name":ap.name,"object":ap, "required": set(ap.required.all().values_list("id",flat=True)),
-                     "optional": set(ap.optional.all().values_list("id",flat=True)),"type":ap.type})
-    for ap in apos:
-        aps.append(ap["name"])
+def get_members(trn, team, apoq=None, detailed=True):
+    aps = []
+    if detailed:
+        if not apoq:
+            apoq = AttendeeProperty.user_objects.filter(
+                tournament=trn
+            ).prefetch_related("required", "optional")
+
+        apos = []
+        for ap in apoq:
+            apos.append(
+                {
+                    "name": ap.name,
+                    "object": ap,
+                    "required": set(ap.required.all().values_list("id", flat=True)),
+                    "optional": set(ap.optional.all().values_list("id", flat=True)),
+                    "type": ap.type,
+                }
+            )
+        for ap in apos:
+            aps.append(ap["name"])
 
     limits = {}
     for tr in TeamRole.objects.filter(tournament=trn):
         if tr.members_min:
-            limits[tr] = {"value":0}
+            limits[tr] = {"value": 0}
 
     members = []
     tlj_pen = 0
     tlj_acc = 0
     missing = 0
     optional = 0
-    for tm in team.teammember_set.all().prefetch_related("role","attendee__roles","attendee__juror"):
-        member = {"attendee": tm.attendee, "role": tm.role, "proles":tm.attendee.roles.all(), "id": tm.id, "accepted": False, "manager":tm.manager, "juror":tm.attendee.roles.filter(type=ParticipationRole.JUROR).exists()}
+    for tm in team.teammember_set.all().prefetch_related(
+        "role", "attendee__roles", "attendee__juror"
+    ):
+        member = {
+            "attendee": tm.attendee,
+            "role": tm.role,
+            "proles": tm.attendee.roles.all(),
+            "id": tm.id,
+            "accepted": False,
+            "manager": tm.manager,
+            "juror": tm.attendee.roles.filter(type=ParticipationRole.JUROR).exists(),
+            "possiblejuror": False,
+        }
         try:
             pj = tm.attendee.active_user.possiblejuror_set.get(tournament=trn)
-            member["juror"] = True
+            member["possiblejuror"] = True
             if pj.approved_by != None:
                 member["accepted"] = True
         except:
             pass
         if tm.role not in limits:
-            limits[tm.role] = {"value":0}
+            limits[tm.role] = {"value": 0}
         limits[tm.role]["value"] += 1
-        if hasattr(tm.attendee,"juror"):
+        if hasattr(tm.attendee, "juror"):
             if tm.attendee.juror != None:
                 member["accepted"] = True
         if tm.role.type == TeamRole.LEADER and member["juror"]:
@@ -400,106 +612,146 @@ def get_members(trn, team, apoq = None):
             else:
                 tlj_pen += 1
         dat = []
-        att_roles = set(tm.attendee.roles.values_list("id",flat=True))
-        for ap in apos:
-            dat_p={"value":None,"needed":True, "required":False, "optional":False}
-            if len(att_roles & ap["required"]):
-                ls = " (req.)"
-                dat_p["required"]=True
-            elif len(att_roles & ap["optional"]):
-                ls = " (opt.)"
-                dat_p["optional"]=True
-            else:
-                dat_p["needed"]=False
+        att_roles = set(tm.attendee.roles.values_list("id", flat=True))
+        if detailed:
+            for ap in apos:
+                dat_p = {
+                    "value": None,
+                    "needed": True,
+                    "required": False,
+                    "optional": False,
+                }
+                if len(att_roles & ap["required"]):
+                    ls = " (req.)"
+                    dat_p["required"] = True
+                elif len(att_roles & ap["optional"]):
+                    ls = " (opt.)"
+                    dat_p["optional"] = True
+                else:
+                    dat_p["needed"] = False
+                    dat.append(dat_p)
+                    continue
+
+                try:
+                    dep_ap = ap["object"].required_if
+                    if dep_ap:
+                        depcheck = (
+                            tm.attendee.attendeepropertyvalue_set.filter(
+                                property=dep_ap
+                            )
+                            .last()
+                            .bool_value
+                        )
+                        if depcheck == True:
+                            dat_p["required"] = True
+                            dat_p["optional"] = False
+                except:
+                    pass
+
+                apv = None
+                apv_unc = None
+                try:
+                    apv_unc = (
+                        tm.attendee.attendeepropertyvalue_set(manager="unconfirmed")
+                        .filter(property=ap["object"])
+                        .last()
+                    )
+                    if apv_unc.confirmed:
+                        apv = apv_unc
+                    else:
+                        apv = tm.attendee.attendeepropertyvalue_set.filter(
+                            property=ap["object"]
+                        ).last()
+
+                        dat_p["prelim"] = "%s" % (
+                            getattr(apv_unc, apv_unc.field_name[ap["type"]])
+                        )
+                    chs = apv.choices_value.values_list("name", flat=True)
+                    if ap["object"].type == AttendeeProperty.CHOICE:
+                        if len(chs):
+                            dat_p["value"] = chs[0]
+                    elif ap["object"].type == AttendeeProperty.MULTIPLE_CHOICE:
+                        dat_p["list"] = chs
+                    elif ap["object"].type == AttendeeProperty.IMAGE:
+                        dat_p["image"] = {
+                            "id": apv.id,
+                            "url": apv.image_value.url.split("/")[-1],
+                        }
+                    elif ap["object"].type == AttendeeProperty.PDF:
+                        dat_p["file"] = {
+                            "id": apv.id,
+                            "url": apv.file_value.url.split("/")[-1],
+                        }
+                    elif ap["object"].type == AttendeeProperty.CONFLICT_ORIGINS:
+                        dat_p["list"] = apv.conflict_origins.values_list(
+                            "name", flat=True
+                        )
+                    else:
+                        val = getattr(apv, apv.field_name[ap["type"]])
+                        if val != None:
+                            if type(val) == datetime:
+                                try:
+                                    zoned = val.astimezone(timezone(trn.timezone))
+                                except:
+                                    zoned = val
+                                dat_p["value"] = "%s" % zoned
+                            else:
+                                dat_p["value"] = "%s" % val
+
+                except Exception as e:
+                    # print(e)
+                    pass
+
+                # print(dat_p)
+
+                if dat_p["required"] and dat_p["value"] == None:
+                    missing += 1
+                if dat_p["optional"] and dat_p["value"] == None:
+                    optional += 1
+
                 dat.append(dat_p)
-                continue
-
-            try:
-                dep_ap = ap["object"].required_if
-                if dep_ap:
-                    depcheck = tm.attendee.attendeepropertyvalue_set.filter(property=dep_ap).last().bool_value
-                    if depcheck == True:
-                        dat_p["required"]=True
-                        dat_p["optional"] = False
-            except:
-                pass
-
-            apv = None
-            apv_unc = None
-            try:
-                apv_unc = tm.attendee.attendeepropertyvalue_set(manager="unconfirmed").filter(property=ap["object"]).last()
-                if apv_unc.confirmed:
-                    apv=apv_unc
-                else:
-                    apv = tm.attendee.attendeepropertyvalue_set.filter(
-                        property=ap["object"]).last()
-
-                    dat_p["prelim"] = "%s" % (getattr(apv_unc, apv_unc.field_name[ap["type"]]))
-                chs = apv.choices_value.values_list("name", flat=True)
-                if ap["object"].type == AttendeeProperty.CHOICE:
-                    if len(chs):
-                        dat_p["value"] = chs[0]
-                elif ap["object"].type == AttendeeProperty.MULTIPLE_CHOICE:
-                    dat_p["list"] = chs
-                elif ap["object"].type == AttendeeProperty.IMAGE:
-                    dat_p["image"] = {"id":apv.id,"url":apv.image_value.url.split("/")[-1]}
-                elif ap["object"].type == AttendeeProperty.PDF:
-                    dat_p["file"] = {"id":apv.id,"url":apv.file_value.url.split("/")[-1]}
-                elif ap["object"].type == AttendeeProperty.CONFLICT_ORIGINS:
-                    dat_p["list"] = apv.conflict_origins.values_list("name", flat=True)
-                else:
-                    val = getattr(apv, apv.field_name[ap["type"]])
-                    if val != None:
-                        if type(val) == datetime:
-                            try:
-                                zoned = val.astimezone(timezone(trn.timezone))
-                            except:
-                                zoned = val
-                            dat_p["value"] = "%s" % zoned
-                        else:
-                            dat_p["value"]="%s" % val
-
-            except Exception as e:
-                #print(e)
-                pass
-
-            #print(dat_p)
-
-            if dat_p["required"] and dat_p["value"] == None:
-                missing += 1
-            if dat_p["optional"] and dat_p["value"] == None:
-                optional += 1
-
-            dat.append(dat_p)
 
         member["data"] = dat
         members.append(member)
 
     for key, val in limits.items():
         if key.members_max and val["value"] > key.members_max:
-            limits[key]["exceed"]=True
+            limits[key]["exceed"] = True
         if key.members_min and val["value"] < key.members_min:
-            limits[key]["undercut"]=True
+            limits[key]["undercut"] = True
     min_jurors = trn.registration_teamleaderjurors_required
     if not team.is_competing:
         min_jurors = trn.registration_teamleaderjurors_required_guest
 
     try:
-        tl_max_limit = TeamRole.objects.get(tournament=trn,type=TeamRole.LEADER).members_max
+        tl_max_limit = TeamRole.objects.get(
+            tournament=trn, type=TeamRole.LEADER
+        ).members_max
     except:
         tl_max_limit = None
-    accjr = TeamRole(pk=-2,name="accepted TL Jurors",members_min=min_jurors, members_max=tl_max_limit)
-    penjr = TeamRole(pk=-3,name="pending TL Jurors",members_min=min_jurors, members_max=tl_max_limit)
+    accjr = TeamRole(
+        pk=-2,
+        name="accepted TL Jurors",
+        members_min=min_jurors,
+        members_max=tl_max_limit,
+    )
+    penjr = TeamRole(
+        pk=-3,
+        name="pending TL Jurors",
+        members_min=min_jurors,
+        members_max=tl_max_limit,
+    )
     if min_jurors > 0:
-        limits[accjr] = {"value":tlj_acc}
+        limits[accjr] = {"value": tlj_acc}
         if tlj_acc < min_jurors:
-            limits[accjr]["undercut"]=True
+            limits[accjr]["undercut"] = True
         if tlj_pen > 0:
             limits[penjr] = {"value": tlj_pen}
             if tlj_pen > 0:
-                limits[penjr]["exceed"]=True
+                limits[penjr]["exceed"] = True
 
-    return (members, aps, limits, (missing,optional))
+    return (members, aps, limits, (missing, optional))
+
 
 def application_propertyvalues(tournament, role, activeUser):
 
@@ -508,32 +760,77 @@ def application_propertyvalues(tournament, role, activeUser):
     attrs = []
 
     if activeUser.user.first_name != "":
-        attrs.append({"name": "First Name", 'value': activeUser.user.first_name, "type": Property.STRING, "set":True})
+        attrs.append(
+            {
+                "name": "First Name",
+                "value": activeUser.user.first_name,
+                "type": Property.STRING,
+                "set": True,
+            }
+        )
     else:
-        attrs.append({"name": "First Name", 'value': None, "type": Property.STRING, "set": False})
-        missing_profile.append({"name":"First Name"})
+        attrs.append(
+            {"name": "First Name", "value": None, "type": Property.STRING, "set": False}
+        )
+        missing_profile.append({"name": "First Name"})
 
     if activeUser.user.last_name != "":
-        attrs.append({"name": "Last Name", 'value': activeUser.user.last_name, "type": Property.STRING, "set":True})
+        attrs.append(
+            {
+                "name": "Last Name",
+                "value": activeUser.user.last_name,
+                "type": Property.STRING,
+                "set": True,
+            }
+        )
     else:
-        attrs.append({"name": "Last Name", 'value': None, "type": Property.STRING, "set": False})
-        missing_profile.append({"name":"Last Name"})
+        attrs.append(
+            {"name": "Last Name", "value": None, "type": Property.STRING, "set": False}
+        )
+        missing_profile.append({"name": "Last Name"})
 
-    for ap in AttendeeProperty.user_objects.filter(Q(tournament=tournament),
-                                                   Q(apply_required=role)):
+    attrs.append(
+        {
+            "name": "Username",
+            "value": activeUser.user.username,
+            "type": Property.STRING,
+            "set": True,
+        }
+    )
+    attrs.append(
+        {
+            "name": "Email",
+            "value": activeUser.user.email,
+            "type": Property.STRING,
+            "set": True,
+        }
+    )
 
-        #print(ap)
+    for ap in AttendeeProperty.user_objects.filter(
+        Q(tournament=tournament), Q(apply_required=role)
+    ):
+
+        # print(ap)
         t = ap.user_property.type
         up = ap.user_property
 
         valueo = None
         try:
-            valueo = UserPropertyValue.objects.filter(user=activeUser, property=up).last()
+            valueo = UserPropertyValue.objects.filter(
+                user=activeUser, property=up
+            ).last()
         except:
             pass
 
-        attr = {"name": ap.name, 'property': up, 'list': None, 'value': None, "type": up.type, "set": False,
-                "apv": valueo}
+        attr = {
+            "name": ap.name,
+            "property": up,
+            "list": None,
+            "value": None,
+            "type": up.type,
+            "set": False,
+            "apv": valueo,
+        }
 
         if valueo:
             attr["set"] = True
@@ -557,8 +854,8 @@ def application_propertyvalues(tournament, role, activeUser):
                         zoned = value
                     attr["value"] = zoned
 
-                    #print(type(attr["value"]))
-                    #print(attr["value"])
+                    # print(type(attr["value"]))
+                    # print(attr["value"])
                 else:
                     attr["value"] = value
         else:
@@ -566,5 +863,89 @@ def application_propertyvalues(tournament, role, activeUser):
 
         attrs.append(attr)
 
-    return{'attrs':attrs,
-           'missing':missing_profile}
+    return {"attrs": attrs, "missing": missing_profile}
+
+
+def assign_teammanager(origin, attendee, is_competing=True):
+    team = Team.objects.get_or_create(tournament=origin.tournament, origin=origin)[0]
+    team.is_competing = is_competing
+
+    team.save()
+
+    ass_teamrole = TeamRole.objects.get(
+        tournament=origin.tournament, type=TeamRole.ASSOCIATED
+    )
+    tm = TeamMember.objects.get_or_create(
+        team=team, attendee=attendee, role=ass_teamrole
+    )[0]
+    tm.manager = True
+    tm.save()
+
+    attendee.roles.add(
+        attendee.tournament.participationrole_set.filter(
+            type=ParticipationRole.TEAM_MANAGER
+        ).first()
+    )
+
+    try:
+        attendee.roles.add(*ass_teamrole.participation_roles.all())
+    except:
+        pass
+
+
+def accept_teammanager(
+    request, trn, origin, is_competing, applicant, participation_role
+):
+
+    att = Attendee.objects.get_or_create(tournament=trn, active_user=applicant)[0]
+
+    assign_teammanager(origin, att, is_competing)
+
+    for ap in AttendeeProperty.user_objects.filter(
+        Q(tournament=trn), Q(apply_required=participation_role)
+    ):
+
+        t = ap.user_property.type
+        up = ap.user_property
+
+        valueo = None
+        valueo = UserPropertyValue.objects.filter(user=applicant, property=up).last()
+
+        if valueo:
+            value = getattr(valueo, valueo.field_name[t])
+            update_property(
+                request,
+                ap,
+                None,
+                value,
+                "attendee-property-%d",
+                AttendeePropertyValue,
+                {"attendee": att, "author": request.user.profile},
+                copy_image=True,
+            )
+
+
+class MyEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Attendee):
+            o: Attendee
+            ret = {
+                "first_name": o.first_name,
+                "last_name": o.last_name,
+                "email": o.active_user.user.email,
+                "roles": o.roles.all(),
+                "team": o.team_set.all(),
+            }
+            return ret
+        if isinstance(o, ParticipationRole):
+            o: ParticipationRole
+            ret = {"name": o.name, "type": o.type}
+            return ret
+        if isinstance(o, Team):
+            o: Team
+            ret = {"name": o.origin.name}
+            return ret
+        if isinstance(o, QuerySet):
+            return list(o)
+
+        return JSONEncoder.default(self, o)

@@ -1,6 +1,15 @@
+from datetime import timedelta
+
+from django import forms
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render, reverse
+from django.shortcuts import (
+    get_list_or_404,
+    get_object_or_404,
+    redirect,
+    render,
+    reverse,
+)
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -10,11 +19,19 @@ from apps.account.models import Attendee, ParticipationRole
 from apps.dashboard.delete import ConfirmedDeleteView
 from apps.team.models import Team
 
-from .forms import AccountForm, PaymentForm, PropertyFeeForm, RoleFeeForm, SettlementForm, TeamFeeForm
+from .forms import (
+    AccountForm,
+    PaymentForm,
+    PropertyFeeForm,
+    RoleFeeForm,
+    SettlementForm,
+    TeamFeeForm,
+)
 from .models import Account, Payment, PropertyFee
 from .utils import expected_fees, expected_person_fees, get_subpayments
 
 # Create your views here.
+
 
 class AccountsView(ListView):
 
@@ -26,16 +43,35 @@ class AccountsView(ListView):
         acs = []
         for ac in Account.objects.filter(owners__tournament=trn).distinct():
             inp, iamt, ipend = get_subpayments(
-                Payment.objects.filter(sender__owners__tournament=trn, receiver__owners__tournament=trn,
-                                       residual_of__isnull=True).filter(receiver=ac).distinct())
+                Payment.objects.filter(
+                    sender__owners__tournament=trn,
+                    receiver__owners__tournament=trn,
+                    residual_of__isnull=True,
+                )
+                .filter(receiver=ac)
+                .distinct()
+            )
 
             inp, oamt, opend = get_subpayments(
-                Payment.objects.filter(sender__owners__tournament=trn, receiver__owners__tournament=trn,
-                                       residual_of__isnull=True).filter(Q(sender=ac)).distinct())
+                Payment.objects.filter(
+                    sender__owners__tournament=trn,
+                    receiver__owners__tournament=trn,
+                    residual_of__isnull=True,
+                )
+                .filter(Q(sender=ac))
+                .distinct()
+            )
 
-            acs.append({"account":ac, "balance": iamt - ipend - (oamt - opend) , "balance_pending":ipend - opend})
+            acs.append(
+                {
+                    "account": ac,
+                    "balance": iamt - ipend - (oamt - opend),
+                    "balance_pending": ipend - opend,
+                }
+            )
 
         return acs
+
 
 class AccountCreateView(CreateView):
 
@@ -43,16 +79,21 @@ class AccountCreateView(CreateView):
 
     def get_form(self, form_class=None):
         """Return an instance of the form to be used in this view."""
-        return AccountForm(self.request.user.profile.tournament, **self.get_form_kwargs())
+        return AccountForm(
+            self.request.user.profile.tournament, **self.get_form_kwargs()
+        )
 
     success_url = reverse_lazy("bank:accounts")
+
 
 class AccountChangeView(UpdateView):
     template_name = "bank/account_form.html"
 
     def get_form(self, form_class=None):
         """Return an instance of the form to be used in this view."""
-        return AccountForm(self.request.user.profile.tournament, **self.get_form_kwargs())
+        return AccountForm(
+            self.request.user.profile.tournament, **self.get_form_kwargs()
+        )
 
     def get_success_url(self):
         return reverse("bank:accounts")
@@ -60,13 +101,20 @@ class AccountChangeView(UpdateView):
     def get_object(self, queryset=None):
         obj = None
         try:
-            obj = Account.objects.filter(owners__tournament=self.request.user.profile.tournament,
-                                        id=self.kwargs['id']).distinct().first()
+            obj = (
+                Account.objects.filter(
+                    owners__tournament=self.request.user.profile.tournament,
+                    id=self.kwargs["id"],
+                )
+                .distinct()
+                .first()
+            )
         except:
             pass
         if not obj:
             raise Http404
         return obj
+
 
 class PaymentRequestView(CreateView):
 
@@ -76,7 +124,9 @@ class PaymentRequestView(CreateView):
 
     def get_form(self, form_class=None):
 
-        return PaymentForm(self.request.user.profile.tournament, **self.get_form_kwargs())
+        return PaymentForm(
+            self.request.user.profile.tournament, **self.get_form_kwargs()
+        )
 
     def form_valid(self, form):
         p = form.save(commit=False)
@@ -84,6 +134,7 @@ class PaymentRequestView(CreateView):
         p.save()
         form.save()
         return redirect("bank:accounts")
+
 
 class AccountView(ListView):
 
@@ -101,26 +152,41 @@ class AccountView(ListView):
 
         context["id"] = self.kwargs["account"]
 
-        context["account"] = Account.objects.get(id=self.kwargs['account'])
+        context["account"] = Account.objects.get(id=self.kwargs["account"])
 
-        inp, iamt, ipend = get_subpayments(Payment.objects.filter(sender__owners__tournament=trn, receiver__owners__tournament=trn, residual_of__isnull=True).filter(receiver_id=self.kwargs['account']).distinct())
+        inp, iamt, ipend = get_subpayments(
+            Payment.objects.filter(
+                sender__owners__tournament=trn,
+                receiver__owners__tournament=trn,
+                residual_of__isnull=True,
+            )
+            .filter(receiver_id=self.kwargs["account"])
+            .distinct()
+        )
 
         context["incomming"] = inp
         context["incomming_sum"] = iamt
         context["incomming_pend"] = ipend
 
         inp, oamt, opend = get_subpayments(
-            Payment.objects.filter(sender__owners__tournament=trn, receiver__owners__tournament=trn,
-                                   residual_of__isnull=True).filter(Q(sender_id=self.kwargs['account'])).distinct())
+            Payment.objects.filter(
+                sender__owners__tournament=trn,
+                receiver__owners__tournament=trn,
+                residual_of__isnull=True,
+            )
+            .filter(Q(sender_id=self.kwargs["account"]))
+            .distinct()
+        )
 
         context["outgoing"] = inp
         context["outgoing_sum"] = oamt
         context["outgoing_pend"] = opend
 
-        context["balance"] = iamt-ipend - (oamt-opend)
+        context["balance"] = iamt - ipend - (oamt - opend)
         context["balance_pending"] = ipend - opend
 
         return context
+
 
 class SettleView(View):
     def get(self, request, payment):
@@ -128,22 +194,41 @@ class SettleView(View):
         trn = self.request.user.profile.tournament
         p = None
         try:
-            p = Payment.objects.filter(sender__owners__tournament=trn, receiver__owners__tournament=trn, id=payment, cleared_at__isnull=True, aborted_at__isnull=True).distinct().get()
+            p = (
+                Payment.objects.filter(
+                    sender__owners__tournament=trn,
+                    receiver__owners__tournament=trn,
+                    id=payment,
+                    cleared_at__isnull=True,
+                    aborted_at__isnull=True,
+                )
+                .distinct()
+                .get()
+            )
             print(p)
         except:
             raise PermissionError()
 
         form = SettlementForm(instance=p)
 
-        return render(request, "bank/settle.html",context={"payment":p, "form":form})
+        return render(request, "bank/settle.html", context={"payment": p, "form": form})
 
     def post(self, request, payment):
 
         trn = self.request.user.profile.tournament
         p = None
         try:
-            p = Payment.objects.filter(sender__owners__tournament=trn, receiver__owners__tournament=trn,
-                                       id=payment, cleared_at__isnull=True, aborted_at__isnull=True).distinct().get()
+            p = (
+                Payment.objects.filter(
+                    sender__owners__tournament=trn,
+                    receiver__owners__tournament=trn,
+                    id=payment,
+                    cleared_at__isnull=True,
+                    aborted_at__isnull=True,
+                )
+                .distinct()
+                .get()
+            )
             print(p)
         except:
             raise PermissionError("payment not found")
@@ -181,9 +266,10 @@ class SettleView(View):
             else:
                 print("payed more, settle 2")
 
-            return redirect("bank:list_account",p.receiver_id)
+            return redirect("bank:list_account", p.receiver_id)
 
         return render(request, "bank/settle.html", context={"payment": p, "form": form})
+
 
 class TeamFeeView(UpdateView):
     template_name = "tournament/overview.html"
@@ -196,12 +282,16 @@ class TeamFeeView(UpdateView):
     def get_object(self, queryset=None):
         return self.request.user.profile.tournament
 
+
 class RolesView(ListView):
 
     template_name = "bank/rolesList.html"
 
     def get_queryset(self):
-        return ParticipationRole.objects.filter(tournament=self.request.user.profile.tournament)
+        return ParticipationRole.objects.filter(
+            tournament=self.request.user.profile.tournament
+        )
+
 
 class RoleFeeUpdate(UpdateView):
     template_name = "tournament/overview.html"
@@ -212,15 +302,23 @@ class RoleFeeUpdate(UpdateView):
         return reverse("bank:fee_roles")
 
     def get_object(self, queryset=None):
-        obj = get_object_or_404(ParticipationRole, tournament=self.request.user.profile.tournament, id=self.kwargs['id'])
+        obj = get_object_or_404(
+            ParticipationRole,
+            tournament=self.request.user.profile.tournament,
+            id=self.kwargs["id"],
+        )
         return obj
+
 
 class PFeeView(ListView):
 
     template_name = "bank/feeList.html"
 
     def get_queryset(self):
-        return PropertyFee.objects.filter(tournament=self.request.user.profile.tournament)
+        return PropertyFee.objects.filter(
+            tournament=self.request.user.profile.tournament
+        )
+
 
 class PFeeCreate(CreateView):
 
@@ -230,7 +328,9 @@ class PFeeCreate(CreateView):
 
     def get_form(self, form_class=None):
 
-        return PropertyFeeForm(self.request.user.profile.tournament, **self.get_form_kwargs())
+        return PropertyFeeForm(
+            self.request.user.profile.tournament, **self.get_form_kwargs()
+        )
 
     def form_valid(self, form):
         p = form.save(commit=False)
@@ -239,21 +339,25 @@ class PFeeCreate(CreateView):
         form.save()
         return redirect("bank:fee_property")
 
+
 class PFeeDelete(ConfirmedDeleteView):
 
     redirection = "bank:fee_property"
 
     def get_objects(self, request, *args, **kwargs):
-        return PropertyFee.objects.filter(tournament=request.user.profile.tournament, id=kwargs["id"])
+        return PropertyFee.objects.filter(
+            tournament=request.user.profile.tournament, id=kwargs["id"]
+        )
+
 
 class TeamBill(View):
 
     def get(self, request):
         trn = request.user.profile.tournament
         teams = Team.objects.filter(tournament=self.request.user.profile.tournament)
-        fees=[]
+        fees = []
         for t in teams:
-            team = {'obj':t}
+            team = {"obj": t}
             fee = expected_fees(t)
             feesum = sum([0] + [f["amount"] for f in fee])
             team["fee_sum"] = feesum
@@ -263,46 +367,148 @@ class TeamBill(View):
             for ac in t.account_set.all():
 
                 inp, oamt, opend = get_subpayments(
-                    Payment.objects.filter(sender__owners__tournament=trn, receiver__owners__tournament=trn,
-                                       residual_of__isnull=True).filter(Q(sender=ac)).distinct())
+                    Payment.objects.filter(
+                        sender__owners__tournament=trn,
+                        receiver__owners__tournament=trn,
+                        residual_of__isnull=True,
+                    )
+                    .filter(Q(sender=ac))
+                    .distinct()
+                )
 
-                team["accounts"].append({"account":ac, "o_sum":oamt, "o_pend":opend})
+                team["accounts"].append({"account": ac, "o_sum": oamt, "o_pend": opend})
                 total += oamt
 
             team["bill_differ"] = 0
             if total != feesum:
-                team["bill_differ"]=feesum - total
+                team["bill_differ"] = feesum - total
             fees.append(team)
 
-        return render(request,"bank/teams.html",context={"teams":fees})
+        return render(request, "bank/teams.html", context={"teams": fees})
 
-class TeamFeeRequestView(CreateView):
 
-    template_name = "bank/payment_form.html"
+class TeamFeePartsRequestView(View):
 
-    success_url = reverse_lazy("bank:accounts")
+    class MinusZero:
+        id = 0
 
-    def get_form(self, form_class=None):
+    def make_form(self, team):
+        trn = self.request.user.profile.tournament
+        fields = {}
 
-        accs = get_list_or_404(Account, team_id=self.kwargs["team"], team__tournament=self.request.user.profile.tournament)
-        acc = None
-        if len(accs) > 0:
-            acc = accs[0]
-        fee = expected_fees(get_object_or_404(Team, id=self.kwargs["team"], tournament=self.request.user.profile.tournament))
-        feesum = sum([0] + [f["amount"] for f in fee])
+        fields["sender"] = forms.ModelChoiceField(
+            queryset=Account.objects.filter(owners__tournament=trn).distinct()
+        )
+        fields["receiver"] = forms.ModelChoiceField(
+            queryset=Account.objects.filter(owners__tournament=trn).distinct()
+        )
 
-        reference = ""
-        for f in fee:
-            reference+="%s : %.2lf\n"%(f["name"], f["amount"])
+        accounts = get_list_or_404(
+            Account, team=team, team__tournament=self.request.user.profile.tournament
+        )
+        if len(accounts) > 0:
+            fields["sender"].initial = accounts[0]
 
-        return PaymentForm(self.request.user.profile.tournament, **{**self.get_form_kwargs(),"sender":acc,"amount":feesum,"reference":reference})
+        fees = expected_fees(team)
+        for fee in fees:
+            chk = forms.BooleanField(
+                required=False,
+                initial=True,
+                label="%s : %.2f €" % (fee["name"], fee["amount"]),
+            )
 
-    def form_valid(self, form):
-        p = form.save(commit=False)
-        p.created_by = self.request.user.profile.active
-        p.save()
-        form.save()
-        return redirect("bank:accounts")
+            ep = None
+            if fee["type"] == Payment.TEAM:
+                ep = Payment.objects.filter(
+                    sender__in=accounts, ref_type=fee["type"], ref_team=team
+                ).first()
+            elif fee["type"] == Payment.ROLE:
+                ep = Payment.objects.filter(
+                    sender__in=accounts,
+                    ref_type=fee["type"],
+                    ref_role=fee["role"],
+                    ref_attendee=fee["attendee"],
+                ).first()
+            elif fee["type"] == Payment.PROPERTY:
+                ep = Payment.objects.filter(
+                    sender__in=accounts,
+                    ref_type=fee["type"],
+                    ref_property=fee["property"],
+                    ref_attendee=fee["attendee"],
+                ).first()
+            if ep:
+                chk.help_text = "already invoiced to account %d %s" % (
+                    ep.sender.id,
+                    ep.sender,
+                )
+                chk.initial = False
+
+            fields[
+                "fee_%s_%d_%d_%d"
+                % (
+                    fee["type"],
+                    fee.get("attendee", self.MinusZero()).id,
+                    fee.get("role", self.MinusZero()).id,
+                    fee.get("property", self.MinusZero()).id,
+                )
+            ] = chk
+
+        return {"form": type("FeeForm", (forms.Form,), fields), "fees": fees}
+
+    def get(self, request, team_id):
+        team = get_object_or_404(
+            Team, id=team_id, tournament=self.request.user.profile.tournament
+        )
+        form = self.make_form(team)
+
+        return render(request, "bank/payment_form.html", context={"form": form["form"]})
+
+    def post(self, request, team_id):
+        team = get_object_or_404(
+            Team, id=team_id, tournament=self.request.user.profile.tournament
+        )
+        form = self.make_form(team)
+        inst = form["form"](request.POST)
+        if inst.is_valid():
+            for fee in form["fees"]:
+                if inst.cleaned_data[
+                    "fee_%s_%d_%d_%d"
+                    % (
+                        fee["type"],
+                        fee.get("attendee", self.MinusZero()).id,
+                        fee.get("role", self.MinusZero()).id,
+                        fee.get("property", self.MinusZero()).id,
+                    )
+                ]:
+
+                    duedate = team.tournament.bank_default_due
+                    if (
+                        duedate < timezone.now()
+                        and team.tournament.bank_default_contingency_days is not None
+                    ):
+                        duedate = timezone.now() + timedelta(
+                            days=team.tournament.bank_default_contingency_days
+                        )
+                    py = Payment.objects.create(
+                        sender=inst.cleaned_data["sender"],
+                        created_by=request.user.profile.active,
+                        amount=fee["amount"],
+                        reference=fee["name"],
+                        ref_type=fee["type"],
+                        receiver=inst.cleaned_data["receiver"],
+                        due_at=duedate,
+                    )
+                    if fee["type"] == Payment.TEAM:
+                        py.ref_team = team
+                    elif fee["type"] == Payment.ROLE:
+                        py.ref_role = fee["role"]
+                        py.ref_attendee = fee["attendee"]
+                    elif fee["type"] == Payment.PROPERTY:
+                        py.ref_property = fee["property"]
+                        py.ref_attendee = fee["attendee"]
+                    py.save()
+        return render(request, "bank/payment_form.html", context={"form": inst})
+
 
 class TeamAccountCreateView(CreateView):
 
@@ -310,27 +516,40 @@ class TeamAccountCreateView(CreateView):
 
     def get_form(self, form_class=None):
 
-        team = get_object_or_404(Team, id=self.kwargs["team"], tournament=self.request.user.profile.tournament)
-        return AccountForm(self.request.user.profile.tournament, **self.get_form_kwargs(),team=team, owners=team.get_managers())
+        team = get_object_or_404(
+            Team,
+            id=self.kwargs["team"],
+            tournament=self.request.user.profile.tournament,
+        )
+        return AccountForm(
+            self.request.user.profile.tournament,
+            **self.get_form_kwargs(),
+            team=team,
+            owners=team.get_managers()
+        )
 
     success_url = reverse_lazy("bank:bill_teams")
+
 
 class AttendeeBill(View):
 
     def get(self, request):
-        atts = Attendee.objects.filter(tournament=self.request.user.profile.tournament).prefetch_related("roles","active_user__user")
-        fees=[]
+        atts = Attendee.objects.filter(
+            tournament=self.request.user.profile.tournament
+        ).prefetch_related("roles", "active_user__user")
+        fees = []
         for att in atts:
-            a = {"obj":att}
+            a = {"obj": att}
             a["accounts"] = att.account_set.all()
             fee = expected_person_fees(att)
             feesum = sum([0] + [f["amount"] for f in fee])
             a["fee_sum"] = feesum
             a["teams"] = att.team_set.all()
             fees.append(a)
-        fees = sorted(fees,key=lambda x:len(x["teams"]))
+        fees = sorted(fees, key=lambda x: len(x["teams"]))
 
-        return render(request,"bank/attendees.html",context={"attendees":fees})
+        return render(request, "bank/attendees.html", context={"attendees": fees})
+
 
 class AttendeeAccountCreateView(CreateView):
 
@@ -338,10 +557,17 @@ class AttendeeAccountCreateView(CreateView):
 
     def get_form(self, form_class=None):
 
-        att = get_list_or_404(Attendee, id=self.kwargs["attendee"], tournament=self.request.user.profile.tournament)
-        return AccountForm(self.request.user.profile.tournament, **self.get_form_kwargs(), owners=att)
+        att = get_list_or_404(
+            Attendee,
+            id=self.kwargs["attendee"],
+            tournament=self.request.user.profile.tournament,
+        )
+        return AccountForm(
+            self.request.user.profile.tournament, **self.get_form_kwargs(), owners=att
+        )
 
     success_url = reverse_lazy("bank:bill_attendees")
+
 
 class AttendeeFeeRequestView(CreateView):
 
@@ -351,18 +577,36 @@ class AttendeeFeeRequestView(CreateView):
 
     def get_form(self, form_class=None):
 
-        accs = get_list_or_404(Account, owners__id=self.kwargs["attendee"], owners__tournament=self.request.user.profile.tournament)
+        accs = get_list_or_404(
+            Account,
+            owners__id=self.kwargs["attendee"],
+            owners__tournament=self.request.user.profile.tournament,
+        )
         acc = None
         if len(accs) > 0:
             acc = accs[0]
-        fee = expected_person_fees(get_object_or_404(Attendee, id=self.kwargs["attendee"], tournament=self.request.user.profile.tournament))
+        fee = expected_person_fees(
+            get_object_or_404(
+                Attendee,
+                id=self.kwargs["attendee"],
+                tournament=self.request.user.profile.tournament,
+            )
+        )
         feesum = sum([0] + [f["amount"] for f in fee])
 
         reference = ""
         for f in fee:
-            reference+="%s : %.2lf\n"%(f["name"], f["amount"])
+            reference += "%s : %.2lf\n" % (f["name"], f["amount"])
 
-        return PaymentForm(self.request.user.profile.tournament, **{**self.get_form_kwargs(),"sender":acc,"amount":feesum,"reference":reference})
+        return PaymentForm(
+            self.request.user.profile.tournament,
+            **{
+                **self.get_form_kwargs(),
+                "sender": acc,
+                "amount": feesum,
+                "reference": reference,
+            }
+        )
 
     def form_valid(self, form):
         p = form.save(commit=False)

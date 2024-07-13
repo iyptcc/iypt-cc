@@ -1,0 +1,76 @@
+{
+
+      "rep": [
+            {
+                  "name": "Report",
+                  "minimum": 0.0,
+                  "maximum": 7.0
+            },
+            {
+                  "name": "Discussion with Opponent",
+                  "minimum": 0.0,
+                  "maximum": 3.0
+            },
+            {
+                  "name": "Answers to Jury, Opponent, and Reviewer's Questions",
+                  "minimum": -2.0,
+                  "maximum": 0.0
+            }
+      ],
+      "opp": [
+            {
+                  "name": "Questions Asked",
+                  "minimum": 0.0,
+                  "maximum": 2.0
+            },
+            {
+                  "name": "Opposition (Speech)",
+                  "minimum": 0.0,
+                  "maximum": 4.0
+            },
+            {
+                  "name": "Discussion with Reporter",
+                  "minimum": 0.0,
+                  "maximum": 4.0
+            },
+            {
+                  "name": "Answer to Jury and Reviewer's Questions",
+                  "minimum": -2.0,
+                  "maximum": 0.0
+            }
+      ],
+      "rev": [ 
+            {
+                  "name": "Questions Asked",
+                  "minimum": 0.0,
+                  "maximum": 2.0
+            },
+            {
+                  "name": "Review Report",
+                  "minimum": 0.0,
+                  "maximum": 3.0
+            },
+            {
+                  "name": "Review of Opposition",
+                  "minimum": 0.0,
+                  "maximum": 2.0
+            },
+            {
+                  "name": "Discussion Analysis",
+                  "minimum": 0.0,
+                  "maximum": 2.0
+            },
+            {
+                  "name": "Missed Points pointed out",
+                  "minimum": -1.0,
+                  "maximum": 1.0
+            },
+            {
+                  "name": "Answers to Jury Questions",
+                  "minimum": -2.0,
+                  "maximum": 0.0
+            }
+      ],
+      "obs": [ ]
+
+}

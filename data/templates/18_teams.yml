@@ -1,0 +1,141 @@
+meta:
+  cost:
+    consec-4: 0
+    meet: 0
+    no-4: 0
+    total: 0
+  d_4fight: 0
+  max_4fight: 0
+  n_meet_multiple: 0
+  name: IYPT schedule
+  role_violations: 0
+  rooms:
+  - A
+  - B
+  - C
+  - D
+  - E
+  - F
+  simulation_rounds: 50000
+  teams: 18
+rounds:
+- - name: A
+    opp: 3
+    rep: 2
+    rev: 1
+  - name: B
+    opp: 4
+    rep: 6
+    rev: 5
+  - name: C
+    opp: 7
+    rep: 9
+    rev: 8
+  - name: D
+    opp: 10
+    rep: 12
+    rev: 11
+  - name: E
+    opp: 13
+    rep: 15
+    rev: 14
+  - name: F
+    opp: 17
+    rep: 16
+    rev: 18
+- - name: A
+    opp: 2
+    rep: 7
+    rev: 16
+  - name: B
+    opp: 1
+    rep: 15
+    rev: 9
+  - name: C
+    opp: 11
+    rep: 17
+    rev: 14
+  - name: D
+    opp: 6
+    rep: 8
+    rev: 12
+  - name: E
+    opp: 5
+    rep: 13
+    rev: 3
+  - name: F
+    opp: 18
+    rep: 10
+    rev: 4
+- - name: A
+    opp: 15
+    rep: 11
+    rev: 8
+  - name: B
+    opp: 13
+    rep: 17
+    rev: 7
+  - name: C
+    opp: 6
+    rep: 18
+    rev: 1
+  - name: D
+    opp: 14
+    rep: 16
+    rev: 10
+  - name: E
+    opp: 12
+    rep: 5
+    rev: 2
+  - name: F
+    opp: 4
+    rep: 3
+    rev: 9
+- - name: A
+    opp: 3
+    rep: 18
+    rev: 15
+  - name: B
+    opp: 7
+    rep: 5
+    rev: 10
+  - name: C
+    opp: 14
+    rep: 1
+    rev: 4
+  - name: D
+    opp: 9
+    rep: 12
+    rev: 16
+  - name: E
+    opp: 8
+    rep: 2
+    rev: 17
+  - name: F
+    opp: 11
+    rep: 13
+    rev: 6
+- - name: A
+    opp: 16
+    rep: 8
+    rev: 3
+  - name: B
+    opp: 1
+    rep: 11
+    rev: 7
+  - name: C
+    opp: 12
+    rep: 4
+    rev: 13
+  - name: D
+    opp: 9
+    rep: 10
+    rev: 17
+  - name: E
+    opp: 15
+    rep: 6
+    rev: 2
+  - name: F
+    opp: 5
+    rep: 14
+    rev: 18

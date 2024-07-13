@@ -1,0 +1,96 @@
+{% load flags %}
+<table class="table table-striped">
+    {% if fight.info|length == 3 %}
+        {% for i in "xxxxxxx" %}
+            <col style="width:14.2%">
+        {% endfor %}
+    {% else %}
+        {% for i in "xxxxx" %}
+            <col style="width:20%">
+        {% endfor %}
+    {% endif %}
+    <tbody>
+        <tr>
+            <th></th>
+            {% for stage in fight.info %}
+                <th colspan="2">Stage {{ forloop.counter }}
+                {% for rej in stage.rejections %}
+                    {% include "result/inc/problem.html" with problem=rej presented=0 %}
+                {% endfor %}{% include "result/inc/problem.html" with problem=stage.presented presented=1 %}
+                </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th></th>
+            {% for stage in fight.info %}
+                <th>{{ stage.teams.rep }}</th>
+                <th>{{ stage.teams.opp }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td></td>
+            {% for stage in fight.info %}
+                <td>{{ stage.persons.rep }}</td>
+                <td>{{ stage.persons.opp }}</td>
+            {% endfor %}
+        </tr>
+        {% for juror in fight.grades %}
+            <tr>
+                <td>{{ juror.first_name.0 }}. {{ juror.last_name }} {% for c in juror.conflicting %}{{ c|flag_image_tuple }}{% endfor %}</td>
+                {% for stage in juror.grades %}
+                    <td>{% for p in stage.rep_partial %}
+                        <div class="progress-sm" style="width: {% widthratio p.width 1 10 %}%; background-color: #f5f5f5;" data-toggle="tooltip" title="{{ p.value }} {{ p.name }}">
+                                {% if p.value >= 0 %}
+                                <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="{{ p.value }}" aria-valuemin="{{ p.min }}" aria-valuemax="{{ p.max }}" style="width: {% widthratio p.value p.width 100 %}%">
+                                    <span class="sr-only">{{ p.value }} partial points</span>
+                                </div>
+                                {% else %}
+                                    <div class="progress-bar progress-bar-yellow" role="progressbar" aria-valuenow="{{ p.value }}" aria-valuemin="{{ p.min }}" aria-valuemax="{{ p.max }}" style="width: {% widthratio p.value p.width -100 %}%">
+                                    <span class="sr-only">{{ p.value }} partial points</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                    {% endfor %}
+                        {% if stage.sheet %}<a href="{% url "result:singlepartial" tournament stage.sheet.id %}">{% endif %}{{ stage.rep|floatformat:"0" }}{% if stage.sheet %}</a>{% endif %}</td>
+                    <td>
+                        {% for p in stage.opp_partial %}
+                        <div class="progress-sm" style="width: {% widthratio p.width 1 10 %}%; background-color: #f5f5f5;" data-toggle="tooltip" title="{{ p.value }} {{ p.name }}">
+                                {% if p.value >= 0 %}
+                                <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="{{ p.value }}" aria-valuemin="{{ p.min }}" aria-valuemax="{{ p.max }}" style="width: {% widthratio p.value p.width 100 %}%">
+                                    <span class="sr-only">{{ p.value }} partial points</span>
+                                </div>
+                                {% else %}
+                                    <div class="progress-bar progress-bar-yellow" role="progressbar" aria-valuenow="{{ p.value }}" aria-valuemin="{{ p.min }}" aria-valuemax="{{ p.max }}" style="width: {% widthratio p.value p.width -100 %}%">
+                                    <span class="sr-only">{{ p.value }} partial points</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                    {% endfor %}
+                        {% if stage.sheet %}<a href="{% url "result:singlepartial" tournament stage.sheet.id %}">{% endif %}{{ stage.opp|floatformat:"0" }}{% if stage.sheet %}</a>{% endif %}</td>
+                {%  endfor %}
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>Average:</td>
+            {% for stage in fight.info %}
+                <td>{{ stage.average.rep|floatformat:2 }}</td>
+                <td>{{ stage.average.opp|floatformat:2 }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Factor:</td>
+            {% for stage in fight.info %}
+                <td>{{ stage.factors.rep|floatformat:1 }}</td>
+                <td>{{ stage.factors.opp|floatformat:1 }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Points:</th>
+            {% for stage in fight.info %}
+                <th>{{ stage.w_average.rep|floatformat:2 }}</th>
+                <th>{{ stage.w_average.opp|floatformat:2 }}</th>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+

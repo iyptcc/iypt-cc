@@ -1,25 +1,28 @@
+{% if s.preview_fixed %}
+Presenting: {% include "result/inc/problem.html" with problem=s.free.0 presented=1 %}
+{% else %}
 {% for p in s.free %}
-    <span class="badge bg-green">{{ p }}</span>
+    {% include "result/inc/problem.html" with problem=p presented=1 %}
 {% endfor %}
 <ul>
     <li>rejected by Reporter:
         {% for p in s.a %}
-            <span class="badge bg-red">{{ p }}</span>
+            {% include "result/inc/problem.html" with problem=p presented=0 %}
         {% endfor %}
     </li>
     <li>presented by Reporter:
         {% for p in s.b %}
-            <span class="badge bg-red">{{ p }}</span>
+            {% include "result/inc/problem.html" with problem=p presented=0 %}
         {% endfor %}
     </li>
     <li>opposed by Opponent:
         {% for p in s.c %}
-            <span class="badge bg-red">{{ p }}</span>
+            {% include "result/inc/problem.html" with problem=p presented=0 %}
         {% endfor %}
     </li>
     <li>presented by Opponent:
         {% for p in s.d %}
-            <span class="badge bg-red">{{ p }}</span>
+            {% include "result/inc/problem.html" with problem=p presented=0 %}
         {% endfor %}
     </li>
 </ul>
@@ -29,3 +32,4 @@ lifted bans:
         <li>{{ b }}</li>
     {% endfor %}
 </ul>
+{% endif %}

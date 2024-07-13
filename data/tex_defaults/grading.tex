@@ -1,0 +1,40 @@
+\documentclass{minimal}
+
+\usepackage{qrcode}
+
+\usepackage[top=2cm, left=0.5cm, bottom=1cm, right=0.5cm, a4paper]{geometry}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\usepackage{fontspec}
+
+\newfontfamily{\rolefont}{SourceSansPro-Bold}
+\newfontfamily{\namefont}{SourceSansPro-Bold}
+\newfontfamily{\logofont}{SourceSansPro-Bold}
+\newfontfamily{\instfont}{SourceSansPro-Regular}
+
+\begin{document}%
+\begin{center}%
+(% for juror in [chair]+jurors %)%
+Room: (( room )), Round (( round )), Stage (( stage ))
+
+\begin{verbatim}
+(( juror.signed_id ))
+\end{verbatim}
+
+\qrcode{(( juror.signed_id ))}
+
+	(( juror.last_name )), (( juror.first_name ))
+
+    Rep: (( reporter ))
+
+    Opp: (( opponent ))
+
+    Rev: (( reviewer ))
+
+
+    \newpage
+(% endfor %)%
+\end{center}%
+\end{document}

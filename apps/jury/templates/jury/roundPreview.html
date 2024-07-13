@@ -67,6 +67,22 @@
                         </div>
                         <div class="box-body">
                             <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-primary">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Reserve Jurors</h3>
+                                            <div class="box-tools pull-right">
+                                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            {% for j in reserve %}
+                                                {% if j.possible_chair %}<b>{% endif %}
+                                                {{ j }}{% if j.possible_chair %}</b>{% endif %}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
                                 {% if deletions|length > 0 %}
                                 <div class="col-md-12">
                                     <div class="box box-danger">

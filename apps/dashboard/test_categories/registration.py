@@ -11,48 +11,88 @@ from .verbose_testcase import VerboseTestCase
 
 class RegistrationTests(VerboseTestCase):
 
-    def apply_new_team(self,trn,name):
-        self._preview_post("/registration/%s/team/"%trn,
-                           {"new_name": name, "_newteam": "apply"}, {"action": "_new_name"})
-        #r = self.client.post("/registration/%s/team/"%trn, {"new_name": name, "_newteam": "apply"})
-        #self.assertIn(r.status_code, [302, 200])
+    def apply_new_team(self, trn, name):
+        self._preview_post(
+            "/registration/%s/team/" % trn,
+            {"new_name": name, "_newteam": "apply"},
+            {"action": "_new_name"},
+        )
+        # r = self.client.post("/registration/%s/team/"%trn, {"new_name": name, "_newteam": "apply"})
+        # self.assertIn(r.status_code, [302, 200])
 
     def accept_new_team(self, appl_obj):
-        r = self.client.post("/registration/accept/team/%d/"%appl_obj.id,
-                             {"origin":appl_obj.origin.name,"leader":appl_obj.applicant.id, "competing":"on"})
+        r = self.client.post(
+            "/registration/accept/team/%d/" % appl_obj.id,
+            {
+                "origin": appl_obj.origin.name,
+                "leader": appl_obj.applicant.id,
+                "competing": "on",
+            },
+        )
         self.assertIn(r.status_code, [302, 200])
 
     def set_team_password(self, team, pw):
-        r = self.client.post("/registration/manage/team/%s/"%team,
-                             {"join_password":pw,'notify_applications':True})
-        self.assertIn(r.status_code, [302, 200])
+        self._preview_post(
+            "/registration/manage/team/%s/" % team,
+            {"join_password": pw, "notify_applications": True, "_save": "save"},
+            {"action": "_save"},
+        )
 
-        team = Team.objects.get(tournament=self.user.profile.tournament,origin__slug=team)
-        self.assertTrue(check_password(pw,team.join_password))
+        team = Team.objects.get(
+            tournament=self.user.profile.tournament, origin__slug=team
+        )
+        self.assertTrue(check_password(pw, team.join_password))
 
-    def apply_as_member(self,t_slug, team,pw, role=TeamRole.MEMBER):
-        team = Team.objects.get(tournament__slug=t_slug,origin__slug=team)
-        self._preview_post("/registration/%s/member/" % t_slug, {"team":team.id, "password":pw,"role":team.tournament.teamrole_set.get(type=role).id})
-        #self.assertIn(r.status_code, [302, 200])
-        #print(Application.objects.all())
+    def apply_as_member(self, t_slug, team, pw, role=TeamRole.MEMBER):
+        team = Team.objects.get(tournament__slug=t_slug, origin__slug=team)
+        self._preview_post(
+            "/registration/%s/member/" % t_slug,
+            {
+                "team": team.id,
+                "password": pw,
+                "role": team.tournament.teamrole_set.get(type=role).id,
+            },
+        )
+        # self.assertIn(r.status_code, [302, 200])
+        # print(Application.objects.all())
 
-    def accept_team_member(self,appl):
+    def accept_team_member(self, appl):
         act_user_id = appl.applicant_id
         trn = appl.tournament
         team = appl.team
-        r = self.client.post("/registration/manage/team/%s/accept/%d/"%(appl.team.origin.slug,appl.id),{"role":appl.team_role.id})
+        r = self.client.post(
+            "/registration/manage/team/%s/accept/%d/"
+            % (appl.team.origin.slug, appl.id),
+            {"role": appl.team_role.id},
+        )
         self.assertIn(r.status_code, [302, 200])
 
-        Attendee.objects.get(active_user_id=act_user_id, tournament=trn).team_set.get(id=team.id)
+        Attendee.objects.get(active_user_id=act_user_id, tournament=trn).team_set.get(
+            id=team.id
+        )
 
-    def set_team_role(self,tm,role, manager=False):
-        args = {"role":tm.team.tournament.teamrole_set.get(type=role).id}
+    def set_team_role(self, tm, role, manager=False):
+        args = {"role": tm.team.tournament.teamrole_set.get(type=role).id}
         if manager:
             args.update({"manager": "on"})
-        r = self.client.post("/registration/manage/team/%s/edit/%d/"%(tm.team.origin.slug,tm.id), args )
+        r = self.client.post(
+            "/registration/manage/team/%s/edit/%d/" % (tm.team.origin.slug, tm.id), args
+        )
         self.assertIn(r.status_code, [302, 200])
 
-    def apply_possible_juror(self,tournament,experience=None):
+    def apply_possible_juror(self, tournament, experience=None):
         if experience == None:
-            experience = randint(-1,1)
-        self._preview_post("/registration/%s/jurors/apply"%tournament,{"experience":experience})
+            experience = randint(-1, 1)
+        self._preview_post(
+            "/registration/%s/jurors/apply" % tournament, {"experience": experience}
+        )
+
+    def apply_role(self, tournament, role):
+        self._wizard_post("/registration/%s/role/" % tournament, {"role-role": role.id})
+
+    def accept_role(self, appl_obj):
+        r = self.client.post(
+            "/registration/accept/role/%d/" % appl_obj.id,
+            {"role": appl_obj.participation_role.id, "notify": True},
+        )
+        self.assertIn(r.status_code, [302, 200])

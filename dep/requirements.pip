@@ -1,6 +1,7 @@
 -r base-requirements.pip
-psycopg2
+psycopg2-binary
 redis
 gunicorn
+daphne
 django-redis
-raven
+sentry-sdk==1.9.8

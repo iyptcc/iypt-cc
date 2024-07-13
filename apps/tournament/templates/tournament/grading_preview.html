@@ -1,0 +1,98 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Grading Import Preview{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">
+                            <form action="" method="post">{% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            <p>
+                                <input class="btn btn-success btn-flat" type="submit" value="Import">
+                            </p>
+                        </form>
+                        </h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                        {% for role in grading.items %}
+                            <div class="col-md-12">
+                                <div class="box box-primary">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">{{ role.0 }}</h3>
+                                    </div>
+                                    <div class="box-body">
+                                        <div class="row">
+                                            {% for grp in role.1 %}
+                                                <div class="col-md-12">
+                                                    <div class="box box-primary">
+                                                        <div class="box-header with-border">
+                                                            <h3 class="box-title">{{ grp.name }}</h3>
+                                                        </div>
+                                                        <div class="box-body">
+                                                            <div class="row">
+                                                                <div class="col-md-1">
+                                                                    <div class="box box-primary">
+                                                                        <div class="box-body no-padding">
+                                                                            <table class="table table-striped">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td>{{ grp.minimum }}</td>
+                                                                                    </tr>
+                                                                                    <tr>
+                                                                                        <td>{{ grp.maximum }}</td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                {% for cato in grp.categories %}
+                                                                    {% for cat in cato.items %}
+                                                                    <div class="col-md-2">
+                                                                        <div class="box box-primary">
+                                                                            <div class="box-header with-border">
+                                                                                <h3 class="box-title">{{ cat.0 }}</h3>
+                                                                            </div>
+                                                                            <div class="box-body no-padding">
+                                                                                <table class="table table-striped">
+                                                                                    <tbody>
+                                                                                        {% for el in cat.1 %}
+                                                                                        <tr>
+                                                                                            <td>{{ el.start }}</td>
+                                                                                            <td>{{ el.end }}</td>
+                                                                                            <td>{{ el.name }}</td>
+                                                                                        </tr>
+                                                                                        {% endfor %}
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {% endfor %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

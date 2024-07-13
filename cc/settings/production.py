@@ -1,28 +1,41 @@
+
+# ADMINS = [('Root', 'root@localhost')]
+# SERVER_EMAIL = "root@localhost"
+
 import os
 
-import raven
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
-from .base import BASE_DIR, MIDDLEWARE
+from .base import BASE_DIR
 
 release_hash = "unknown"
 try:
-    with open(os.path.join(os.path.dirname(BASE_DIR),"django-git/HEAD")) as f:
+    with open(os.path.join(os.path.dirname(BASE_DIR), "django-git/HEAD")) as f:
         release_hash = f.read()
-except:
+except IOError:
     pass
 
-try:
-    from .secret_sentry import *
-except:
-    RAVEN_DSN = "https://52709813eb5d4fc599da7f7c3de5359d@sentry.iypt.nlogn.org/2"
+dsnurl = "https://1234@sentry.iypt.org/2"
+if "SENTRY_DSN_KEY" in os.environ:
+    dsnurl = os.environ['SENTRY_DSN_KEY']
 
-RAVEN_CONFIG = {
-    'dsn': RAVEN_DSN,
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    'release': release_hash,
-}
+sentry_sdk.init(
+    dsn=dsnurl,
+    integrations=[DjangoIntegration()],
 
-MIDDLEWARE = [
-    'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
-]+ MIDDLEWARE
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True,
+
+    # By default the SDK will try to use the SENTRY_RELEASE
+    # environment variable, or infer a git commit
+    # SHA as release, however you may want to set
+    # something more human-readable.
+    release=release_hash,
+)

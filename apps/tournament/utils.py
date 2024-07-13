@@ -15,6 +15,7 @@ def _more_perm_than_group(user, group):
         return False
     return True
 
+
 def _more_perm_than_role(user, role):
 
     for g in role.groups.all():
@@ -22,12 +23,16 @@ def _more_perm_than_role(user, role):
             return False
     return True
 
+
 def _is_superior_user(user, other_attendee):
 
     allperm = user.get_all_permissions()
 
     gperm = set()
-    for p in Permission.objects.filter(Q(group__attendee=other_attendee)|Q(group__participationrole__attendee=other_attendee)):
+    for p in Permission.objects.filter(
+        Q(group__attendee=other_attendee)
+        | Q(group__participationrole__attendee=other_attendee)
+    ):
         name = "%s.%s" % (p.content_type.app_label, p.codename)
         gperm.update([name])
 

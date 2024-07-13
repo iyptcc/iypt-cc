@@ -43,7 +43,7 @@
 
 {% block javascripts %}
     {{ block.super }}
-    <script src="/static/AdminLTE/plugins/chartjs/Chart.min.js"></script>
+    {% link_js 'chartjs' %}
 {% endblock %}
 
 {% block javascripts_inline %}
@@ -119,9 +119,12 @@
     //- LINE CHART -
     //--------------
     var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
-    var lineChart = new Chart(lineChartCanvas);
-    var lineChartOptions = areaChartOptions;
-    lineChart.Line(areaChartData, lineChartOptions);
+    new Chart(lineChartCanvas, {
+      type: 'line',
+      data: areaChartData,
+      options: areaChartOptions
+    })
+
     });
 
     </script>

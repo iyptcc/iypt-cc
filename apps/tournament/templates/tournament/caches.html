@@ -1,0 +1,24 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Caches{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"><form action="" method="post">{% csrf_token %}
+
+                                Cache Content  <input class="btn btn-danger btn-flat" type="submit" value="Clear">
+
+                        </form></h3>
+                    </div>
+                    <div class="box-body">
+                        {{ cache }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

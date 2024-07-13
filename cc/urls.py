@@ -14,17 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf import settings
-from django.conf.urls import include, url
 from django.contrib import admin
 from django.template.response import TemplateResponse
+from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView
 
 from apps.account.registration import RegistrationView
 
+from .api import router
+
 favicon_view = RedirectView.as_view(url='/static/cc-favicon.ico', permanent=True)
 robots_view = RedirectView.as_view(url='/static/robots.txt', permanent=True)
 
-def handler500(request,*args,**kwargs):
+
+def handler500(request, *args, **kwargs):
     """500 error handler which includes ``request`` in the context.
 
     Templates: `500.html`
@@ -35,37 +38,46 @@ def handler500(request,*args,**kwargs):
     template_name = 'dashboard/500.html'  # You need to create a 500.html template.
     return TemplateResponse(request, template_name, context, status=500)
 
-def handler404(request,*args,**kwargs):
+
+def handler404(request, *args, **kwargs):
     context = {'request': request}
     template_name = 'dashboard/404.html'  # You need to create a 500.html template.
     return TemplateResponse(request, template_name, context, status=404)
 
+
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^account/', include('apps.account.urls', namespace='account')),
-    url(r'^plan/', include('apps.plan.urls', namespace='plan')),
-    url(r'^jury/', include('apps.jury.urls', namespace='jury')),
-    url(r'^dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
-    url(r'^fight/', include('apps.fight.urls', namespace='fight')),
-    url(r'^tournament/', include('apps.tournament.urls', namespace='tournament')),
-    url(r'^bank/', include('apps.bank.urls', namespace='bank')),
-    url(r'^schedule/', include('apps.schedule.urls', namespace='schedule')),
-    url(r'^printer/', include('apps.printer.urls', namespace='printer')),
-    url(r'^postoffice/', include('apps.postoffice.urls', namespace='postoffice')),
-    url(r'^management/', include('apps.management.urls', namespace='management')),
-    url(r'^about/', include('apps.about.urls', namespace='about')),
-    url(r'^registration/', include('apps.registration.urls', namespace='registration')),
-    url(r'^auth/register/$', RegistrationView.as_view(), name='registration_register'),
-    url(r'^auth/', include('registration.backends.hmac.urls')),
-    url(r'^favicon\.ico$', favicon_view),
-    url(r'^robots\.txt$', robots_view),
-    url(r'^feedback/', include("tellme.urls")),
-    url(r'^hijack/', include('hijack.urls', namespace='hijack')),
-    url(r'^', include('apps.result.urls', namespace='result')),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^account/', include('apps.account.urls', namespace='account')),
+    re_path(r'^plan/', include('apps.plan.urls', namespace='plan')),
+    re_path(r'^jury/', include('apps.jury.urls', namespace='jury')),
+    re_path(r'^juryfeedback/', include('apps.feedback.urls', namespace='feedback')),
+    re_path(r'^dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
+    re_path(r'^fight/', include('apps.fight.urls', namespace='fight')),
+    re_path(r'^virtual/', include('apps.virtual.urls', namespace='virtual')),
+    re_path(r'^tournament/', include('apps.tournament.urls', namespace='tournament')),
+    re_path(r'^bank/', include('apps.bank.urls', namespace='bank')),
+    re_path(r'^schedule/', include('apps.schedule.urls', namespace='schedule')),
+    re_path(r'^printer/', include('apps.printer.urls', namespace='printer')),
+    re_path(r'^postoffice/', include('apps.postoffice.urls', namespace='postoffice')),
+    re_path(r'^management/', include('apps.management.urls', namespace='management')),
+    re_path(r'^about/', include('apps.about.urls', namespace='about')),
+    re_path(r'^registration/', include('apps.registration.urls', namespace='registration')),
+    re_path(r'^fake/', include('apps.fake.urls', namespace='fake')),
+    path('auth/register/', RegistrationView.as_view(), name='registration_register'),
+    re_path(r'^auth/', include('django_registration.backends.activation.urls')),
+    re_path(r'^auth/', include('django.contrib.auth.urls')),
+    re_path(r'^oauth/', include('apps.account.oauth.urls', namespace='oauth2_provider')),
+    re_path(r'^favicon\.ico$', favicon_view),
+    re_path(r'^robots\.txt$', robots_view),
+    re_path(r'^feedback/', include("tellme.urls")),
+    re_path(r'^hijack/', include('hijack.urls', namespace='hijack')),
+    re_path(r'^api/', include(router.urls)),
+    path("captcha/", include('captcha.urls')),
+    re_path(r'^', include('apps.result.urls', namespace='result')),
 ]
 
 if settings.DEV:
     import debug_toolbar
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
+        re_path(r'^__debug__/', include(debug_toolbar.urls)),
     ]

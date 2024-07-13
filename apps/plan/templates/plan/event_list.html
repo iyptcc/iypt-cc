@@ -1,0 +1,44 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Events{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Event List <a href="{% url "plan:create_event" %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>start UTC</th>
+                                    <th>end UTC</th>
+                                    <th></th>
+                                </tr>
+                                {% for event in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ event.name }}
+                                    </td>
+                                    <td>{{ event.get_type_display }}</td>
+                                    <td>{{ event.time_start }}</td>
+                                    <td>{{ event.time_end }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "plan:change_event" event.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "plan:delete_event" event.id %}">delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

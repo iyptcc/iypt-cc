@@ -121,6 +121,18 @@
                             </ul>
                         </div>
                     </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Reserve Jurors</h3>
+                        </div>
+                        <div class="box-body">
+                            <ul class="fight-jury fight-reserve">
+                                {% for juror in reserve_jurors %}
+                                    {% include "jury/inc/juror_label.html" with juror=juror %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -201,6 +213,16 @@
                             $("#hidden_form").append('<input name="fight_'+fight+'_nonvoting" value="'+juror+'" type="hidden">')
                         }
                     })
+                });
+                var $jurors = $(".fight-reserve").first()
+
+                $jurors.children("li").each(function (idx) {
+                    var juror = $(this).data('juror')
+                    if (juror) {
+                        console.log("reserve jurors:")
+                        console.log(idx + ": " + juror)
+                        $("#hidden_form").append('<input name="round_reserve" value="' + juror + '" type="hidden">')
+                    }
                 });
                 //event.preventDefault();
             });

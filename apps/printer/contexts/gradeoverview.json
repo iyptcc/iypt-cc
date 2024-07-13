@@ -1,0 +1,722 @@
+{
+    "chair": {
+        "first_name": "Martin",
+        "last_name": "Plesch"
+    },
+    "fight_id": 847,
+    "flags": {
+        "Australia": {
+            "alpha2": "au",
+            "exists": false,
+            "slug": "australia"
+        },
+        "Austria": {
+            "alpha2": "at",
+            "exists": true,
+            "slug": "austria"
+        },
+        "Belarus": {
+            "alpha2": "by",
+            "exists": false,
+            "slug": "belarus"
+        },
+        "Brazil": {
+            "alpha2": "br",
+            "exists": true,
+            "slug": "brazil"
+        },
+        "Bulgaria": {
+            "alpha2": "bg",
+            "exists": true,
+            "slug": "bulgaria"
+        },
+        "Canada": {
+            "alpha2": "ca",
+            "exists": true,
+            "slug": "canada"
+        },
+        "China": {
+            "alpha2": "cn",
+            "exists": true,
+            "slug": "china"
+        },
+        "Chinese Taipei": {
+            "alpha2": "tw",
+            "exists": true,
+            "slug": "chinese-taipei"
+        },
+        "Croatia": {
+            "alpha2": "hr",
+            "exists": true,
+            "slug": "croatia"
+        },
+        "Czech Republic": {
+            "alpha2": "cz",
+            "exists": true,
+            "slug": "czech-republic"
+        },
+        "Georgia": {
+            "alpha2": "ge",
+            "exists": true,
+            "slug": "georgia"
+        },
+        "Germany": {
+            "alpha2": "de",
+            "exists": true,
+            "slug": "germany"
+        },
+        "Greece": {
+            "alpha2": "gr",
+            "exists": true,
+            "slug": "greece"
+        },
+        "Helix": {
+            "alpha2": null,
+            "exists": false,
+            "slug": "helix"
+        },
+        "Hungary": {
+            "alpha2": "hu",
+            "exists": true,
+            "slug": "hungary"
+        },
+        "India": {
+            "alpha2": "in",
+            "exists": true,
+            "slug": "india"
+        },
+        "Iran": {
+            "alpha2": "ir",
+            "exists": true,
+            "slug": "iran"
+        },
+        "Kazakhstan": {
+            "alpha2": "kz",
+            "exists": false,
+            "slug": "kazakhstan"
+        },
+        "Korea": {
+            "alpha2": "kr",
+            "exists": false,
+            "slug": "korea"
+        },
+        "Macao": {
+            "alpha2": "mo",
+            "exists": false,
+            "slug": "macao"
+        },
+        "Mexico": {
+            "alpha2": "mx",
+            "exists": true,
+            "slug": "mexico"
+        },
+        "New Zealand": {
+            "alpha2": "nz",
+            "exists": false,
+            "slug": "new-zealand"
+        },
+        "Pakistan": {
+            "alpha2": "pk",
+            "exists": true,
+            "slug": "pakistan"
+        },
+        "Poland": {
+            "alpha2": "pl",
+            "exists": true,
+            "slug": "poland"
+        },
+        "Romania": {
+            "alpha2": "ro",
+            "exists": true,
+            "slug": "romania"
+        },
+        "Singapore": {
+            "alpha2": "sg",
+            "exists": true,
+            "slug": "singapore"
+        },
+        "Slovakia": {
+            "alpha2": "sk",
+            "exists": true,
+            "slug": "slovakia"
+        },
+        "Slovenia": {
+            "alpha2": "si",
+            "exists": false,
+            "slug": "slovenia"
+        },
+        "South Africa": {
+            "alpha2": "za",
+            "exists": true,
+            "slug": "south-africa"
+        },
+        "Sweden": {
+            "alpha2": "se",
+            "exists": true,
+            "slug": "sweden"
+        },
+        "Switzerland": {
+            "alpha2": "ch",
+            "exists": true,
+            "slug": "switzerland"
+        },
+        "Thailand": {
+            "alpha2": "th",
+            "exists": true,
+            "slug": "thailand"
+        },
+        "Turkey": {
+            "alpha2": "tr",
+            "exists": true,
+            "slug": "turkey"
+        },
+        "USA": {
+            "alpha2": "us",
+            "exists": false,
+            "slug": "usa"
+        },
+        "Uganda": {
+            "alpha2": null,
+            "exists": false,
+            "slug": "uganda"
+        },
+        "Ukraine": {
+            "alpha2": "ua",
+            "exists": true,
+            "slug": "ukraine"
+        },
+        "United Kingdom": {
+            "alpha2": "gb",
+            "exists": true,
+            "slug": "united-kingdom"
+        },
+        "Vietnam": {
+            "alpha2": null,
+            "exists": false,
+            "slug": "vietnam"
+        }
+    },
+    "jurors": [
+        {
+            "first_name": "\u0141ukasz",
+            "last_name": "G\u0142adczuk"
+        },
+        {
+            "first_name": "Sandu",
+            "last_name": "Golcea"
+        },
+        {
+            "first_name": "Pruet",
+            "last_name": "Kalasuwan"
+        },
+        {
+            "first_name": "Fabricio",
+            "last_name": "Marques do Carmo"
+        }
+    ],
+    "problems": [
+        [
+            1,
+            "Fractal Fingers"
+        ],
+        [
+            2,
+            "Oscillating Sphere"
+        ],
+        [
+            3,
+            "Siren"
+        ],
+        [
+            4,
+            "Coloured Line"
+        ],
+        [
+            5,
+            "Whistling Mesh"
+        ],
+        [
+            6,
+            "Magnetic-Mechanical Oscillator"
+        ],
+        [
+            7,
+            "Faraday Waves"
+        ],
+        [
+            8,
+            "Euler\u2019s Pendulum"
+        ],
+        [
+            9,
+            "Oscillating Screw"
+        ],
+        [
+            10,
+            "Upstream Flow"
+        ],
+        [
+            11,
+            "Ball on Ferrite Rod"
+        ],
+        [
+            12,
+            "Rice Kettlebells"
+        ],
+        [
+            13,
+            "Ponyo\u2019s Heat Tube"
+        ],
+        [
+            14,
+            "Jet Refraction"
+        ],
+        [
+            15,
+            "Pancake Rotation"
+        ],
+        [
+            16,
+            "Thermoacoustic Engine"
+        ],
+        [
+            17,
+            "Arrester Bed"
+        ]
+    ],
+    "reporter_lines": [
+        [
+            {
+                "first_name": "Mariam",
+                "last_name": "Lominashvili",
+                "presented": [
+                    3
+                ]
+            },
+            {
+                "first_name": "Abdullah",
+                "last_name": "Yousafi",
+                "presented": [
+                    17,
+                    4
+                ]
+            },
+            {
+                "first_name": "Geo",
+                "last_name": "Kalfov",
+                "presented": [
+                    8,
+                    6
+                ]
+            },
+            {
+                "first_name": "Lian",
+                "last_name": "Eng Canales",
+                "presented": [
+                    17
+                ]
+            }
+        ],
+        [
+            {
+                "first_name": "Luka",
+                "last_name": "Burduli",
+                "presented": [
+                    8
+                ]
+            },
+            {
+                "first_name": "Manahil",
+                "last_name": "Moazzam",
+                "presented": [
+                    3
+                ]
+            },
+            {
+                "first_name": "Aleksandra",
+                "last_name": "Petkova",
+                "presented": [
+                    9,
+                    1
+                ]
+            },
+            {
+                "first_name": "Hannah Sof\u00eda",
+                "last_name": "Zavala Cepeda",
+                "presented": [
+                    12
+                ]
+            }
+        ],
+        [
+            {
+                "first_name": "Dachi",
+                "last_name": "Tchotashvili",
+                "presented": [
+                    9
+                ]
+            },
+            {
+                "first_name": "Haris",
+                "last_name": "Ahmad",
+                "presented": []
+            },
+            {
+                "first_name": "Kalina",
+                "last_name": "Doseva",
+                "presented": []
+            },
+            {
+                "first_name": "Damaris Paola",
+                "last_name": "Castrell\u00f3n Carrillo",
+                "presented": []
+            }
+        ],
+        [
+            {
+                "first_name": "Irakli",
+                "last_name": "Ugulava",
+                "presented": [
+                    15
+                ]
+            },
+            {
+                "first_name": "Afza",
+                "last_name": "Ahsan",
+                "presented": [
+                    9,
+                    12
+                ]
+            },
+            {
+                "first_name": "Zlatomir",
+                "last_name": "Zhelev",
+                "presented": [
+                    12
+                ]
+            },
+            {
+                "first_name": "Marijose",
+                "last_name": "Avalos Manriquez",
+                "presented": [
+                    10
+                ]
+            }
+        ],
+        [
+            {
+                "first_name": "Dea",
+                "last_name": "Nozadze",
+                "presented": [
+                    4
+                ]
+            },
+            {
+                "first_name": "Muhammad Asad",
+                "last_name": "Ghiyas",
+                "presented": []
+            },
+            {
+                "first_name": "Mila",
+                "last_name": "Getova",
+                "presented": []
+            },
+            {
+                "first_name": "Luisa Mar\u00eda",
+                "last_name": "Weissbach Salda\u00f1a",
+                "presented": [
+                    9,
+                    14
+                ]
+            }
+        ]
+    ],
+    "room": "C",
+    "round": 3,
+    "signed_id": "f000847:8ayoMC1t4ACNs9Dp-a36jUvm4ldAyHJuUOGBt0hTNXA",
+    "stages": [
+        {
+            "lifted_bans": [],
+            "opponent": "Pakistan",
+            "opposed_opponent": [
+                3,
+                8
+            ],
+            "order": 1,
+            "presented_opponent": [
+                3,
+                17
+            ],
+            "presented_reporter": [
+                3,
+                4
+            ],
+            "problems": [
+                5,
+                6,
+                9,
+                11,
+                13,
+                14,
+                15,
+                16
+            ],
+            "rejected_reporter": [
+                1,
+                2,
+                7,
+                10,
+                12
+            ],
+            "report_members": [
+                {
+                    "first_name": "Mariam",
+                    "last_name": "Lominashvili",
+                    "presented": [
+                        3
+                    ]
+                },
+                {
+                    "first_name": "Luka",
+                    "last_name": "Burduli",
+                    "presented": [
+                        8
+                    ]
+                },
+                {
+                    "first_name": "Dachi",
+                    "last_name": "Tchotashvili",
+                    "presented": [
+                        9
+                    ]
+                },
+                {
+                    "first_name": "Irakli",
+                    "last_name": "Ugulava",
+                    "presented": [
+                        15
+                    ]
+                },
+                {
+                    "first_name": "Dea",
+                    "last_name": "Nozadze",
+                    "presented": [
+                        4
+                    ]
+                }
+            ],
+            "reporter": "Georgia",
+            "reviewer": "Bulgaria"
+        },
+        {
+            "lifted_bans": [],
+            "opponent": "Bulgaria",
+            "opposed_opponent": [
+                3,
+                17
+            ],
+            "order": 2,
+            "presented_opponent": [
+                8,
+                9
+            ],
+            "presented_reporter": [
+                3,
+                17
+            ],
+            "problems": [
+                1,
+                2,
+                4,
+                5,
+                6,
+                7,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+            ],
+            "rejected_reporter": [
+                16
+            ],
+            "report_members": [
+                {
+                    "first_name": "Abdullah",
+                    "last_name": "Yousafi",
+                    "presented": [
+                        17,
+                        4
+                    ]
+                },
+                {
+                    "first_name": "Manahil",
+                    "last_name": "Moazzam",
+                    "presented": [
+                        3
+                    ]
+                },
+                {
+                    "first_name": "Haris",
+                    "last_name": "Ahmad",
+                    "presented": []
+                },
+                {
+                    "first_name": "Afza",
+                    "last_name": "Ahsan",
+                    "presented": [
+                        9,
+                        12
+                    ]
+                },
+                {
+                    "first_name": "Muhammad Asad",
+                    "last_name": "Ghiyas",
+                    "presented": []
+                }
+            ],
+            "reporter": "Pakistan",
+            "reviewer": "Mexico"
+        },
+        {
+            "lifted_bans": [],
+            "opponent": "Mexico",
+            "opposed_opponent": [
+                4,
+                13
+            ],
+            "order": 3,
+            "presented_opponent": [
+                9,
+                17
+            ],
+            "presented_reporter": [
+                8,
+                9
+            ],
+            "problems": [
+                1,
+                2,
+                3,
+                5,
+                6,
+                7,
+                10,
+                11,
+                12,
+                14,
+                15,
+                16
+            ],
+            "rejected_reporter": [],
+            "report_members": [
+                {
+                    "first_name": "Geo",
+                    "last_name": "Kalfov",
+                    "presented": [
+                        8,
+                        6
+                    ]
+                },
+                {
+                    "first_name": "Aleksandra",
+                    "last_name": "Petkova",
+                    "presented": [
+                        9,
+                        1
+                    ]
+                },
+                {
+                    "first_name": "Kalina",
+                    "last_name": "Doseva",
+                    "presented": []
+                },
+                {
+                    "first_name": "Zlatomir",
+                    "last_name": "Zhelev",
+                    "presented": [
+                        12
+                    ]
+                },
+                {
+                    "first_name": "Mila",
+                    "last_name": "Getova",
+                    "presented": []
+                }
+            ],
+            "reporter": "Bulgaria",
+            "reviewer": "Georgia"
+        },
+        {
+            "lifted_bans": [],
+            "opponent": "Georgia",
+            "opposed_opponent": [
+                1,
+                6
+            ],
+            "order": 4,
+            "presented_opponent": [
+                3,
+                4
+            ],
+            "presented_reporter": [
+                9,
+                17
+            ],
+            "problems": [
+                7,
+                8,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+            ],
+            "rejected_reporter": [
+                2,
+                5
+            ],
+            "report_members": [
+                {
+                    "first_name": "Lian",
+                    "last_name": "Eng Canales",
+                    "presented": [
+                        17
+                    ]
+                },
+                {
+                    "first_name": "Hannah Sof\u00eda",
+                    "last_name": "Zavala Cepeda",
+                    "presented": [
+                        12
+                    ]
+                },
+                {
+                    "first_name": "Damaris Paola",
+                    "last_name": "Castrell\u00f3n Carrillo",
+                    "presented": []
+                },
+                {
+                    "first_name": "Marijose",
+                    "last_name": "Avalos Manriquez",
+                    "presented": [
+                        10
+                    ]
+                },
+                {
+                    "first_name": "Luisa Mar\u00eda",
+                    "last_name": "Weissbach Salda\u00f1a",
+                    "presented": [
+                        9,
+                        14
+                    ]
+                }
+            ],
+            "reporter": "Mexico",
+            "reviewer": "Pakistan"
+        }
+    ]
+}

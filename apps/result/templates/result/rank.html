@@ -6,6 +6,41 @@
 
     {% block page_content %}
         <div class="row">
+        {% if final %}
+
+                <div class="col-md-6">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Final Ranking</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Team</th>
+                                        <th>Points</th>
+                                    </tr>
+                                    {% for t in final.result %}
+                                        <tr>
+                                            <td><b>{{ forloop.counter }}</b>
+                                            </td>
+                                            <td><a href="{% url "result:team" tournament t.slug %}">{{ t.name }}</a>
+                                            </td>
+                                            <td><b>{{ t.sp|floatformat:1 }}</b></td>
+
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+        {% endif %}
         {% for round in rounds %}
 
                 <div class="col-md-6">

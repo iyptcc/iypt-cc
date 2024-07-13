@@ -12,6 +12,18 @@
                         <h3 class="box-title">Generate Invoice</h3>
                     </div>
                     <div class="box-body">
+                        <div class="box box-warning">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Generate PDF</h3>
+                            </div>
+                            <div class="box-body">
+                                <p>This step is only required once. Please do not check boxes which are unselected, as this will invoice you twice!
+                                </p>
+                                <p>
+                                    To generate a PDF of all your invoiced items, please go to <a href="{%  url "account:accounts" %}">Profile - Finance</a>
+                                </p>
+                            </div>
+                        </div>
                         <form method="post">
                             {% bootstrap_form form %}
                             {% csrf_token %}

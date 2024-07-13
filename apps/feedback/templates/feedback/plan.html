@@ -1,0 +1,44 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Fight Feedback{% endblock %}
+
+    {% block page_content %}
+        {% for round in rounds %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Round {{ forloop.counter }}</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            {% for fight in round %}
+                                <div class="btn-group">
+                                    <a href="{% if fight.active %}{% url 'feedback:edit' fight.pk fight.active.origin.slug %}{% else %}#{% endif %}"
+                                        class="btn btn-{% if fight.active %}primary{% else %}default disabled{% endif %}">
+                                        {{ fight.name }}
+                                    </a>
+                                    {% if editall %}
+                                        <button type="button" class="btn btn-{% if fight.active %}primary{% else %}default{% endif %}
+                                                    dropdown-toggle" data-toggle="dropdown">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Teams</span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            {% for t in fight.teams %}
+                                                <li><a class="{% if t == fight.active %}text-aqua{% endif %}" href="{% url 'feedback:edit' fight.pk t.origin.slug %}">{{ t.origin.name }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}

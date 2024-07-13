@@ -16,21 +16,33 @@
                     <div class="box box-primary">
                         <div class="box-header with-border">
                             <h3 class="box-title">Round {{ forloop.counter }}</h3>
+                            <input class="btn btn-success" type="submit" name="_open_grading_{{ forloop.counter }}" value="open grading">
+                            <input class="btn btn-warning" type="submit" name="_close_grading_{{ forloop.counter }}" value="close grading">
+                            <input class="btn btn-info" type="submit" name="_import_{{ forloop.counter }}" value="import from round">
+                            {{ round.import }}
+                            <input class="btn btn-success" type="submit" name="_unlock_{{ forloop.counter }}" value="unlock all in round">
                             <div class="box-tools pull-right">
                                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                             </div>
                         </div>
                         <div class="box-body">
                             <div class="row">
-                                {% for f in round %}
+                                {% for f in round.fights %}
                                     <div class="col-md-3">
-                                        <div class="box {% if f.1.errors or f.0.errors %}box-danger{% else %}box-info{% endif %}">
+                                        <div class="box {% if f.operators.errors or f.locked.errors %}box-danger{% else %}box-info{% endif %}">
                                             <div class="box-header with-border">
-                                                <h3 class="box-title"> {{ f.0.label }} {{ f.0 }}</h3>
+                                                <h3 class="box-title"> {{ f.locked.label }} {{ f.locked }}</h3>
                                             </div>
                                             <div class="box-body">
-                                                {{ f.1.errors }}
-                                                {{ f.1 }}
+                                                {{ f.operators.errors }}
+                                                {{ f.operators }}
+                                            </div>
+                                            <div class="box-footer">
+                                                <ol>
+                                                {%  for s in f.stages %}
+                                                    <li>{% if s.jurors_grading %}<i class="fa fa-check"></i> open for Jurors{% else %}<i class="fa fa-circle"></i>{% endif %}</li>
+                                                {% endfor %}
+                                                </ol>
                                             </div>
                                         </div>
                                     </div>

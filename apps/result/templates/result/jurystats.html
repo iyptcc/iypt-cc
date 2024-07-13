@@ -9,7 +9,7 @@
             <div class="col-md-12">
                 <div class="box box-info">
                     <div class="box-header with-border">
-                        <h4 class="box-title" style="">Statistics Explanation
+                        <h4 class="box-title" style="">Statistics Explanation <a class="btn btn-primary" href="{% url "result:jurystats" %}?format=csv">download</a>
                         </h4>
                     </div>
                     <div class="box-body">
@@ -117,7 +117,7 @@ bias = mean(biases)
                                 </tr>
                                 {% for juror in jurors %}
                                     <tr>
-                                        <td>{{ juror.name }}</td>
+                                        <td>{% if juror.email %}<a href="mailto:{{ juror.email }}">{{ juror.name }}</a>{% else %}{{ juror.name }}{% endif %}</td>
                                         <td>{{ juror.mean|floatformat:2 }}</td>
                                         <td>{{ juror.stdev|floatformat:2 }}</td>
                                         <td>{{ juror.biases|floatformat:2 }}</td>

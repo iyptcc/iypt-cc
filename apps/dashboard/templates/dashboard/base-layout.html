@@ -1,6 +1,6 @@
 {% extends "dashboard/base.html" %}
 {% load dashboard i18n %}
-{% load hijack_tags %}
+{% load hijack %}
 
 {% block body_css %}
     {{ block.super }}
@@ -24,17 +24,17 @@
                 {% endblock %}
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                         <span class="sr-only">{% trans 'Toggle navigation' %}</span>
                     </a>
                     {% if request.user.is_authenticated %}
                         <div class="navbar-custom-menu">
                             <ul class="nav navbar-nav">
-                                {% if request|is_hijacked %}
+                                {% if request.user.is_hijacked %}
                                     <li class="notifications-menu">
                                         <div href="#" id="hijack-btn" class="bg-warning text-black">
                                             You are currently hijacking
-                                            <form action="{% url "hijack:release_hijack" %}" method="post" class="inline">
+                                            <form action="{% url "hijack:release" %}" method="post" class="inline">
                                                 {% csrf_token %}
                                                 <button type="submit" class="btn btn-xs btn-warning inline">release</button>
                                             </form>
@@ -42,9 +42,6 @@
                                     </li>
                                 {% endif %}
                                 <li class="notifications-menu">
-                                    <a href="#" id="feedback-btn">
-                                        Feedback &nbsp; <span class="fa fa-commenting" aria-hidden="true"></span>
-                                    </a>
                                 </li>
                                 {% block navbar %}
                                     {% show_messages %}

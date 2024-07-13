@@ -13,6 +13,12 @@
                         <h3 class="box-title">Objects to delete <input class="btn btn-danger" type="submit" name="_delete" value="delete"></h3>
                     </div>
                     <div class="box-body">
+                        {% if warning %}
+                            <div class="alert alert-warning">
+                                <h4><i class="icon"></i> Warning</h4>
+                                <p>{{ warning }}</p>
+                            </div>
+                        {% endif %}
                         <ul>
                             {{ objs|unordered_list }}
                         </ul>

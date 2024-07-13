@@ -1,15 +1,15 @@
 [submodule "apps/dashboard/static/AdminLTE"]
 	path = apps/dashboard/static/AdminLTE
 	url = https://github.com/almasaeed2010/AdminLTE.git
-[submodule "apps/dashboard/static/bootstrap-datetimepicker"]
-	path = apps/dashboard/static/bootstrap-datetimepicker
-	url = https://github.com/Eonasdan/bootstrap-datetimepicker
 [submodule "apps/dashboard/static/Font-Awesome"]
 	path = apps/dashboard/static/Font-Awesome
 	url = https://github.com/FortAwesome/Font-Awesome.git
 [submodule "apps/dashboard/static/ionicons"]
 	path = apps/dashboard/static/ionicons
 	url = https://github.com/driftyco/ionicons.git
+[submodule "apps/dashboard/static/bootstrap-datetimepicker"]
+	path = apps/dashboard/static/bootstrap-datetimepicker
+	url = https://github.com/Eonasdan/bootstrap-datetimepicker
 [submodule "apps/dashboard/static/moment"]
 	path = apps/dashboard/static/moment
 	url = https://github.com/moment/moment.git
@@ -22,3 +22,9 @@
 [submodule "apps/dashboard/static/select2"]
 	path = apps/dashboard/static/select2
 	url = https://github.com/select2/select2.git
+[submodule "apps/dashboard/static/reconnecting-websocket"]
+	path = apps/dashboard/static/reconnecting-websocket
+	url = https://github.com/joewalnes/reconnecting-websocket.git
+[submodule "apps/dashboard/static/chart.js"]
+	path = apps/dashboard/static/chart.js
+	url = https://github.com/chartjs/Chart.js.git

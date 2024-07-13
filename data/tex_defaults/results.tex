@@ -24,9 +24,9 @@
 (%- endfor %)\\
 {\lightfont Person} &
 (% for stage in stages[:2] -%)
-     & (( stage.reporter_person_firstname[0] )). (( stage.reporter_person_lastname )) &
-        (( stage.opponent_person_firstname[0] )). (( stage.opponent_person_lastname )) &
-        (( stage.reviewer_person_firstname[0] )). (( stage.reviewer_person_lastname )) &
+     & (( stage.reporter_person_first_name[0] )). (( stage.reporter_person_last_name )) &
+        (( stage.opponent_person_first_name[0] )). (( stage.opponent_person_last_name )) &
+        (( stage.reviewer_person_first_name[0] )). (( stage.reviewer_person_last_name )) &
 (%- endfor %)\\
 {\lightfont Problem} &
  (% for stage in stages[:2] -%)
@@ -38,7 +38,7 @@
 \cline{3-5}
 \cline{7-9}
   (% for juror in jurors %)
-      (( juror.firstname )) (( juror.lastname )) &
+      (( juror.first_name )) (( juror.last_name )) &
            (% for stage in juror.stages[:2] -%)
                & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
           (% endfor %)\\
@@ -73,9 +73,9 @@
 (%- endfor %)\\
 {\lightfont Person} &
 (% for stage in stages[2:] -%)
-     & (( stage.reporter_person_firstname[0] )). (( stage.reporter_person_lastname )) &
-        (( stage.opponent_person_firstname[0] )). (( stage.opponent_person_lastname )) &
-        (( stage.reviewer_person_firstname[0] )). (( stage.reviewer_person_lastname )) &
+     & (( stage.reporter_person_first_name[0] )). (( stage.reporter_person_last_name )) &
+        (( stage.opponent_person_first_name[0] )). (( stage.opponent_person_last_name )) &
+        (( stage.reviewer_person_first_name[0] )). (( stage.reviewer_person_last_name )) &
 (%- endfor %)\\
 {\lightfont Problem} &
  (% for stage in stages[2:] -%)
@@ -89,7 +89,7 @@
 \cline{7-9}
 (% endif %)
   (% for juror in jurors %)
-      (( juror.firstname )) (( juror.lastname )) &
+      (( juror.first_name )) (( juror.last_name )) &
            (% for stage in juror.stages[2:] -%)
                & (( stage.reporter )) & (( stage.opponent )) & (( stage.reviewer )) &
           (% endfor %)\\

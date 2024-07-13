@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import ugettext as _
 from django.views import View
 from django.views.generic import TemplateView
 from django_downloadview import ObjectDownloadView
@@ -25,69 +24,86 @@ class BaseView(TemplateView):
 
 
 class MessageView(BaseView):
-    template_name = 'dashboard/base-layout.html'
+    template_name = "dashboard/base-layout.html"
 
     def get(self, request, *args, **kwargs):
-        messages.debug(request, 'Redefine this page')
+        messages.debug(request, "Redefine this page")
         return render(request, self.template_name)
 
 
 class NotificationView(BaseView):
-    template_name = 'dashboard/base-layout.html'
+    template_name = "dashboard/base-layout.html"
 
     def get(self, request, *args, **kwargs):
-        messages.debug(request, 'Redefine this page')
+        messages.debug(request, "Redefine this page")
         return render(request, self.template_name)
 
 
 class TaskView(BaseView):
-    template_name = 'dashboard/base-layout.html'
+    template_name = "dashboard/base-layout.html"
 
     def get(self, request, *args, **kwargs):
-        messages.debug(request, 'Redefine this page')
+        messages.debug(request, "Redefine this page")
         return render(request, self.template_name)
 
 
 def index(request):
     return HttpResponseNotAllowed([])
 
+
 def openmenu(request, uid):
-    request.session['menu-display-%d'%int(uid)]=True
+    request.session["menu-display-%d" % int(uid)] = True
     return HttpResponse("")
+
 
 def closemenu(request, uid):
-    request.session['menu-display-%d'%int(uid)]=False
+    request.session["menu-display-%d" % int(uid)] = False
     return HttpResponse("")
 
+
 def collapsemenu(request, opt):
-    if opt=='on':
-        request.session['collapsedmenu'] = True
+    if opt == "on":
+        request.session["collapsedmenu"] = True
     else:
-        request.session['collapsedmenu'] = False
-    return HttpResponse("")
+        request.session["collapsedmenu"] = False
+    return HttpResponse(request.session["collapsedmenu"])
+
 
 class Simplelogin(View):
 
     def get(self, request, t_slug):
 
-        trn = get_object_or_404(Tournament, slug=t_slug, results_access=Tournament.RESULTS_PASSWORD)
+        trn = get_object_or_404(
+            Tournament, slug=t_slug, results_access=Tournament.RESULTS_PASSWORD
+        )
 
         form = SimpleloginForm(trn)
-
-        return render(request, "dashboard/user/simplelogin.html", context={"form":form})
+        help = trn.results_help_html
+        return render(
+            request,
+            "dashboard/user/simplelogin.html",
+            context={"form": form, "help": help},
+        )
 
     def post(self, request, t_slug):
 
-        trn = get_object_or_404(Tournament, slug=t_slug, results_access=Tournament.RESULTS_PASSWORD)
+        trn = get_object_or_404(
+            Tournament, slug=t_slug, results_access=Tournament.RESULTS_PASSWORD
+        )
 
         form = SimpleloginForm(trn, request.POST)
-
+        help = trn.results_help_html
         if form.is_valid():
-            request.session["results-auth-%s"%trn.slug]=True
+            request.session["results-auth-%s" % trn.slug] = True
 
             return redirect("result:plan", t_slug=t_slug)
 
-        return render(request, "dashboard/user/simplelogin.html", context={"form":form})
+        return render(
+            request,
+            "dashboard/user/simplelogin.html",
+            context={"form": form, "help": help},
+        )
+
 
 def simplelogout(request):
 
@@ -96,12 +112,12 @@ def simplelogout(request):
 
     return redirect("result:index")
 
-@login_required
-def password_change_done(request,
-                         template_name='dashboard/password_change_form.html',
-                         extra_context=None):
 
-    messages.success(request, _('Password change successful'))
+@login_required
+def password_change_done(request):
+    messages.add_message(request, messages.SUCCESS, "Password change successful")
+    return redirect("dashboard:password")
+
     # {% _('Your password was changed.') %}
 
     # context = {
@@ -112,12 +128,15 @@ def password_change_done(request,
     #
     # return TemplateResponse(request, template_name, context)
 
+
 class FlagImageView(ObjectDownloadView):
     attachment = False
 
     def get_object(self, queryset=None):
         try:
-            ori = Origin.objects.get(tournament__slug=self.kwargs["t_slug"], slug=self.kwargs["o_slug"])
+            ori = Origin.objects.get(
+                tournament__slug=self.kwargs["t_slug"], slug=self.kwargs["o_slug"]
+            )
             if ori.flag:
                 return ori.flag
 

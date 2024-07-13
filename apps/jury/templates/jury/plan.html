@@ -31,7 +31,39 @@
                                     {% if round.pdf_juryplan %}
                                         <a href="{% url "jury:pdfjuryplan" round.order %}" class="btn-sm btn-info"><i class="fa fa-file-pdf-o"></i></a>
                                     {% endif %}
-                                    <input type="submit" class="btn btn-sm btn-success" value="gen">
+                                    <input type="submit" class="btn btn-sm btn-success" value="gen juror list">
+                                </form>
+                                <form action="{% url "jury:roundallfeedback_pdf" round.order %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    {% for freeJr in freeJ %}
+                                        {% if freeJr.round == round.order %}
+                                             {% if freeJr.feedback_task %}
+                                                 <span class="label label-info">
+                                                 {% if freeJr.feedback_task.state == "SUCCESS" %}
+                                                     <i class="fa fa-check-circle"></i>
+                                                 {% else %}
+                                                    {{ freeJr.feedback_task.state }}
+                                                 {% endif %}</span>&nbsp;
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <input type="submit" class="btn btn-sm btn-info" value="gen round feedback">
+                                </form>
+                                <form action="{% url "jury:roundallgrading_pdf" round.order %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    {% for freeJr in freeJ %}
+                                        {% if freeJr.round == round.order %}
+                                             {% if freeJr.sheet_task %}
+                                                 <span class="label label-primary">
+                                                 {% if freeJr.sheet_task.state == "SUCCESS" %}
+                                                     <i class="fa fa-check-circle"></i>
+                                                 {% else %}
+                                                    {{ freeJr.sheet_task.state }}
+                                                 {% endif %}</span>&nbsp;
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <input type="submit" class="btn btn-sm btn-primary" value="gen round sheets">
                                 </form>
                                 <a class="btn btn-box-tool" href="{% url 'jury:edit_round' round.order %}"><i class="fa fa-edit"></i></a>
                                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
@@ -51,12 +83,33 @@
                                                     {% endfor %}
                                                 </h4>
                                                 <div class="box-tools pull-right">
+                                                    <form action="{% url "jury:jury_grading" fight.id %}" method="post" style="display: inline;">
+                                                        {% csrf_token %}
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                                    <span class="caret"></span>
+                                                                    <span class="sr-only">Stages</span>
+                                                                </button>
+                                                                <ul class="dropdown-menu" role="menu">
+                                                                    {% if fight.pdf_grade_overview %}
+                                                                        <li><a href="{% url "jury:pdf_jury_overview" fight.id %}" class="btn-sm"><i class="fa fa-file-pdf-o"></i> Overview</a>
+                                                                        <li></li>
+                                                                    {% endif %}
+                                                                    {% for s in fight.stage_set.all %}
+                                                                        {% if s.pdf_grading_sheets %}
+                                                                        <li><a href="{% url "jury:pdf_jury_sheet" fight.id s.order %}" class="btn-sm"><i class="fa fa-file-pdf-o"></i> Stage {{ s.order }}</a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        <input type="submit" class="btn btn-sm btn-primary" value="gen sheets">
+                                                    </form>
                                                     <form action="{% url "jury:jury_feedback" fight.id %}" method="post" style="display: inline;">
                                                         {% csrf_token %}
                                                         {% if fight.pdf_jury_feedback %}
                                                             <a href="{% url "jury:pdf_jury_feedback" fight.id %}" class="btn-sm btn-info"><i class="fa fa-file-pdf-o"></i></a>
                                                         {% endif %}
-                                                        <input type="submit" class="btn btn-sm btn-success" value="gen">
+                                                        <input type="submit" class="btn btn-sm btn-success" value="gen feedback">
                                                     </form>
                                                     <a class="btn btn-box-tool" href="{% url 'jury:fight' fight.id %}"><i class="fa fa-edit"></i></a>
                                                 </div>

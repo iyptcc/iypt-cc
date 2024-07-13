@@ -1,3 +1,4 @@
+{% load flags %}
 <table class="table table-striped">
     {% if fight.info|length == 4 %}
         {% for i in "xxxxxxxxxxxxx" %}
@@ -14,8 +15,8 @@
             {% for stage in fight.info %}
                 <th colspan="3">Stage {{ forloop.counter }}
                 {% for rej in stage.rejections %}
-                    <span class="badge bg-red">{{ rej }}</span>
-                {% endfor %}<span class="badge bg-green">{{ stage.presented }}</span>
+                    {% include "result/inc/problem.html" with problem=rej presented=0 %}
+                {% endfor %}{% include "result/inc/problem.html" with problem=stage.presented presented=1 %}
                 </th>
             {% endfor %}
         </tr>
@@ -37,11 +38,11 @@
         </tr>
         {% for juror in fight.grades %}
             <tr>
-                <td>{{ juror.first_name.0 }}. {{ juror.last_name }}</td>
+                <td>{{ juror.first_name.0 }}. {{ juror.last_name }} {% for c in juror.conflicting %}{{ c|flag_image_tuple }}{% endfor %}</td>
                 {% for stage in juror.grades %}
-                    <td>{{ stage.rep|floatformat:"0" }}</td>
-                    <td>{{ stage.opp|floatformat:"0" }}</td>
-                    <td {% if not forloop.last %}style="border-right: 2px solid #f4f4f4;"{% endif %}>{{ stage.rev|floatformat:"0" }}</td>
+                    <td>{% if stage.sheet %}<a href="{% url "result:singlepartial" tournament stage.sheet.id %}">{% endif %}{{ stage.rep|floatformat:"0" }}{% if stage.sheet %}</a>{% endif %}</td>
+                    <td>{% if stage.sheet %}<a href="{% url "result:singlepartial" tournament stage.sheet.id %}">{% endif %}{{ stage.opp|floatformat:"0" }}{% if stage.sheet %}</a>{% endif %}</td>
+                    <td {% if not forloop.last %}style="border-right: 2px solid #f4f4f4;"{% endif %}>{% if stage.sheet %}<a href="{% url "result:singlepartial" tournament stage.sheet.id %}">{% endif %}{{ stage.rev|floatformat:"0" }}{% if stage.sheet %}</a>{% endif %}</td>
                 {%  endfor %}
             </tr>
         {% endfor %}

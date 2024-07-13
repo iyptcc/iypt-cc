@@ -7,6 +7,14 @@
         {{ form.media.js }}
     {% endblock %}
 
+    {% block styles_inline %}
+        <style>
+        .CodeMirror {
+          height: auto;
+        }
+        </style>
+    {% endblock %}
+
     {% block page_title %}Template{% endblock %}
 
     {% block page_content %}
@@ -23,6 +31,7 @@
                             {% bootstrap_field form.files %}
                             {% endif %}
                             {% bootstrap_field form.type %}
+                            {% bootstrap_field form.parent %}
                             {% if form.subject %}
                             {% bootstrap_field form.subject %}
                             {% endif %}

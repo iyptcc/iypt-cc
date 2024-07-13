@@ -1,4 +1,3 @@
-import os
 
 LOGGING = {
     'version': 1,

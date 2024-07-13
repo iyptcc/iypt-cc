@@ -30,8 +30,9 @@
                         <h3 class="box-title">Hijack User</h3>
                     </div>
                     <div class="box-body">
-                        <form action="{% url "hijack:login_with_id" object.id %}" method="post">
+                        <form action="{% url 'hijack:acquire' %}" method="post">
                             {% csrf_token %}
+                            <input type="hidden" name="user_pk" value="{{ object.id }}">
                             <button type="submit" class="btn btn-warning">Hijack {{ object.first_name }}</button>
                         </form>
                     </div>

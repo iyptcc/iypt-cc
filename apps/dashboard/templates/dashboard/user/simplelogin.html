@@ -24,12 +24,15 @@
                 </p>
             {% endif %}
 
+            <p class="callout callout-info">If you are an active participant (e.g. Student, Juror, Team Leader) in {{ form.get_tournament }}, please go to <a class="btn btn-primary" href="{% url "dashboard:login" %}">Login</a> and sign in with your CC account.</p>
+
             {% if form.non_field_errors %}
                 {% for error in form.non_field_errors %}
                     <p class="login-box-msg">{{ error }}</p>
                 {% endfor %}
             {% endif %}
 
+            <p>
             <form action="" method="post" id="login-form" role="form">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ next }}">
@@ -54,6 +57,12 @@
                     </div>
                 </div>
             </form>
+            </p>
+            {% if help %}
+            <p class=" callout callout-success">
+                {{ help|safe }}
+            </p>
+            {% endif %}
 
             {% url 'admin_password_reset' as password_reset_url %}
             {% if password_reset_url %}

@@ -1,0 +1,93 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}PDFs{% endblock %}
+
+    {% block page_content %}
+
+        <div class="row">
+            <div class="col-md-10">
+                <div class="row">
+                    <form method="post" role="form">
+                        {% if error %}
+                            <div class="col-md-12">
+                                <div class="box box-error">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">SSH error</h3>
+                                    </div>
+                                    <div class="box-body">
+                                        {{ error }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><input  class="btn btn-success" type="submit" value="import selected"> for round {{ round }} from {{ server.name }}:{{ path }} </h3>
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                    {{ form.errors }}
+                                </div>
+                                {% csrf_token %}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">PDFs ({{ form.files.field.choices|length }})</h3>
+                                </div>
+                                <div class="box-body no-padding table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th><input id="checkAll" type="checkbox"> all</th>
+                                                <th>File</th>
+                                                <th>size</th>
+                                                <th>mtime</th>
+                                                <th></th>
+                                            </tr>
+                                            {% for choice_id, pdf in form.files.field.choices %}
+                                            <tr>
+                                                <td>
+                                                    <input name="files" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
+                                                </td>
+                                                <td>{{ pdf.name }}{% if pdf.origin %} <span class="label label-success">{{ pdf.origin.name }}</span>{% endif %}</td>
+                                                <td>
+                                                    {{ pdf.size }}
+                                                </td>
+                                                <td>
+                                                    {{ pdf.mtime|date:'Y b j  H:m:s e' }}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts_inline %}
+    <script>
+    $("#checkAll").click(function(){
+        $('.obj-checkbox').not(this).prop('checked', this.checked);
+    });
+    </script>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

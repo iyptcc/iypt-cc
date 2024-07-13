@@ -8,7 +8,15 @@ from django.contrib.auth.models import User
 
 
 class Message(object):
-    def __init__(self, sender=None, subject='', sent_at=None, recipient=None, uid=None, level_tag='info'):
+    def __init__(
+        self,
+        sender=None,
+        subject="",
+        sent_at=None,
+        recipient=None,
+        uid=None,
+        level_tag="info",
+    ):
         self.__sender = None
         self.__sent_at = None
         self.__recipient = None
@@ -40,7 +48,7 @@ class Message(object):
     @sent_at.setter
     def sent_at(self, sent_at):
         if not isinstance(sent_at, (date, datetime)):
-            sent_at = datetime.strptime(sent_at, '%Y-%m-%d %H:%M:%S')
+            sent_at = datetime.strptime(sent_at, "%Y-%m-%d %H:%M:%S")
         self.__sent_at = sent_at
 
     @property
@@ -53,7 +61,7 @@ class Message(object):
             self.__sender = sender
 
     def __str__(self):
-        return(self.subject)
+        return self.subject
 
 
 class MessagesList(object):

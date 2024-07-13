@@ -1,6 +1,20 @@
 {% extends "dashboard/base-layout.html" %}
 {% load bootstrap3 i18n %}
 
+    {% block styles_inline %}
+    <style>
+        .flag-container-72 {
+            height:13px;
+            margin-left: 3px;
+            overflow: hidden;
+            display: inline;
+        }
+        .flag-image-72 {
+            height: 18px;
+            margin-top: -2px;
+        }
+    </style>
+    {% endblock %}
 
     {% block page_title %}Tournament{% endblock %}
 
@@ -81,6 +95,15 @@
                 </div>
             </div>
         {% endfor %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <a href="{% url "result:resultdump" tournament  %}" class="btn btn-primary">download as yaml</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endblock %}
 
 {% block javascripts_inline %}

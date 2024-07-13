@@ -1,0 +1,100 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+{% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
+
+    {% block page_title %}Import Application Questions{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Role Mapping
+                           </h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Old Name</th>
+                                    <th>Old Type</th>
+                                    <th>New Type</th>
+                                    <th>New Name</th>
+                                </tr>
+                                {% for m,v in map.items %}
+                                    <tr>
+                                        <td>{{ m.name }}</td>
+                                        <td>{{ m.type }}</td>
+                                        <td>{{ v.type }}</td>
+                                        <td>{{ v.name }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Attendee Properties List
+                           </h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Name</th>
+                                    <th>Short Name</th>
+                                    <th>type</th>
+                                    <th>required if</th>
+                                    <th>active</th>
+                                    <th></th>
+
+                                </tr>
+                                {% for ap in object_list %}
+                                <tr>
+                                    <td>{{ ap.role.name }}</td>
+                                    <td>
+                                        {{ ap.name }}
+                                    </td>
+                                    <td>{{ ap.short_name }}</td>
+                                    <td>{{ ap.type }}</td>
+                                    <td>{{ ap.required_if }}</td>
+                                    <td>{{ ap.active }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Import</h3>
+                    </div>
+                    <div class="box-body">
+                        <form action="" method="post">{% csrf_token %}
+                            {% for field in form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                            <input type="hidden" name="{{ stage_field }}" value="2" />
+                            <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            <p>
+                                <input class="btn btn-success btn-flat" type="submit" value="Import">
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

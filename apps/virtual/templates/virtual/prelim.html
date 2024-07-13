@@ -1,0 +1,38 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+    {% block styles_inline %}
+    <style>
+        .flag-container-72 {
+            height:13px;
+            margin-left: 3px;
+            overflow: hidden;
+            display: inline;
+        }
+        .flag-image-72 {
+            height: 18px;
+            margin-top: -2px;
+        }
+    </style>
+    {% endblock %}
+
+    {% block page_title %}{% if fight.final %}Final{% else %}Round {{ round }}, {{ room }}{% endif %}{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            {% if fight %}
+            <div class="col-md-12">
+                <div class="box box-info">
+                    <!-- Apply any bg-* class to to the icon to color it -->
+                    <div class="box-header with-border">
+                        <h4 class="box-title" style="line-height: 24px;">Preliminary Grades
+                        </h4>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                        {% include 'virtual/fight_table.html' with fight=fight tournament=tournament %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    {% endblock %}

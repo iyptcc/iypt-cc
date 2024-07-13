@@ -1,0 +1,125 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Feedback <a class="btn btn-info" href="{% url "feedback:overview" %}?format=xlsx">download excel</a>{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Chairs ({{ chairs|length }})</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    {% for c in criteria %}
+                                        <th colspan="{{ rounds|length }}">{{ c.name }}</th>
+                                    {% endfor %}
+                                    <th>Comments</th>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    {% for c in criteria %}
+                                        {% for round in rounds %}
+                                            <th>{{ round.order }}</th>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    <th></th>
+                                </tr>
+                                {% for juror in chairs %}
+                                    <tr>
+                                        <td>{{ juror.attendee.full_name }}</td>
+                                        {% for c in criteria %}
+                                            {% for round in rounds %}
+                                            <td>
+                                                {% for js in juror.jurorsession_set.all %}
+                                                    {% if js.fight.round == round %}
+                                                        {% for fb in js.chairfeedback_set.all %}
+                                                            {% for grade in fb.chairfeedbackgrade_set.all %}
+                                                                {% if grade.criterion == c %}
+                                                                    <span class="label label-default">
+                                                                        {{ fb.team }}:{{ grade.grade }}
+                                                                    </span>&nbsp;
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% empty %}
+                                                            <span class="label label-info">0</span>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            {% endfor %}
+                                        {% endfor %}
+
+                                        <td>
+                                            {% for js in juror.jurorsession_set.all %}
+                                                <ul>
+                                                {% for fb in js.chairfeedback_set.all %}
+                                                    {% if fb.comment %}
+                                                        <li>{{ fb.comment }}</li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </ul>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Jurors ({{ jurors|length }})</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    {% for round in rounds %}
+                                        <th>Round {{ round.order }}</th>
+                                    {% endfor %}
+                                    <th>Comments</th>
+                                </tr>
+                                {% for juror in jurors %}
+                                    <tr>
+                                        <td>{{ juror.attendee.full_name }}</td>
+
+                                            {% for round in rounds %}
+                                                <td>
+                                                {% for js in juror.jurorsession_set.all %}
+                                                    {% if js.fight.round == round %}
+                                                        {% for fb in js.feedback_set.all %}
+                                                            <span class="label label-default">{{ fb.team }}:{{ fb.grade }}</span>&nbsp;
+                                                        {% empty %}
+                                                            <span class="label label-info">0</span>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </td>
+                                            {% endfor %}
+                                        <td>
+                                            {% for js in juror.jurorsession_set.all %}
+                                                <ul>
+                                                {% for fb in js.feedback_set.all %}
+                                                    {% if fb.comment %}
+                                                        <li>{{ fb.comment }}</li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </ul>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

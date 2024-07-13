@@ -1,6 +1,10 @@
 {% extends "dashboard/base-layout.html" %}
 {% load bootstrap3 i18n %}
 
+{% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+    {% endblock %}
 
     {% block page_title %}Participation Data{% endblock %}
 
@@ -9,7 +13,8 @@
             <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Attendee Properties List <a href="{% url "tournament:create_property" %}" class="btn btn-success">add</a></h3>
+                        <h3 class="box-title">Attendee Properties List <a href="{% url "tournament:create_property" %}" class="btn btn-success">add</a> <a href="{% url "tournament:import_property" %}" class="btn btn-info">import</a>
+                           </h3>
                     </div>
                     <div class="box-body no-padding table-responsive">
                         <table class="table table-striped">
@@ -20,6 +25,7 @@
                                     <th>required for</th>
                                     <th>optional for</th>
                                     <th>required if true</th>
+                                    <th>edit multiple</th>
                                     <th>deadline</th>
                                     <th>User Property</th>
                                     <th>Application Required</th>
@@ -35,6 +41,7 @@
                                     <td>{% for req in ap.required.all %}<span class="label label-default">{{ req.name }}</span> {% endfor %}</td>
                                     <td>{% for opt in ap.optional.all %}<span class="label label-default">{{ opt.name }}</span> {% endfor %}</td>
                                     <td>{{ ap.required_if }}</td>
+                                    <td>{{ ap.edit_multi }}</td>
                                     <td>{{ ap.edit_deadline }}</td>
                                     <td>{{ ap.user_property }}</td>
                                     <td>{% for req in ap.apply_required.all %}<span class="label label-default">{{ req.name }}</span> {% endfor %}</td>
@@ -56,6 +63,25 @@
                         </table>
                     </div>
                 </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Scrub Data</h3>
+                    </div>
+                    <div class="box-body">
+                        all data, excluding:
+                        <form action="{% url "tournament:properties_scrub" %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <input type="submit" class="btn btn-sm btn-warning" value="prepare scrub">
+                        </form>
+                        <a href="{% url "tournament:properties_scrub" %}" class="btn btn-danger">preview scrub</a>
+                    </div>
+                </div>
             </div>
         </div>
     {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

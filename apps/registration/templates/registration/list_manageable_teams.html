@@ -19,7 +19,7 @@
                                     <th>Role</th>
                                     <th>Competing</th>
                                     <th>Members</th>
-                                    <td>Missing Data</td>
+                                    {% if detailed %}<td>Missing Data</td>{% endif %}
                                     <th></th>
                                 </tr>
                                 {% for team in object_list %}
@@ -32,7 +32,7 @@
                                             {% if not team.is_competing %}<i class="fa fa-warning"></i> not competing{% endif %}
                                         </td>
                                         <td>{% for role,val in team.limits.items %}<span class="label {% if val.exceed %}label-danger{% elif val.undercut %}label-warning{% else %}label-success{% endif %}">{{ role.name }}:{{ val.value }}</span> {% endfor %}</td>
-                                        <td><span class="label label-{% if team.missing.0 > 0 %}danger{% else %}success{% endif %}">required: {{ team.missing.0 }}</span> <span class="label label-{% if team.missing.1 > 0 %}warning{% else %}success{% endif %}">optional: {{ team.missing.1 }}</span></td>
+                                        {% if detailed %}<td><span class="label label-{% if team.missing.0 > 0 %}danger{% else %}success{% endif %}">required: {{ team.missing.0 }}</span> <span class="label label-{% if team.missing.1 > 0 %}warning{% else %}success{% endif %}">optional: {{ team.missing.1 }}</span></td>{% endif %}
                                         <td>
                                             <a href="{% url "registration:team_overview" team.team.origin.slug %}" class="btn btn-success">manage</a>
                                         </td>

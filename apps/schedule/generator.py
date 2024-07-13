@@ -25,8 +25,8 @@ def _cost(plan):
                 consec4 += 1
 
         room4 = sum(map(bool, rooms))
-        #print("rooms")
-        #print(rooms)
+        # print("rooms")
+        # print(rooms)
         if room4 < math.floor(optimal4fights) or room4 > math.ceil(optimal4fights):
             cost4 += 1
 
@@ -43,10 +43,15 @@ def _cost(plan):
     #            costrole += role**4
 
     # print("4er: %f , meet: %d, role:%d, consec4: %d"%(cost4, costmeet,consec4))
-    return {"no-4":cost4,"meet":costmeet,"consec-4":consec4,"total":cost4+costmeet+consec4}
+    return {
+        "no-4": cost4,
+        "meet": costmeet,
+        "consec-4": consec4,
+        "total": cost4 + costmeet + consec4,
+    }
 
-def generate_plan(teams,rounds, simulation_rounds):
 
+def generate_plan(teams, rounds, simulation_rounds):
 
     def _copy(plan):
         return copy.deepcopy(plan)
@@ -60,11 +65,11 @@ def generate_plan(teams,rounds, simulation_rounds):
         for id1, team1 in enumerate(meet):
             for id2, team2 in enumerate(team1):
                 if len(team2) > 1:
-                    if id1+1 in multimeet:
-                        multimeet[id1+1]+=team2
+                    if id1 + 1 in multimeet:
+                        multimeet[id1 + 1] += team2
                     else:
-                        multimeet[id1+1] = copy.copy(team2)
-        #print(multimeet)
+                        multimeet[id1 + 1] = copy.copy(team2)
+        # print(multimeet)
 
         ro = random.randrange(1, len(plan))
         f1i = random.randrange(0, len(plan[ro]))
@@ -75,7 +80,7 @@ def generate_plan(teams,rounds, simulation_rounds):
             t1 = random.choice(list(multimeet.keys()))
             f1 = random.choice(multimeet[t1])
             f1s = f1.split(" - ")
-            ro = int(f1s[0])-1
+            ro = int(f1s[0]) - 1
 
             while ro == 0:
                 t1 = random.choice(list(multimeet.keys()))
@@ -83,9 +88,9 @@ def generate_plan(teams,rounds, simulation_rounds):
                 f1s = f1.split(" - ")
                 ro = int(f1s[0]) - 1
 
-            f1i = ord(f1s[1])-ord('A')
+            f1i = ord(f1s[1]) - ord("A")
 
-            #print("round %d fi: %d"%(ro, f1i))
+            # print("round %d fi: %d"%(ro, f1i))
 
             t1p = plan[ro][f1i].index(t1)
 
@@ -97,23 +102,24 @@ def generate_plan(teams,rounds, simulation_rounds):
                 rooms = [tr[team] for tr in team_rooms]
 
                 room4 = sum(map(bool, rooms))
-                if room4 < math.floor(optimal4fights) or room4 > math.ceil(optimal4fights):
-                    actrooms = list(filter(lambda x: x != None and not x.startswith('1 '), rooms))
-                    if len(actrooms)>0:
-                        #print("move 4")
-                        f1=random.choice(actrooms)
+                if room4 < math.floor(optimal4fights) or room4 > math.ceil(
+                    optimal4fights
+                ):
+                    actrooms = list(
+                        filter(lambda x: x != None and not x.startswith("1 "), rooms)
+                    )
+                    if len(actrooms) > 0:
+                        # print("move 4")
+                        f1 = random.choice(actrooms)
                         f1s = f1.split(" - ")
                         ro = int(f1s[0]) - 1
-                        f1i = ord(f1s[1])-ord('A')
+                        f1i = ord(f1s[1]) - ord("A")
 
-                        t1p = plan[ro][f1i].index(team+1)
+                        t1p = plan[ro][f1i].index(team + 1)
 
+        fi2 = random.randrange(0, len(plan[ro]))
 
-
-        fi2 = random.randrange(0,len(plan[ro]))
-
-
-        t2 = random.randrange(0,len(plan[ro][fi2]))
+        t2 = random.randrange(0, len(plan[ro][fi2]))
 
         tmp = plan[ro][f1i][t1p]
         plan[ro][f1i][t1p] = plan[ro][fi2][t2]
@@ -128,14 +134,14 @@ def generate_plan(teams,rounds, simulation_rounds):
 
         for round in range(rounds):
             r = []
-            tnr = list(range(1,teams+1))
+            tnr = list(range(1, teams + 1))
             if round > 0:
                 random.shuffle(tnr)
             for r4 in range(room4):
                 roomteams = tnr[:4]
                 tnr = tnr[4:]
                 r.append(roomteams)
-            for r3 in range(rooms-room4):
+            for r3 in range(rooms - room4):
                 roomteams = tnr[:3]
                 tnr = tnr[3:]
                 r.append(roomteams)
@@ -159,21 +165,22 @@ def generate_plan(teams,rounds, simulation_rounds):
         new_plan = _swap(plan)
         new_cost = _cost(new_plan)
 
-        if i%10000==0:
-            print("r %d -> %s, best: %s"%(i, new_cost, best_cost))
+        if i % 10000 == 0:
+            print("r %d -> %s, best: %s" % (i, new_cost, best_cost))
 
         cost_graph.append(new_cost)
         best_cost_graph.append(best_cost)
 
-        if new_cost['total'] < cost['total'] or random.random() < (cooling_base ** i):
+        if new_cost["total"] < cost["total"] or random.random() < (cooling_base**i):
             cost = new_cost
             plan = new_plan
 
-        if new_cost['total'] < best_cost['total']:
+        if new_cost["total"] < best_cost["total"]:
             best_cost = new_cost
             best_plan = _copy(new_plan)
 
     return best_plan
+
 
 def cal_startrole(plan):
     teams = sum(map(len, plan[0]))
@@ -181,30 +188,33 @@ def cal_startrole(plan):
 
     for ridx, round in enumerate(plan):
         for fidx, fight in enumerate(round):
-            for rlidx,team1 in enumerate(fight):
-                startrole[team1-1][rlidx] += 1
+            for rlidx, team1 in enumerate(fight):
+                startrole[team1 - 1][rlidx] += 1
 
     return startrole
+
 
 def fix_roles(plan):
     startroles = cal_startrole(plan)
 
-    #print("before")
-    #print(startroles)
+    # print("before")
+    # print(startroles)
 
     violations = len(list(filter(lambda x: x > 2, [x for y in startroles for x in y])))
 
     for i in range(10000):
 
         startroles = cal_startrole(plan)
-        violations = len(list(filter(lambda x: x > 2, [x for y in startroles for x in y])))
-        #print(violations)
+        violations = len(
+            list(filter(lambda x: x > 2, [x for y in startroles for x in y]))
+        )
+        # print(violations)
         if violations == 0:
             break
 
         found = False
-        for tidx,team in enumerate(startroles):
-            if random.random() > 2/len(startroles):
+        for tidx, team in enumerate(startroles):
+            if random.random() > 2 / len(startroles):
                 continue
 
             minrole = min(team)
@@ -213,24 +223,26 @@ def fix_roles(plan):
             if maxrole > 2 or random.random() < 0.99**i:
                 for round in plan:
                     for fight in round:
-                        if tidx+1 in fight:
-                            if fight.index(tidx+1) == team.index(maxrole):
+                        if tidx + 1 in fight:
+                            if fight.index(tidx + 1) == team.index(maxrole):
 
                                 found = True
-                                #print("fight before")
-                                #print(fight)
-                                hasidx = fight.index(tidx+1)
+                                # print("fight before")
+                                # print(fight)
+                                hasidx = fight.index(tidx + 1)
                                 try:
                                     changeteam = fight[team.index(minrole)]
                                 except:
-                                    changeteam = random.choice(list(filter(lambda x:x!=tidx+1,fight)))
+                                    changeteam = random.choice(
+                                        list(filter(lambda x: x != tidx + 1, fight))
+                                    )
 
                                 chidx = fight.index(changeteam)
-                                fight[chidx] = tidx+1
+                                fight[chidx] = tidx + 1
                                 fight[hasidx] = changeteam
 
-                                #print("fight after")
-                                #print(fight)
+                                # print("fight after")
+                                # print(fight)
                                 break
                         if found:
                             break
@@ -240,17 +252,18 @@ def fix_roles(plan):
                 break
 
     startroles = cal_startrole(plan)
-    #print("after")
-    #print(startroles)
+    # print("after")
+    # print(startroles)
     return plan
+
 
 def cal_stats(plan):
 
-    teams = sum(map(len,plan[0]))
+    teams = sum(map(len, plan[0]))
 
     meet = [[[] for i in range(teams)] for j in range(teams)]
 
-    startrole = [[0,0,0,0] for i in range(teams)]
+    startrole = [[0, 0, 0, 0] for i in range(teams)]
 
     max_cap = 0
 
@@ -263,17 +276,17 @@ def cal_stats(plan):
 
     for ridx, round in enumerate(plan):
         for fidx, fight in enumerate(round):
-            #teams = list(map(lambda x:x[0], fight.templateattendance_set.all().values_list("team")))
-            short_fightstr = "%d - %s"%(ridx + 1, chr(ord('A')+fidx))
-            for rlidx,team1 in enumerate(fight):
+            # teams = list(map(lambda x:x[0], fight.templateattendance_set.all().values_list("team")))
+            short_fightstr = "%d - %s" % (ridx + 1, chr(ord("A") + fidx))
+            for rlidx, team1 in enumerate(fight):
                 if len(fight) == 4:
-                    maxr_teams[team1-1].append(short_fightstr)
-                    if len(maxr_teams[team1-1]) > max_cap_max:
-                        max_cap_max = len(maxr_teams[team1-1])
-                startrole[team1-1][rlidx] += 1
+                    maxr_teams[team1 - 1].append(short_fightstr)
+                    if len(maxr_teams[team1 - 1]) > max_cap_max:
+                        max_cap_max = len(maxr_teams[team1 - 1])
+                startrole[team1 - 1][rlidx] += 1
                 for team2 in fight:
                     if team1 != team2:
-                        meet[team1-1][team2-1].append(short_fightstr)
+                        meet[team1 - 1][team2 - 1].append(short_fightstr)
 
     team_rooms = [[None for i in range(teams)] for j in range(max_cap_max)]
 
@@ -295,11 +308,16 @@ def plan_yaml_dump(teams, plan, roomnames, meta=None):
     if meta == None:
         meta = {}
 
-    meta_data ={**meta, "name": "your_name", "teams": teams, "rooms": roomnames[:(teams // 3)]}
+    meta_data = {
+        **meta,
+        "name": "your_name",
+        "teams": teams,
+        "rooms": roomnames[: (teams // 3)],
+    }
 
     root = {"meta": meta_data, "rounds": []}
 
-    #print(plan)
+    # print(plan)
 
     for round in plan:
         ro = []

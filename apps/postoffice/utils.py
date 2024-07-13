@@ -13,49 +13,64 @@ class MailLoader(BaseLoader):
 
     def get_source(self, env, template_name):
         try:
-            #print("look for %s in trn: %s"%(template_name, self.tournament))
+            # print("look for %s in trn: %s"%(template_name, self.tournament))
             if template_name.endswith("_subject"):
-                t = Template.objects.get(name=template_name[:-8], tournament=self.tournament)
+                t = Template.objects.get(
+                    name=template_name[:-8], tournament=self.tournament
+                )
                 template_src = t.templateversion_set.last().subject
             else:
                 t = Template.objects.get(name=template_name, tournament=self.tournament)
                 template_src = t.templateversion_set.last().src
 
-
             source = template_src
 
             return source, None, lambda: False
         except:  # Template.DoesNotExist:
-            raise TemplateDoesNotExist(msg='template {} not in db'.format(template_name))
+            raise TemplateDoesNotExist(
+                msg="template {} not in db".format(template_name)
+            )
 
 
-def render_template(template_id, context):
+def render_template(template_id, context, global_context=None):
+    g_context = global_context
+    if global_context is None:
+        g_context = {}
     print(template_id)
     template = Template.objects.get(id=template_id)
 
     env = Environment(
         loader=MailLoader(template.tournament),
-        block_start_string='(%',
-        block_end_string='%)',
-        variable_start_string='((',
-        variable_end_string='))',
-        comment_start_string='(#',
-        comment_end_string='#)',
+        block_start_string="(%",
+        block_end_string="%)",
+        variable_start_string="((",
+        variable_end_string="))",
+        comment_start_string="(#",
+        comment_end_string="#)",
         cache_size=0,
         autoescape=True,
         undefined=Undefined,
-        extensions=['jinja2.ext.do', ]
+        extensions=[
+            "jinja2.ext.do",
+        ],
     )
 
-    env.globals.update({
-        #'static': tex_static
-    })
+    env.globals.update(
+        {
+            #'static': tex_static
+        }
+    )
 
     tmpl = env.get_template(template.name)
-    subtmpl = env.get_template("%s_subject"%template.name)
+    subtmpl = env.get_template("%s_subject" % template.name)
 
     srcs = []
     for elem in context:
-        srcs.append((subtmpl.render(elem),tmpl.render(elem)))
+        srcs.append(
+            {
+                "subject": subtmpl.render({"obj": elem, **g_context}),
+                "body": tmpl.render({"obj": elem, **g_context}),
+            }
+        )
 
     return srcs

@@ -1,0 +1,73 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n static %}
+
+
+    {% block page_title %}Stream{% endblock %}
+
+    {% block page_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div id="player"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endblock %}
+
+{% block javascripts_inline %}
+    <script type="text/javascript" src="{% static "clappr/clappr.js" %}"></script>
+    <script type="text/javascript" src="{% static "clappr/level-selector.js" %}"></script>
+    <script type="text/javascript" src="{% static "dash-shaka-playback/dash-shaka-playback.js" %}"></script>
+    <script>
+        window.onload = function() {
+            var source,
+            hls="{{ hls }}", // Multiquality HLS am zweitbesten
+            mpd="{{ mpd }}", // DASH ist am besten
+            iOS_platform;
+
+            //iOS_useragent = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            iOS_platform = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
+
+            if ( iOS_platform )
+            {
+              source = hls;
+            }
+            else
+            {
+                source = mpd;
+            }
+
+            var player = new Clappr.Player(
+            {
+                sources: [source],
+                autoPlay: true,
+                height: 625,
+                width: 1110,
+                plugins: [DashShakaPlayback, LevelSelector],
+                playbackNotSupportedMessage: 'Your browser does not support this livestream. We suggest to use an up to date Mozilla Firefox or Chrome browser.',
+                shakaConfiguration: {
+                //preferredAudioLanguage: 'pt-BR',
+                    abr: {
+                        defaultBandwidthEstimate: 3000000, // do not start with modem quality by default
+                        switchInterval: 4, // allow the bitrate to be adapted up to every 2 seconds
+                    },
+                    streaming: {
+                        rebufferingGoal: 3, // do not start playback, unless 4 seconds of video are available
+                        bufferingGoal: 15, // try to download up to 15 seconds of video before the current position
+                        durationBackoff: 3, // if we try to move to a certain position, start 2 seconds before
+                        startAtSegmentBoundary: true, // do not wait for a SegmentBoundary to start playback
+                    },
+                    manifest: {
+                        dash: {
+                            ignoreMinBufferTime: true, // don't care what ffmpeg tells as minimum buffer time
+                        },
+                    },
+                },
+                parentId: '#player'
+            });
+        }
+    </script>
+
+{% endblock %}

@@ -1,5 +1,5 @@
 {% if item.route or item.has_children %}
-    <li id="{{ item.uid }}" class="{% if item.is_active %}active{% endif %} {% if item.has_children %}treeview{% endif %}">
+    <li id="{{ item.uid }}" class="{% if item.is_active %}active{% endif %} {% if item.to_display %}my-menu-open{% endif %} {% if item.has_children %}treeview{% endif %}">
         <a href="{% if item.has_children %}#{% else %}{{ item.url }}{% endif %}">
             {% if item.has_children %}
                 <i class="{{ item.icon|default:'fa fa-dot-circle-o' }}"></i>

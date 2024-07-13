@@ -29,7 +29,10 @@
                         </div>
                         <div class="box-body">
                             <p>slug: {{ trn.slug }}</p>
+                            <a href="{% url "management:change" trn.id %}" class="btn btn-primary">edit</a>
                             <a href="{% url "management:delete" trn.id %}" class="btn btn-danger">delete</a>
+
+                            <form method="post" action="{% url "management:mm_create_team" trn.id %}" class="inline">{% csrf_token %}<input class="btn btn-info" type="submit" value="create MM team"></form>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,25 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Delete objects{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                <form action="" method="post">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Objects to delete <input class="btn btn-danger" type="submit" name="_delete" value="delete"></h3>
+                        {% csrf_token %}
+                    </div>
+                    <div class="box-body">
+                        <ul>
+                            {{ data|unordered_list }}
+                        </ul>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

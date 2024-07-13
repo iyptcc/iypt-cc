@@ -11,6 +11,7 @@
                     <div class="box-header with-border">
                         <h3 class="box-title">Apply for {{ tournament }} as Possible Juror</h3>
                     </div>
+                    {% if available %}
                     <div class="box-body no-padding">
                         <table class="table table-striped">
                             <tr>
@@ -39,7 +40,11 @@
                             <input type="submit" value="apply" class="btn btn-success"/>
                         </form>
                     </div>
-                </form>
+                    {% else %}
+                    <div class="box-body">
+                        You already applied as possible juror and can not re-apply.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

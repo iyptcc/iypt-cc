@@ -88,12 +88,35 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-md-2">
+                                            <div class="box box-info">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title">download data</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <div class="btn-group">
+                                                        <a href="{% url "registration:download_attendeeproperty" %}"
+                                                            class="btn btn-info">
+                                                            download
+                                                        </a>
+                                                        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                                                            <span class="caret"></span>
+                                                            <span class="sr-only">Stages</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu" role="menu">
+                                                            <li><a href="{% url "registration:download_attendeeproperty" %}?format=json">Json format</a></li>
+                                                            <li><a href="{% url "registration:download_attendeeproperty" %}?format=xlsx">Excel format</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="col-md-12">
                                             <div class="box box-primary">
                                                 <div class="box-header with-border">
                                                     <h3 class="box-title">set parameters</h3>
                                                 </div>
-                                                <div class="box-body no-padding">
+                                                <div class="box-body no-padding table-responsive">
                                                     <table class="table table-striped">
                                                         <tbody>
                                                             <tr>

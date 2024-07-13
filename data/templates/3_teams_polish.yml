@@ -1,0 +1,17 @@
+---
+  meta:
+    name: Polish Finals
+    teams: 3
+    rooms:
+    - A
+    
+  rounds:
+  - - name: A
+      rep: 1
+      opp: 2
+      rev: 3
+    
+  - - name: A
+      rep: 3
+      opp: 2
+      rev: 1

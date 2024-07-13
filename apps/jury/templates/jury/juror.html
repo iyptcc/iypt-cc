@@ -6,29 +6,62 @@
 
     {% block page_content %}
         <div class="row">
+            {% if juror.notice %}
             <div class="col-md-12">
-                <div class="box box-primary">
+                <div class="box box-danger">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Juror Information</h3>
+                        <h3 class="box-title">Notice!</h3>
                     </div>
                     <div class="box-body">
-                        blub
+                        {{ juror.notice }}
                     </div>
                 </div>
             </div>
+            {% endif %}
+            {% if availability %}
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Juror Availability</h3>
+                    </div>
+                    <div class="box-body">
+                        Your planned available rounds:
+                        <ul>
+                        {% for r in juror.availability.all %}
+                            <li>{{ r }}</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
         <div class="row">
             {% for att in attendences %}
-                <div class="col-md-6">
-                    <div class="box box-info">
+                <div class="col-md-2">
+                    <div class="box box-{% if att.published %}{% if att.att %}primary{% else %}info{% endif %}{% else %}default{% endif %}">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Round {{ att.fight.round.order }}</h3>
+                            <h3 class="box-title">Round {{ att.round.order }}</h3>
                         </div>
                         <div class="box-body">
-                            <p> Room: {{ att.fight.room }} </p>
+                            {% if att.published %}
+                                {% if att.att %}
+                                <p> Room: {{ att.att.fight.room }} </p>
+                                {% elif att.reserve %}
+                                    <p> Reserve Juror </p>
+                                {% else %}
+                                    Free
+                                {% endif %}
+                            {% else %}
+                                Not yet planned. Please wait for update.
+                            {% endif %}
                         </div>
                     </div>
                 </div>
+                {% if forloop.counter|divisibleby:6  %}
+                     </div>
+                        <div class="row">
+                    {% endif %}
             {% endfor %}
         </div>
     {% endblock %}

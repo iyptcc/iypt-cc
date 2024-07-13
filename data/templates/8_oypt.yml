@@ -1,0 +1,69 @@
+meta:
+  name: onlineYPT
+  rooms:
+  - A
+  - B
+  - C
+  - D
+  teams: 8
+rounds:
+- - name: A
+    opp: 2
+    rep: 1
+  - name: B
+    opp: 4
+    rep: 3
+  - name: C
+    opp: 6
+    rep: 5
+  - name: D
+    opp: 8
+    rep: 7
+- - name: A
+    opp: 4
+    rep: 7
+  - name: B
+    opp: 8
+    rep: 3
+  - name: C
+    opp: 2
+    rep: 5
+  - name: D
+    opp: 1
+    rep: 6
+- - name: A
+    opp: 1
+    rep: 8
+  - name: B
+    opp: 7
+    rep: 5
+  - name: C
+    opp: 2
+    rep: 3
+  - name: D
+    opp: 6
+    rep: 4
+- - name: A
+    opp: 6
+    rep: 2
+  - name: B
+    opp: 3
+    rep: 7
+  - name: C
+    opp: 5
+    rep: 8
+  - name: D
+    opp: 4
+    rep: 1
+- - name: A
+    opp: 8
+    rep: 6
+  - name: B
+    opp: 7
+    rep: 2
+  - name: C
+    opp: 5
+    rep: 4
+  - name: D
+    opp: 3
+    rep: 1

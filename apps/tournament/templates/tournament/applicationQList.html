@@ -1,0 +1,53 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Application query list{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Application query list for role <span class="label label-default"> {{ role.name }}</span> <a href="{% url "tournament:create_applicationq" role.id %}" class="btn btn-success">add</a></h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Short Name</th>
+                                    <th>type</th>
+                                    <th>required if</th>
+                                    <th>active</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                {% for ap in object_list %}
+                                <tr>
+                                    <td>
+                                        {{ ap.name }}
+                                    </td>
+                                    <td>{{ ap.short_name }}</td>
+                                    <td>{{ ap.type }}</td>
+                                    <td>{{ ap.required_if }}</td>
+                                    <td>{{ ap.active }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{% url "tournament:change_applicationq" role.id ap.id %}">edit</a>
+                                        <a class="btn btn-danger" href="{% url "tournament:delete_applicationq" role.id ap.id %}">delete</a>
+                                        {% if not forloop.first %}
+                                        <form class="inline" action="{% url "tournament:move_applicationq" role.id ap.id "up" %}" method="post">{% csrf_token %}<button class="btn btn-info" type="submit"><i class="fa fa-arrow-up"></i></button></form>
+                                        {% endif %}
+                                        {% if not forloop.last %}
+                                        <form class="inline" action="{% url "tournament:move_applicationq" role.id ap.id "down" %}" method="post">{% csrf_token %}<button class="btn btn-info" type="submit"><i class="fa fa-arrow-down"></i></button></form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

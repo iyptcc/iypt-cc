@@ -45,6 +45,34 @@
                         </div>
                     </div>
                 </div>
+                {% if questions|length > 0 %}
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Additional Answers</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            {% for qv in questions %}
+                                <div class="col-md-4">
+                                    <div class="box box-primary">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">{{ qv.question.name }}</h3>
+                                        </div>
+                                        <div class="box-body">
+                                            {% if qv.question.type == "pdf" %}
+                                                    <a href="{% url "registration:application_file" qv.id qv %}">{{ qv }}</a>
+                                            {% else %}
+                                                {{ qv }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if not view %}
                 <div class="box box-success">
                     <div class="box-header with-border">
                         <h3 class="box-title">Accept</h3>
@@ -73,6 +101,7 @@
                         </ul>
                     </div>
                 </div>
+                {% endif %}
                 {% endif %}
             </div>
         </div>

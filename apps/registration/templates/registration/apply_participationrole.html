@@ -12,11 +12,24 @@
                         <h3 class="box-title">Apply for {{ tournament }}</h3>
                     </div>
                     <div class="box-body">
-                        <form method="post">
-                            This is only for persons who do not belong to a team, but completely independent.
+                        This is only for persons who do not belong to a team, but completely independent.
 
-                            {% bootstrap_form form %}
+                        <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
+                            {{ wizard.management_form }}
+                            {% if wizard.form.forms %}
+                                {{ wizard.form.management_form }}
+                                {% for form in wizard.form.forms %}
+                                    {% bootstrap_form form %}
+                                {% endfor %}
+                            {% else %}
+                                {% bootstrap_form wizard.form %}
+                            {% endif %}
+                            </table>
+                            {% if wizard.steps.prev %}
+                            <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
+                            <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+                            {% endif %}
                             <input type="submit" value="apply" class="btn btn-success"/>
                         </form>
                     </div>

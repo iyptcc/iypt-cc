@@ -8,6 +8,28 @@
         <div class="row">
             <div class="col-md-12">
                 {% include "registration/inc/participation_data.html" %}
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">applied for</h3>
+                    </div>
+                    <div class="box-body">
+                    <ul>
+                        {% for k,v in values.items %}
+                            <li>{{ k }}: {{ v }}</li>
+                        {% endfor %}
+                    </ul>
+                    </div>
+                </div>
+                {% if applied %}
+                    <div class="box box-warning">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">already applied</h3>
+                        </div>
+                        <div class="box-body">
+                        You are already applied as possible juror. Check if it is already approved.
+                    </div>
+                </div>
+                {% endif %}
                 {% if missing|length == 0 %}
                 <div class="box box-success">
                     <div class="box-header with-border">

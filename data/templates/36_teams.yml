@@ -1,0 +1,71 @@
+meta:
+  cost: {consec-4: 0, meet: 0, no-4: 0, total: 0}
+  d_4fight: 0
+  max_4fight: 0
+  n_meet_multiple: 0
+  name: your_name
+  role_violations: 0
+  rooms: [A, B, C, D, E, F, G, H, I, J, K, L]
+  simulation_rounds: 10000
+  teams: 36
+rounds:
+- - {name: A, opp: 3, rep: 2, rev: 1}
+  - {name: B, opp: 4, rep: 6, rev: 5}
+  - {name: C, opp: 8, rep: 9, rev: 7}
+  - {name: D, opp: 11, rep: 10, rev: 12}
+  - {name: E, opp: 13, rep: 15, rev: 14}
+  - {name: F, opp: 17, rep: 16, rev: 18}
+  - {name: G, opp: 20, rep: 19, rev: 21}
+  - {name: H, opp: 24, rep: 22, rev: 23}
+  - {name: I, opp: 27, rep: 26, rev: 25}
+  - {name: J, opp: 28, rep: 30, rev: 29}
+  - {name: K, opp: 33, rep: 31, rev: 32}
+  - {name: L, opp: 36, rep: 34, rev: 35}
+- - {name: A, opp: 7, rep: 28, rev: 31}
+  - {name: B, opp: 30, rep: 26, rev: 4}
+  - {name: C, opp: 18, rep: 27, rev: 24}
+  - {name: D, opp: 19, rep: 36, rev: 8}
+  - {name: E, opp: 25, rep: 13, rev: 2}
+  - {name: F, opp: 32, rep: 5, rev: 9}
+  - {name: G, opp: 29, rep: 14, rev: 3}
+  - {name: H, opp: 10, rep: 16, rev: 15}
+  - {name: I, opp: 34, rep: 23, rev: 33}
+  - {name: J, opp: 1, rep: 12, rev: 21}
+  - {name: K, opp: 22, rep: 35, rev: 11}
+  - {name: L, opp: 6, rep: 17, rev: 20}
+- - {name: A, opp: 20, rep: 27, rev: 1}
+  - {name: B, opp: 36, rep: 13, rev: 10}
+  - {name: C, opp: 26, rep: 14, rev: 28}
+  - {name: D, opp: 30, rep: 32, rev: 12}
+  - {name: E, opp: 18, rep: 33, rev: 11}
+  - {name: F, opp: 25, rep: 22, rev: 19}
+  - {name: G, opp: 23, rep: 3, rev: 5}
+  - {name: H, opp: 35, rep: 29, rev: 17}
+  - {name: I, opp: 15, rep: 4, rev: 24}
+  - {name: J, opp: 9, rep: 31, rev: 34}
+  - {name: K, opp: 2, rep: 8, rev: 6}
+  - {name: L, opp: 7, rep: 21, rev: 16}
+- - {name: A, opp: 24, rep: 7, rev: 30}
+  - {name: B, opp: 12, rep: 25, rev: 36}
+  - {name: C, opp: 22, rep: 2, rev: 26}
+  - {name: D, opp: 1, rep: 11, rev: 34}
+  - {name: E, opp: 35, rep: 6, rev: 3}
+  - {name: F, opp: 21, rep: 33, rev: 13}
+  - {name: G, opp: 5, rep: 28, rev: 17}
+  - {name: H, opp: 29, rep: 18, rev: 23}
+  - {name: I, opp: 10, rep: 19, rev: 9}
+  - {name: J, opp: 31, rep: 15, rev: 27}
+  - {name: K, opp: 14, rep: 8, rev: 16}
+  - {name: L, opp: 32, rep: 20, rev: 4}
+- - {name: A, opp: 5, rep: 1, rev: 26}
+  - {name: B, opp: 14, rep: 32, rev: 18}
+  - {name: C, opp: 3, rep: 25, rev: 20}
+  - {name: D, opp: 16, rep: 24, rev: 13}
+  - {name: E, opp: 9, rep: 11, rev: 29}
+  - {name: F, opp: 28, rep: 36, rev: 33}
+  - {name: G, opp: 4, rep: 21, rev: 8}
+  - {name: H, opp: 34, rep: 10, rev: 6}
+  - {name: I, opp: 2, rep: 17, rev: 27}
+  - {name: J, opp: 31, rep: 30, rev: 22}
+  - {name: K, opp: 23, rep: 35, rev: 19}
+  - {name: L, opp: 15, rep: 12, rev: 7}

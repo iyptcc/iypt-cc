@@ -9,8 +9,9 @@
 .directory
 
 /venv
-/env
+/env*
 /env-d110
+/env37
 /oldenv
 /scratch
 
@@ -29,3 +30,5 @@
 bandit.html
 
 /ccmodels*
+
+celerybeat-schedule

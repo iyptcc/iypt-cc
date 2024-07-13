@@ -1,0 +1,29 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Virtual Tournament{% endblock %}
+
+    {% block page_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Room needs to be prepared by Moderator</h3>
+                            {% for t in fight.teams %}
+                                <span class="label label-default">{{ t.origin.name }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="box-body">
+                            {% for r in fight.roles %}
+                                <span class="label label-info">{{ r }}</span>
+                            {% endfor %}
+                            <span class="label label-success">{{ fight.bbb_role }}</span>
+                            <div class="box-footer">
+                                try again later
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endblock %}

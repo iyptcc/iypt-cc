@@ -9,7 +9,7 @@
             <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Role List <a href="{% url "tournament:create_prole" %}" class="btn btn-success">add</a></h3>
+                        <h3 class="box-title">Role List <a href="{% url "tournament:create_prole" %}" class="btn btn-success">add</a> <a href="{% url "tournament:importaq_prole" %}" class="btn btn-primary">import</a></h3>
                     </div>
                     <div class="box-body no-padding">
                         <table class="table table-striped">
@@ -21,6 +21,10 @@
                                     <th>Approvable by</th>
                                     <th>Global Limit</th>
                                     <th>Attending</th>
+                                    <th>require PJuror</th>
+                                    <th>app. Deadline</th>
+                                    <th>appl. Q.</th>
+                                    <th>Virt. Role</th>
                                     <th></th>
                                 </tr>
                                 {% for role in object_list %}
@@ -33,9 +37,14 @@
                                     <td>{% for g in role.approvable_by.all %}<span class="label label-default">{{ g.name }}</span> {% endfor %}</td>
                                     <td>{{ role.global_limit }}</td>
                                     <td>{% if role.attending %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>{% if role.require_possiblejuror %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
+                                    <td>{{ role.application_deadline|date:"c" }}</td>
+                                    <td>{{ role.applicationquestion_set.count|default:'' }}</td>
+                                    <td>{{ role.virtual_room_role|default:'' }}</td>
                                     <td>
                                         <a class="btn btn-primary" href="{% url "tournament:change_prole" role.id %}">edit</a>
                                         <a class="btn btn-danger" href="{% url "tournament:delete_prole" role.id %}">delete</a>
+                                        <a class="btn btn-info" href="{% url "tournament:applicationqs" role.id %}">application</a>
                                     </td>
                                 </tr>
                                 {% endfor %}

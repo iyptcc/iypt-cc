@@ -10,7 +10,7 @@ from django.urls.resolvers import URLPattern, URLResolver
 from apps.tournament.models import Tournament
 from cc.settings import BASE_DIR
 
-appsdir = os.path.join(BASE_DIR, 'apps')
+appsdir = os.path.join(BASE_DIR, "apps")
 if appsdir in sys.path:
     sys.path.remove(appsdir)
 if True:
@@ -27,9 +27,10 @@ def _add_url(prefix, pattern_list):
                 ns = pattern.namespace
                 if prefix:
                     print(prefix)
-                    ns = "%s:%s"%(prefix,ns)
+                    ns = "%s:%s" % (prefix, ns)
                 li += _add_url(ns, pattern.url_patterns)
     return li
+
 
 class GetTest(TestCase):
 
@@ -41,30 +42,35 @@ class GetTest(TestCase):
         "fight:genpdfresult",
         "fight:genpdfrank",
         "account:invoice_account",
-        "account:avatar"
+        "account:avatar",
     ]
 
     def setUp(self):
         user = User.objects.get(username="root")
-        #user = self.create_team_leader()
+        # user = self.create_team_leader()
         self.client.force_login(user)
 
     url_names = _add_url(None, urlpatterns)
 
     vs = vars()
+
     def make_test_function(idx, url_name, url):
-        def  t(self):
+        def t(self):
             response = self.client.get(url)
             self.assertTrue(response.status_code in [200, 302, 405])
-        t.__name__ = 'test_' + idx
-        t.__doc__ = 'simple get test for ' + url_name
+
+        t.__name__ = "test_" + idx
+        t.__doc__ = "simple get test for " + url_name
         return t
 
     def make_skip_function(idx, url_name):
-        def  t(self):
+        def t(self):
             pass
-        t.__name__ = 'test_' + idx
-        t.__doc__ = 'skip test for ' + url_name + " requires parameter(s) or view not found"
+
+        t.__name__ = "test_" + idx
+        t.__doc__ = (
+            "skip test for " + url_name + " requires parameter(s) or view not found"
+        )
         return t
 
     for i, url_name in enumerate(url_names):
@@ -73,12 +79,17 @@ class GetTest(TestCase):
         i = str(i)
         try:
             url = reverse(url_name, args=(), kwargs={})
-            vs['test_' + i] = make_test_function(i, url_name, url)
+            vs["test_" + i] = make_test_function(i, url_name, url)
         except NoReverseMatch as e:
-            vs['test_' + i] = make_skip_function(i, url_name)
-            #unittest.skip(url_name + ' requires parameter(s) or view not found')
+            vs["test_" + i] = make_skip_function(i, url_name)
+            # unittest.skip(url_name + ' requires parameter(s) or view not found')
 
-    del url_names, vs, make_test_function,
+    del (
+        url_names,
+        vs,
+        make_test_function,
+    )
+
 
 class MonkeyTest(TestCase):
 
@@ -90,7 +101,6 @@ class MonkeyTest(TestCase):
         for t in Tournament.objects.all():
             t.results_access = Tournament.RESULTS_PUBLIC
             t.save()
-
 
     def test_recursive(self):
 
@@ -120,17 +130,17 @@ class MonkeyTest(TestCase):
             except:
                 pass
 
-        timeout=10000
+        timeout = 10000
         while len(to_check) > 0:
-            timeout-=1
+            timeout -= 1
 
-            self.assertTrue(timeout > 0, msg="Site timeout" )
+            self.assertTrue(timeout > 0, msg="Site timeout")
 
             url = list(to_check)[0]
             to_check.discard(url)
             checked.add(url)
 
-            print("start with %s"%url)
+            print("start with %s" % url)
             if url == "/dashboard/logout":
                 print("skipped logout")
                 continue
@@ -149,7 +159,7 @@ class MonkeyTest(TestCase):
 
             result = self.client.get(url, follow=True)
             if len(result.redirect_chain) > 0:
-                print("redir to %s"%result.redirect_chain)
+                print("redir to %s" % result.redirect_chain)
             self.assertTrue(result.status_code in [200, 302, 405], msg="View Failed")
 
             if result.status_code == 200:

@@ -1,8 +1,17 @@
 from django.contrib import admin
 from ordered_model.admin import OrderedModelAdmin
 
-from .models import (Application, AttendeeProperty, AttendeePropertyValue, Property, PropertyChoice, UserProperty,
-                     UserPropertyValue)
+from .models import (
+    Application,
+    ApplicationQuestion,
+    ApplicationQuestionValue,
+    AttendeeProperty,
+    AttendeePropertyValue,
+    Property,
+    PropertyChoice,
+    UserProperty,
+    UserPropertyValue,
+)
 
 
 class APVAdmin(admin.ModelAdmin):
@@ -15,7 +24,10 @@ class APVAdmin(admin.ModelAdmin):
             qs = qs.order_by(*ordering)
         return qs
 
+
 admin.site.register(Application)
+admin.site.register(ApplicationQuestion, OrderedModelAdmin)
+admin.site.register(ApplicationQuestionValue)
 admin.site.register(Property)
 admin.site.register(PropertyChoice)
 admin.site.register(UserProperty, OrderedModelAdmin)

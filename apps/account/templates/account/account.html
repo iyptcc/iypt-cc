@@ -28,7 +28,7 @@
             <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Outgoing ({{ outgoing_sum }} total, {{ outgoing_pend }} pending) <a class="btn btn-success" href="{% url "account:invoice_account" account.id %}">generate invoice</a></h3>
+                        <h3 class="box-title">Outgoing ({{ outgoing_sum }} total, {{ outgoing_pend }} pending) {% if account.owners.first.tournament.bank_generate_invoice %}<a class="btn btn-success" href="{% url "account:invoice_account" account.id %}">generate invoice</a>{% endif %}</h3>
                     </div>
                     <div class="box-body no-padding">
                         <table class="table table-striped">

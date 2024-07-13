@@ -21,6 +21,12 @@
                             <input type="hidden" name="action" value="{{ action }}" />
                             <input type="hidden" name="{{ stage_field }}" value="2" />
                             <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
+                            {% if allowed %}
+                                <div class="alert alert-info">
+                                    <h4><i class="icon {{ icon }}"></i> Info</h4>
+                                    You are in the set of allowed team mangers and your application will be automatically accepted.
+                                </div>
+                            {% endif %}
                             <p>
                                 <input class="btn btn-success" type="submit" value="{% trans 'Apply' %}">
                             </p>

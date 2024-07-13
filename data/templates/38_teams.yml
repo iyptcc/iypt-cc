@@ -1,0 +1,277 @@
+meta:
+  cost:
+    consec-4: 0
+    meet: 0
+    no-4: 3
+    total: 3
+  d_4fight: 2
+  max_4fight: 2
+  n_meet_multiple: 0
+  name: IYPT38
+  role_violations: 1
+  rooms:
+  - A
+  - B
+  - C
+  - D
+  - E
+  - F
+  - G
+  - H
+  - I
+  - J
+  - K
+  - L
+  simulation_rounds: 15000
+  teams: 38
+rounds:
+- - name: A
+    obs: 4
+    opp: 1
+    rep: 3
+    rev: 2
+  - name: B
+    obs: 5
+    opp: 6
+    rep: 8
+    rev: 7
+  - name: C
+    opp: 11
+    rep: 9
+    rev: 10
+  - name: D
+    opp: 14
+    rep: 12
+    rev: 13
+  - name: E
+    opp: 17
+    rep: 15
+    rev: 16
+  - name: F
+    opp: 19
+    rep: 18
+    rev: 20
+  - name: G
+    opp: 23
+    rep: 21
+    rev: 22
+  - name: H
+    opp: 26
+    rep: 24
+    rev: 25
+  - name: I
+    opp: 29
+    rep: 27
+    rev: 28
+  - name: J
+    opp: 31
+    rep: 32
+    rev: 30
+  - name: K
+    opp: 33
+    rep: 35
+    rev: 34
+  - name: L
+    opp: 36
+    rep: 37
+    rev: 38
+- - name: A
+    obs: 37
+    opp: 14
+    rep: 19
+    rev: 32
+  - name: B
+    obs: 23
+    opp: 15
+    rep: 20
+    rev: 31
+  - name: C
+    opp: 13
+    rep: 3
+    rev: 29
+  - name: D
+    opp: 26
+    rep: 11
+    rev: 8
+  - name: E
+    opp: 21
+    rep: 18
+    rev: 1
+  - name: F
+    opp: 35
+    rep: 2
+    rev: 30
+  - name: G
+    opp: 17
+    rep: 7
+    rev: 4
+  - name: H
+    opp: 9
+    rep: 16
+    rev: 38
+  - name: I
+    opp: 27
+    rep: 6
+    rev: 12
+  - name: J
+    opp: 10
+    rep: 22
+    rev: 34
+  - name: K
+    opp: 25
+    rep: 33
+    rev: 28
+  - name: L
+    opp: 24
+    rep: 5
+    rev: 36
+- - name: A
+    obs: 33
+    opp: 5
+    rep: 38
+    rev: 11
+  - name: B
+    obs: 17
+    opp: 6
+    rep: 30
+    rev: 21
+  - name: C
+    opp: 25
+    rep: 7
+    rev: 9
+  - name: D
+    opp: 20
+    rep: 37
+    rev: 3
+  - name: E
+    opp: 16
+    rep: 23
+    rev: 8
+  - name: F
+    opp: 28
+    rep: 31
+    rev: 10
+  - name: G
+    opp: 27
+    rep: 1
+    rev: 19
+  - name: H
+    opp: 12
+    rep: 35
+    rev: 15
+  - name: I
+    opp: 34
+    rep: 2
+    rev: 18
+  - name: J
+    opp: 13
+    rep: 4
+    rev: 24
+  - name: K
+    opp: 29
+    rep: 22
+    rev: 14
+  - name: L
+    opp: 32
+    rep: 36
+    rev: 26
+- - name: A
+    obs: 13
+    opp: 32
+    rep: 10
+    rev: 27
+  - name: B
+    obs: 9
+    opp: 35
+    rep: 28
+    rev: 22
+  - name: C
+    opp: 36
+    rep: 4
+    rev: 21
+  - name: D
+    opp: 38
+    rep: 26
+    rev: 19
+  - name: E
+    opp: 30
+    rep: 29
+    rev: 11
+  - name: F
+    opp: 15
+    rep: 14
+    rev: 25
+  - name: G
+    opp: 8
+    rep: 17
+    rev: 2
+  - name: H
+    opp: 33
+    rep: 6
+    rev: 37
+  - name: I
+    opp: 7
+    rep: 16
+    rev: 18
+  - name: J
+    opp: 12
+    rep: 20
+    rev: 5
+  - name: K
+    opp: 31
+    rep: 24
+    rev: 1
+  - name: L
+    opp: 34
+    rep: 23
+    rev: 3
+- - name: A
+    obs: 36
+    opp: 18
+    rep: 15
+    rev: 29
+  - name: B
+    obs: 16
+    opp: 3
+    rep: 12
+    rev: 24
+  - name: C
+    opp: 10
+    rep: 26
+    rev: 6
+  - name: D
+    opp: 2
+    rep: 33
+    rev: 7
+  - name: E
+    opp: 19
+    rep: 11
+    rev: 35
+  - name: F
+    opp: 4
+    rep: 31
+    rev: 5
+  - name: G
+    opp: 22
+    rep: 8
+    rev: 20
+  - name: H
+    opp: 38
+    rep: 25
+    rev: 32
+  - name: I
+    opp: 30
+    rep: 9
+    rev: 1
+  - name: J
+    opp: 28
+    rep: 13
+    rev: 17
+  - name: K
+    opp: 21
+    rep: 34
+    rev: 14
+  - name: L
+    opp: 37
+    rep: 27
+    rev: 23

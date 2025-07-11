@@ -1,8 +1,9 @@
 import os
 from decimal import ROUND_HALF_UP, Decimal
-from io import BytesIO
 
+import cv2
 import paramiko
+import pypdfium2 as pdfium
 from celery.result import AsyncResult
 from django import forms
 from django.contrib import messages
@@ -13,14 +14,18 @@ from django.core.cache import caches
 from django.core.files.base import ContentFile
 from django.core.signing import Signer
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseNotAllowed
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseNotAllowed,
+    HttpResponseServerError,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html_join, mark_safe
 from django.views import View
 from django_downloadview import ObjectDownloadView
 from paramiko import SFTPClient, SSHException
-from pdf2image import convert_from_path
 
 from apps.dashboard.messages import Message
 from apps.dashboard.simpleauth import purge_sessions
@@ -34,13 +39,17 @@ from apps.jury.models import (
 )
 from apps.plan.models import Fight, FightRole, Round, Stage, StageAttendance
 from apps.printer import context_generator
-from apps.printer.models import FileServer, Pdf, PdfTag, Template
+from apps.printer.models import FileServer, ORMHostKeyPolicy, Pdf, PdfTag, Template
 from apps.printer.tasks import render_to_pdf
 from apps.printer.utils import _get_next_pdfname
-from apps.result.utils import _fightpreview, _report_factor
+from apps.result.utils import (
+    _fightpreview,
+    _opposition_factor,
+    _report_factor,
+    _review_factor,
+)
 from apps.tournament.models import Origin, Phase
 
-from ..printer.views import ORMHostKeyPolicy
 from .forms import (
     ManageForm,
     PublishForm,
@@ -49,11 +58,11 @@ from .forms import (
     SlidesImportForm,
     SlidesRedirForm,
     StageForm,
+    VoidAttendanceSet,
 )
 from .models import ClockState, ScanProcessing
 from .tasks import importSlides, processJob
-from .utils import areas as sheet_areas
-from .utils import crop_image, fight_grades_valid
+from .utils import PilRotation, crop_image, fight_grades_valid, sheet_areas
 
 # Create your views here.
 
@@ -96,6 +105,13 @@ def validate_plan(request):
         for f in round.fight_set.select_related("room").all():
             fi = {"name": f.room.name, "locked": f.locked, "pk": f.pk}
             fi["valid"] = fight_grades_valid(f)
+            fi["total_sheets"] = (
+                f.jurorsession_set(manager="voting").count() * f.stage_set.count()
+            )
+            fi["sheets"] = GradingSheet.objects.filter(
+                jurorsession__role__type__in=[JurorRole.JUROR, JurorRole.CHAIR],
+                jurorsession__fight=f,
+            ).count()
             fs.append(fi)
         rs.append(fs)
 
@@ -466,22 +482,29 @@ class FightPreView(FightAssistancePermMixin, View):
                     grade_j["rep_partial"] = GroupGrade.objects.filter(
                         stage_attendee=stage.rep_attendance, juror_session__juror=juror
                     )
-                    sum_floor = sum([gr.value for gr in grade_j["rep_partial"]]) + 1
-                    if (
-                        int(sum_floor) > grade_j["rep"]
-                        or grade_j["rep"] > int(sum_floor) + 1
-                    ):
-                        warnings.append(
-                            "Stage %d reporter grade from %s has large difference %.2f vs %d"
-                            % (stage.order, juror.attendee, sum_floor, grade_j["rep"])
-                        )
+                    if grade_j["rep_partial"].exists():
+                        sum_floor = sum([gr.value for gr in grade_j["rep_partial"]]) + 1
+                        if (
+                            int(sum_floor) > grade_j["rep"]
+                            or grade_j["rep"] > int(sum_floor) + 1
+                        ):
+                            warnings.append(
+                                "Stage %d reporter grade from %s has large difference %.2f vs %d"
+                                % (
+                                    stage.order,
+                                    juror.attendee,
+                                    sum_floor,
+                                    grade_j["rep"],
+                                )
+                            )
                     if voting:
                         r_grades["rep"].append(Decimal(grade_j["rep"]))
                 except:
-                    errors.append(
-                        "Stage %d missing reporter grade from %s"
-                        % (stage.order, juror.attendee)
-                    )
+                    if voting:
+                        errors.append(
+                            "Stage %d missing reporter grade from %s"
+                            % (stage.order, juror.attendee)
+                        )
                 try:
                     grade_j["opp"] = int(
                         JurorGrade.objects.get(
@@ -495,10 +518,11 @@ class FightPreView(FightAssistancePermMixin, View):
                     if voting:
                         r_grades["opp"].append(Decimal(grade_j["opp"]))
                 except:
-                    errors.append(
-                        "Stage %d missing opponent grade from %s"
-                        % (stage.order, juror.attendee)
-                    )
+                    if voting:
+                        errors.append(
+                            "Stage %d missing opponent grade from %s"
+                            % (stage.order, juror.attendee)
+                        )
 
                 if fight.round.review_phase:
                     try:
@@ -515,10 +539,11 @@ class FightPreView(FightAssistancePermMixin, View):
                         if voting:
                             r_grades["rev"].append(Decimal(grade_j["rev"]))
                     except:
-                        errors.append(
-                            "Stage %d missing reviewer grade from %s"
-                            % (stage.order, juror.attendee)
-                        )
+                        if voting:
+                            errors.append(
+                                "Stage %d missing reviewer grade from %s"
+                                % (stage.order, juror.attendee)
+                            )
 
                 grades_j.append(grade_j)
 
@@ -542,8 +567,9 @@ class FightPreView(FightAssistancePermMixin, View):
 
             factors = {}
             factors["rep"] = _report_factor(stage.rep_attendance)
-            factors["opp"] = 2.0
-            factors["rev"] = 1.0
+            factors["opp"] = _opposition_factor(stage.opp_attendance)
+            if fight.round.review_phase:
+                factors["rev"] = _review_factor(stage.rev_attendance)
 
             avg_w = {}
             avg_w["rep"] = avg_s["rep"]
@@ -551,8 +577,11 @@ class FightPreView(FightAssistancePermMixin, View):
                 avg_w["rep"] *= Decimal(str(_report_factor(stage.rep_attendance)))
             avg_w["opp"] = avg_s["opp"]
             if avg_w["opp"]:
-                avg_w["opp"] *= Decimal("2.0")
-            avg_w["rev"] = avg_s["rev"]
+                avg_w["opp"] *= Decimal(str(_opposition_factor(stage.opp_attendance)))
+            if fight.round.review_phase:
+                avg_w["rev"] = avg_s["rev"]
+                if avg_w["rev"]:
+                    avg_w["rev"] *= Decimal(str(_review_factor(stage.rev_attendance)))
 
             attendance = stage.rep_attendance_grades
             team = attendance.team
@@ -755,13 +784,19 @@ class ListScanProessing(View):
 def get_pdf_page(request, pdf_id, page):
     trn = request.user.profile.tournament
     pdf = get_object_or_404(Pdf, tournament=trn, id=pdf_id)
-    img = convert_from_path(
-        pdf.file.path, first_page=page, last_page=page, dpi=300, fmt="jpg"
-    )[0]
-
-    response = HttpResponse(content_type="image/jpeg")
-    img.save(response, "JPEG")
-    return response
+    doc = pdfium.PdfDocument(pdf.file.path)
+    img = (
+        doc[page - 1]
+        .render(
+            scale=4,
+            rotation=0,
+        )
+        .to_numpy()
+    )
+    r, jpg_buf = cv2.imencode(".jpg", img)
+    if r:
+        return HttpResponse(jpg_buf.data, content_type="image/jpeg")
+    return HttpResponseServerError()
 
 
 @login_required
@@ -796,26 +831,34 @@ def processPDF(request):
                 stage = js.fight.stage_set.get(order=form.cleaned_data["stage"])
 
                 page = form.cleaned_data["page"]
-                tosave = convert_from_path(
-                    pdf.file.path, first_page=page, last_page=page, dpi=300, fmt="jpg"
-                )[0]
+                doc = pdfium.PdfDocument(pdf.file.path)
+                tosave = (
+                    doc[page - 1]
+                    .render(
+                        scale=4,
+                        rotation=0,
+                    )
+                    .to_numpy()
+                )
 
                 orient = form.cleaned_data["orientation"]
-                if orient:
-                    tosave = tosave.transpose(int(orient))
+                if orient == PilRotation.ROTATE_90:
+                    tosave = cv2.rotate(tosave, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                elif orient == PilRotation.ROTATE_180:
+                    tosave = cv2.rotate(tosave, cv2.ROTATE_180)
+                elif orient == PilRotation.ROTATE_270:
+                    tosave = cv2.rotate(tosave, cv2.ROTATE_90_CLOCKWISE)
 
                 # print("and stage:", stage)
 
                 cf = {}
                 for area in ["data", "rep", "opp", "rev", "full"]:
-                    f = BytesIO()
-                    try:
-                        crop_image(tosave, sheet_areas[area]).save(f, format="jpeg")
-                        cf[area] = ContentFile(
-                            f.getvalue(), "%s-%d-%d.jpg" % (area, js.id, stage.id)
-                        )
-                    finally:
-                        f.close()
+                    r, jpg_buf = cv2.imencode(
+                        ".jpg", crop_image(tosave, sheet_areas[area])
+                    )
+                    cf[area] = ContentFile(
+                        jpg_buf.data, "%s-%d-%d.jpg" % (area, js.id, stage.id)
+                    )
 
                 if not GradingSheet.objects.filter(
                     jurorsession=js, stage=stage
@@ -1004,7 +1047,7 @@ class ScanView(ObjectDownloadView):
                 file = obj.__getattribute__(self.kwargs["typ"])
                 return file
             except:
-                raise Pdf.DoesNotExist("File does not exist")
+                raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -1137,6 +1180,7 @@ class SlidesView(View):
 
         trn = request.user.profile.tournament
         form = SlidesForm(trn, request.POST, request.FILES)
+        redirform = SlidesRedirForm(request.user.profile.tournament)
         print(request.FILES)
         if form.is_valid():
             print(form.cleaned_data)
@@ -1147,7 +1191,9 @@ class SlidesView(View):
                         form.fields[cf].stage.pdf_presentation = form.cleaned_data[cf]
                         form.fields[cf].stage.save()
 
-        return render(request, "fight/slides.html", context={"form": form})
+        return render(
+            request, "fight/slides.html", context={"form": form, "redirform": redirform}
+        )
 
 
 @method_decorator(login_required, name="dispatch")
@@ -1222,6 +1268,33 @@ class SlidesImport(View):
             "fight/slides_import.html",
             {"form": form, "round": round_order, "server": server, "path": path},
         )
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(permission_required("jury.publish_fights"), name="dispatch")
+class VoidedView(View):
+
+    def get_qs(self, request):
+        return (
+            StageAttendance.objects.filter(
+                stage__fight__round__tournament=request.user.profile.tournament
+            )
+            .prefetch_related(
+                "stage__fight__round", "role", "team__origin", "stage__fight__room"
+            )
+            .order_by("stage__fight__round__order")
+        )
+
+    def get(self, request):
+        formset = VoidAttendanceSet(queryset=self.get_qs(request))
+
+        return render(request, "fight/void.html", context={"formset": formset})
+
+    def post(self, request):
+        formset = VoidAttendanceSet(request.POST, queryset=self.get_qs(request))
+        if formset.is_valid():
+            formset.save()
+        return render(request, "fight/void.html", context={"formset": formset})
 
 
 @method_decorator(login_required, name="dispatch")
@@ -1418,6 +1491,7 @@ class PublishView(View):
 
                 cgs = format_html_join("", "<li>{} for {}</li>", (c for c in changes))
                 if len(changes) > 0:
+                    caches["results"].clear()
                     messages.add_message(
                         request,
                         messages.SUCCESS,
@@ -1446,10 +1520,10 @@ class PdfPreviewView(ObjectDownloadView):
                 id=self.kwargs["fight_id"],
             ).pdf_preview
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -1467,10 +1541,10 @@ class PdfResultView(ObjectDownloadView):
                 id=self.kwargs["fight_id"],
             ).pdf_result
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -1488,10 +1562,10 @@ class PdfRankingView(ObjectDownloadView):
                 order=self.kwargs["round_nr"],
             ).pdf_ranking
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @login_required

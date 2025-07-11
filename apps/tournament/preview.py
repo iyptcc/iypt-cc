@@ -215,7 +215,14 @@ class ADImportPreview(FormPreview):
         rolemap = {}
         for pr in trn.participationrole_set.all():
             try:
-                newrole = ctrn.participationrole_set.get(name__icontains=pr.name)
+                newroles = ctrn.participationrole_set.filter(name__icontains=pr.name)
+                best = 100000
+                newrole = None
+                for r in newroles:
+                    lendiff = abs(len(r.name) - len(pr.name))
+                    if lendiff < best:
+                        best = lendiff
+                        newrole = r
             except Exception as e:
                 print(e)
                 newrole = None
@@ -253,7 +260,14 @@ class ADImportPreview(FormPreview):
         rolemap = {}
         for pr in trn.participationrole_set.all():
             try:
-                newrole = ctrn.participationrole_set.get(name__icontains=pr.name)
+                newroles = ctrn.participationrole_set.filter(name__icontains=pr.name)
+                best = 100000
+                newrole = None
+                for r in newroles:
+                    lendiff = abs(len(r.name) - len(pr.name))
+                    if lendiff < best:
+                        best = lendiff
+                        newrole = r
             except Exception as e:
                 print(e)
                 newrole = None

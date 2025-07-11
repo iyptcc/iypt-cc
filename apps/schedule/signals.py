@@ -11,8 +11,10 @@ def my_menuitems_builder(sender, **kwargs):
         if user.has_perm("tournament.app_schedule"):
             top_item = MenuItem(600, "Schedule", "#", icon="fa fa-list-ol")
             li = MenuItem(610, "List", "schedule:list")
+            imp = MenuItem(611, "Import", "schedule:import")
             gen = MenuItem(612, "Generate", "schedule:generate")
             top_item.add_child(li)
+            top_item.add_child(imp)
             top_item.add_child(gen)
 
             sender.add_item(top_item)

@@ -1,16 +1,15 @@
 Django
-django-bootstrap3<24
+django-bootstrap3
 django_extensions
 django_select2
 django-debug-toolbar
-#-e git+https://github.com/felix-engelmann/django-formtools#egg=django_formtools
-#django-formtools
-# @e5b85d634259ed020b08cb53a918cde1d2da4ce7
+# django-formtools
+-e git+https://github.com/felix-engelmann/django-formtools#egg=django_formtools
 unidecode
 PyYAML
 celery
 #python-memcached
-pymemcache
+#pymemcache
 django-celery-results
 coverage
 django-downloadview
@@ -39,10 +38,9 @@ django-hijack
 #-e git+https://github.com/felix-engelmann/django-pwned-passwords@fix-fail-safe#egg=django-pwned-passwords
 djangorestframework
 pypdf
-pdf2image
-pyzbar
+pypdfium2
 numpy
-opencv-python
+opencv-contrib-python
 faker
 pycountry
 django-oauth-toolkit
@@ -51,3 +49,4 @@ xlsxwriter
 defusedxml
 paramiko
 django-simple-captcha
+django-auditlog

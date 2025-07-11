@@ -24,7 +24,7 @@ else:
     from .cache import *  # noqa: F403,F401
     from .channels import *  # noqa: F403,F401
 
-if socket.gethostname() == 'larix':
+if socket.gethostname() == "larix":
     from .dev import *  # noqa: F403
 else:
     from .production import *  # noqa: F403

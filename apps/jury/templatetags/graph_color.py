@@ -8,7 +8,7 @@ register = template.Library()
 
 @register.filter
 def rgbFromName(key):
-    h = hashlib.md5(("trashh%s" % key).encode("ascii"))
+    h = hashlib.md5(("trashh%s" % key).encode())
     digest = h.hexdigest()
     n = int(digest, 16)
     print(n)

@@ -23,11 +23,17 @@ def plan_from_db(tournament):
     for round in tournament.round_set(manager="selectives").all():
         ro = []
         for fight in round.fight_set.all():
-            fi = {"jurors": []}
+            fi = {"jurors": [], "nonvoting": []}
             for js in fight.jurorsession_set.filter(
                 role__type__in=[JurorRole.JUROR, JurorRole.CHAIR]
             ):
                 fi["jurors"].append(
+                    {"id": js.juror.pk, "name": js.juror.attendee.full_name}
+                )
+            for js in fight.jurorsession_set.filter(
+                role__type__in=[JurorRole.NONVOTING]
+            ):
+                fi["nonvoting"].append(
                     {"id": js.juror.pk, "name": js.juror.attendee.full_name}
                 )
             ro.append(fi)
@@ -46,6 +52,11 @@ def async_plan_from_db(tournament):
 
             fight_data["jurors"] = [
                 js.juror for js in list(fight.jurorsession_set(manager="voting").all())
+            ]
+
+            fight_data["nonvoting"] = [
+                js.juror
+                for js in list(fight.jurorsession_set(manager="nonvoting").all())
             ]
 
             round_fights["fights"].append(fight_data)
@@ -87,6 +98,13 @@ def plan_cost(plan, jurors):
                         exp_assignments[j.pk] += 1
                     else:
                         exp_assignments[j.pk] = 1
+            nvjs = fi["nonvoting"]
+            for j in nvjs:
+                # print("add assignment for nonvoting", j)
+                if j.pk in assignments:
+                    assignments[j.pk] += 1
+                else:
+                    assignments[j.pk] = 1
 
             bias_total += bias_mean**2
 
@@ -94,7 +112,9 @@ def plan_cost(plan, jurors):
     avg_assign = sum(assignments.values()) / len(jurors)
     assign_cost = 0
     for a in assignments.values():
-        assign_cost += abs(avg_assign - a) ** 2
+        delta = abs(avg_assign - a)
+        if delta >= 1:
+            assign_cost += delta**2
     assign_cost += len(empty) * (avg_assign**2)
 
     exp_assign_cost = 0
@@ -192,7 +212,12 @@ def assignments_light(plan, jurors):
                     assignments[j["id"]] += 1
                 else:
                     assignments[j["id"]] = 1
-
+            nvjs = fi.get("nonvoting", [])
+            for j in nvjs:
+                if j["id"] in assignments:
+                    assignments[j["id"]] += 1
+                else:
+                    assignments[j["id"]] = 1
     batches = {}
 
     for k, v in assignments.items():
@@ -214,6 +239,8 @@ def create_fight_gradingsheets(fight):
     trn = fight.round.tournament
     tpl_id = trn.default_templates.get(type=Template.GRADING).id
 
+    grading_pdf_ids = []
+
     for stage in fight.stage_set.all():
 
         context = context_generator.jurygrading(stage)
@@ -233,6 +260,8 @@ def create_fight_gradingsheets(fight):
 
         pdf.task_id = res.id
         pdf.save()
+
+        grading_pdf_ids.append(pdf.id)
 
         try:
             pdf.tags.add(PdfTag.objects.get(tournament=trn, type=Template.GRADING))
@@ -267,3 +296,5 @@ def create_fight_gradingsheets(fight):
 
     fight.pdf_grade_overview = pdf
     fight.save()
+
+    return {"grading_ids": grading_pdf_ids, "overview_id": pdf.id}

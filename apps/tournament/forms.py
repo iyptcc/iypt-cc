@@ -509,6 +509,6 @@ class BBBForm(forms.ModelForm):
 class FileServerForm(forms.ModelForm):
     class Meta:
         model = FileServer
-        fields = ("name", "hostname", "port", "username", "fingerprint")
+        fields = ("name", "hostname", "port", "username", "path", "fingerprint")
 
     new_password = forms.CharField(required=False, widget=forms.widgets.PasswordInput)

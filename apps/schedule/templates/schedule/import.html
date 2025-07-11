@@ -1,0 +1,48 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Schedule Import{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">YAML</h3>
+                    </div>
+                    <div class="box-body">
+                        If the name is already present with the same teams, the schedule will be updated.<br>
+                        Format Example:
+                        <pre>
+meta:
+  cost: {consec-4: 13, meet: 14, no-4: 4, total: 31}
+  d_4fight: 3
+  max_4fight: 4
+  n_meet_multiple: 14
+  name: IYPT schedule
+  role_violations: 0
+  rooms: [A, B, C, D, E]
+  simulation_rounds: 30000
+  teams: 17
+rounds:
+- - {name: A, obs: 2, opp: 4, rep: 3, rev: 1}
+  - {name: B, obs: 7, opp: 5, rep: 6, rev: 8}
+...
+- - {name: A, obs: 3, opp: 14, rep: 11, rev: 17}
+  - {name: B, obs: 8, opp: 1, rep: 12, rev: 15}
+...
+</pre>
+                        <form method="post" role="form">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <input type="hidden" name="{{ stage_field }}" value="1" />
+                            {% buttons %}
+                                <input class="btn btn-primary btn-flat" type="submit" value="{% trans 'Import' %}">
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

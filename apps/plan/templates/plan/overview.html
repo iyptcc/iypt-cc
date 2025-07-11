@@ -18,6 +18,8 @@
                             <a class="btn btn-danger" href="{% url "plan:phplandel" %}">delete all</a>
                             {% for sched in schedules %}
                                 <a class="btn btn-info" href="{% url "plan:loadtemplate" sched.id %}">load {{ sched }} </a>
+                            {% empty %}
+                                <a class="btn btn-info" href="{% url "plan:phteams" %}">create placeholder teams first </a>
                             {% endfor %}
                             <form action="{% url "plan:phapply" %}" method="post" class="inline">
                                 {% csrf_token %}

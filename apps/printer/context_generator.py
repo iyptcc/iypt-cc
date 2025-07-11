@@ -570,10 +570,12 @@ def invoice(account, attendee):
         total += po.amount
     print(ps)
     context = {
-        "receiver_address": payments[0].receiver.address,
+        "receiver_address": "",
         "sender_address": account.address,
         "payments": ps,
         "total": total,
         "requester": attendee.full_name,
     }
+    if len(payments) > 0:
+        context["receiver_address"] = payments[0].reference.address
     return context

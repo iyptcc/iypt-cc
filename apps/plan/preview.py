@@ -268,6 +268,11 @@ class PersonsPreview(FormPreview):
             },
             {"name": "Groups", "elements": trn.groups.all(), "filter": "groups__in"},
             {"name": "Team", "elements": trn.team_set.all(), "filter": "team__in"},
+            {
+                "name": "Shared Tag",
+                "elements": trn.pdftag_set.all(),
+                "filter": "pdf__tags__in",
+            },
         ]
 
         self._filters = {}
@@ -347,6 +352,12 @@ class PersonsPreview(FormPreview):
             widget=Select2Widget,
         )
 
+        tags = forms.ModelChoiceField(
+            queryset=trn.pdftag_set.all(),
+            required=False,
+            widget=Select2Widget,
+        )
+
         self.form = type(
             "PersonsForm",
             (forms.Form,),
@@ -358,6 +369,7 @@ class PersonsPreview(FormPreview):
                 "team": team,
                 "conflicting": conflicting,
                 "origin": origin,
+                "tags": tags,
             },
         )
 
@@ -496,6 +508,12 @@ class PersonsPreview(FormPreview):
 
             persons = []
 
+            if "_distribute_pdfs" in request.POST:
+                tags = form.cleaned_data["tags"]
+                avail_pdfs = list(
+                    trn.pdf_set.filter(tags=tags, inbox_attendees__isnull=True)
+                )
+
             for att in form.cleaned_data["persons"].prefetch_related(
                 "active_user__user",
             ):
@@ -568,6 +586,13 @@ class PersonsPreview(FormPreview):
                     if origin not in person["teams"]:
                         person["team_new"] = origin
 
+                if "_distribute_pdfs" in request.POST:
+                    context["action"] = "_distribute_pdfs"
+                    if len(avail_pdfs) > 0:
+                        person["pdfs_new"] = avail_pdfs.pop()
+                    else:
+                        person["pdfs_new"] = "NO LEFT"
+
                 persons.append(person)
 
             context["persons"] = persons
@@ -636,6 +661,18 @@ class PersonsPreview(FormPreview):
             pdf.save()
 
             pdf.tags.add(PdfTag.objects.get(tournament=trn, type=Template.PERSONS))
+
+        elif request.POST["action"] == "_distribute_pdfs":
+            tags = cleaned_data["tags"]
+            avail_pdfs = list(
+                request.user.profile.tournament.pdf_set.filter(
+                    tags=tags, inbox_attendees__isnull=True
+                )
+            )
+            for att in ps:
+                if len(avail_pdfs) > 0:
+                    next_pdf = avail_pdfs.pop()
+                    next_pdf.inbox_attendees.add(att)
 
         elif request.POST["action"] == "_juror":
 

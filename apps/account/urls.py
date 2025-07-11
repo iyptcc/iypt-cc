@@ -4,6 +4,8 @@ from .views import (
     AccountsView,
     AccountView,
     AvatarView,
+    InboxDocumentView,
+    InboxView,
     InvoiceView,
     ProfileView,
     TournamentView,
@@ -29,4 +31,6 @@ urlpatterns = [
         name="invoice_view",
     ),
     path("juror/", jurorplan, name="jury"),
+    path("inbox/", InboxView.as_view(), name="inbox"),
+    path("inbox/<int:d_id>.pdf", InboxDocumentView.as_view(), name="inbox_document"),
 ]

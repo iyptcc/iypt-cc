@@ -1,6 +1,7 @@
 from apps.bank.models import Account
 from apps.dashboard.menu import Menu, MenuItem
 from apps.jury.models import Juror
+from apps.printer.models import Pdf
 from apps.tournament.models import Tournament
 
 
@@ -19,8 +20,12 @@ def my_menuitems_builder(sender, **kwargs):
             t_fin = MenuItem(25, "Finance", "account:accounts")
             profile_item.add_child(t_fin)
         if Juror.objects.filter(attendee=user.profile.active).exists():
-            t_jury = MenuItem(25, "Jury", "account:jury")
+            t_jury = MenuItem(26, "Jury", "account:jury")
             profile_item.add_child(t_jury)
+        if Pdf.objects.filter(inbox_attendees=user.profile.active).exists():
+            t_inbox = MenuItem(27, "Inbox", "account:inbox")
+            profile_item.add_child(t_inbox)
+
         sender.add_item(profile_item)
     else:
         login_item = MenuItem(20, "Login", "login", icon="fa fa-user")

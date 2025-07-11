@@ -1,0 +1,56 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n json_nice %}
+
+    {% block stylesheets %}
+        {{ block.super }}
+        {{ form.media.css }}
+        {{ form.media.js }}
+    {% endblock %}
+
+    {% block styles_inline %}
+        <style>
+        .CodeMirror {
+          height: auto;
+        }
+        </style>
+    {% endblock %}
+
+    {% block page_title %}Template{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <form action="" method="post">{% csrf_token %}
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Import {{ template.name }} from {{ template.tournament.name }}
+                        {% if current %}
+                            <span class="label label-warning">overwriting existing</span>
+                            {% endif %}
+                        </h3>
+                    </div>
+                    <div class="box-body">
+                            {% bootstrap_field form.tname %}
+                            {% if form.files %}
+                            {% bootstrap_field form.files %}
+                            {% endif %}
+                            {% bootstrap_field form.type %}
+                            {% if form.parent %}
+                            {% bootstrap_field form.parent %}
+                            {% endif %}
+                            {% if form.subject %}
+                            {% bootstrap_field form.subject %}
+                            {% endif %}
+                            {{ form.src }}
+                            <input type="submit" class="btn btn-success" name="_import" value="Import" />
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
+    {% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}

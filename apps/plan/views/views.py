@@ -2,7 +2,7 @@ import yaml
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -48,7 +48,9 @@ class Placeholder(View):
 
     def get(self, request):
 
-        scheds = ScheduleTemplate.objects.all()
+        scheds = ScheduleTemplate.objects.filter(
+            teams=request.user.profile.tournament.teamplaceholder_set.count()
+        )
 
         rounds = (
             Round.selectives.filter(tournament=request.user.profile.tournament)
@@ -336,10 +338,10 @@ class PdfTeamView(ObjectDownloadView):
                 order=self.kwargs["round"],
             ).pdf_teamplan
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @login_required
@@ -400,10 +402,10 @@ class PdfProblemSelect(ObjectDownloadView):
                 order=self.kwargs["round"],
             ).pdf_problem_select
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @login_required

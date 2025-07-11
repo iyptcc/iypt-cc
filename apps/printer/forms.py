@@ -61,6 +61,44 @@ class TemplateForm(forms.Form):
         return name
 
 
+class TemplateImportForm(forms.Form):
+
+    tname = forms.CharField(label="Template Name")
+    files = forms.ModelMultipleChoiceField(
+        queryset=Pdf.objects.none(), widget=Select2MultipleWidget, required=False
+    )
+    src = forms.CharField(
+        widget=CodeMirrorEditor(
+            options={"mode": "stex", "lineNumbers": True, "viewportMargin": 100}
+        )
+    )
+    name = forms.CharField(required=False)
+    type = forms.ChoiceField(
+        choices=[("", "----")] + list(Template.TYPE), required=False
+    )
+    parent = forms.ModelChoiceField(queryset=Template.objects.none(), required=False)
+
+    def __init__(self, trn: Tournament, template, *args, **kwargs):
+        super(TemplateImportForm, self).__init__(*args, **kwargs)
+
+        src = template.templateversion_set.last().src
+        if src == "":
+            src = "empty"
+        self.fields["src"].initial = src
+        self.fields["type"].initial = template.type
+        self.fields["files"].queryset = Pdf.objects.filter(tournament=trn)
+        self.fields["files"].initial = trn.pdf_set.filter(
+            name__in=template.files.values_list("name", flat=True)
+        )  # template.files.all()
+        self.fields["tname"].initial = template.name
+        self.fields["parent"].queryset = Template.objects.filter(tournament=trn)
+        if template.parent:
+            parents = trn.template_set.filter(name=template.parent.name)
+            if parents.exists():
+                self.fields["parent"].initial = parents.first()
+        self.tournament = trn
+
+
 class UploadForm(forms.Form):
 
     name = forms.CharField(max_length=250)
@@ -74,6 +112,7 @@ class UploadForm(forms.Form):
             required=False,
             widget=Select2MultipleWidget,
         )
+        self.fields["auto_process"] = forms.BooleanField(required=False)
 
 
 @dataclass
@@ -99,6 +138,7 @@ class ImportForm(forms.Form):
 
         imported = trn.pdf_set.values_list("name", flat=True)
         files = []
+        non_imp = []
         for file in sftp.listdir_attr():
             if file.filename.lower().endswith(".pdf"):
                 files.append(
@@ -112,8 +152,24 @@ class ImportForm(forms.Form):
                         ),
                     )
                 )
+            else:
+                non_imp.append(
+                    (
+                        file.filename,
+                        RemoteFile(
+                            name=file.filename,
+                            size=sizeof_fmt(file.st_size),
+                            mtime=datetime.fromtimestamp(file.st_mtime),
+                            imported=False,
+                        ),
+                    )
+                )
         files = sorted(files, key=lambda x: x[1].mtime, reverse=True)
         self.fields["files"] = forms.MultipleChoiceField(choices=files, required=False)
+        self.fields["unimportable"] = forms.MultipleChoiceField(
+            choices=non_imp, required=False, disabled=True
+        )
+        self.fields["auto_process"] = forms.BooleanField(required=False)
 
 
 class TemplateNewForm(forms.Form):

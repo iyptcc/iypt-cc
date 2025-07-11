@@ -58,7 +58,7 @@
                                                 <td>
                                                     <input name="files" class="obj-checkbox" value="{{ choice_id }}" type="checkbox">
                                                 </td>
-                                                <td>{{ pdf.name }}{% if pdf.origin %} <span class="label label-success">{{ pdf.origin.name }}</span>{% endif %}</td>
+                                                <td>{{ pdf.name }}{% if pdf.origin %} <span class="label {% if pdf.imported %}label-default{% else %}label-success{% endif %}">{{ pdf.origin.name }}</span>{% endif %}</td>
                                                 <td>
                                                     {{ pdf.size }}
                                                 </td>

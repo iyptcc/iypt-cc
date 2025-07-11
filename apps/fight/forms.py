@@ -4,15 +4,14 @@ from stat import S_ISDIR, S_ISREG
 
 from django import forms
 from django.db import IntegrityError
-from django.forms import ClearableFileInput
+from django.forms import ClearableFileInput, modelformset_factory
 from django.utils.html import format_html_join
 from django_select2.forms import Select2MultipleWidget, Select2Widget
 from paramiko import SFTPClient
-from PIL import Image
 
 from apps.account.models import Attendee
 from apps.jury.models import JurorSession
-from apps.plan.models import FightRole
+from apps.plan.models import FightRole, StageAttendance
 from apps.printer.models import Pdf, PdfTag
 from apps.result.utils import _fightpreview
 from apps.team.models import TeamRole
@@ -20,7 +19,7 @@ from apps.tournament.models import Origin, Problem, Tournament
 
 from ..printer.forms import RemoteFile
 from ..registration.utils import pdf_validator
-from .utils import fight_grades_valid
+from .utils import PilRotation, fight_grades_valid
 
 
 class StageForm(forms.Form):
@@ -296,6 +295,19 @@ class SlidesForm(forms.Form):
             ]
 
 
+class VoidAttendanceForm(forms.ModelForm):
+    voided = forms.BooleanField(required=False)  # Ov
+
+    class Meta:
+        model = StageAttendance
+        fields = ["voided", "penalty"]
+
+
+VoidAttendanceSet = modelformset_factory(
+    StageAttendance, form=VoidAttendanceForm, extra=0
+)
+
+
 class PublishForm(forms.Form):
 
     def __init__(self, tournament, *args, **kwargs):
@@ -352,18 +364,27 @@ class PublishForm(forms.Form):
             for fight in round.fight_set.select_related("room").all():
                 fg = forms.BooleanField(label=fight.room.name, required=False)
                 fg.initial = fight.publish_grades
+                fg.widget.attrs["class"] = f"grades-round-{round.order}"
                 fg.fight = fight
 
                 fp = forms.BooleanField(label=fight.room.name, required=False)
                 fp.initial = fight.publish_preview
+                fp.widget.attrs["class"] = f"preview-round-{round.order}"
                 fp.fight = fight
 
                 fpsingle = forms.BooleanField(label=fight.room.name, required=False)
                 fpsingle.initial = fight.publish_partials
+                fpsingle.widget.attrs["class"] = f"sheets-round-{round.order}"
                 fpsingle.fight = fight
 
                 fpslides = forms.BooleanField(label=fight.room.name, required=False)
                 fpslides.initial = fight.publish_slides
+                fpslides.widget.attrs["class"] = f"slides-round-{round.order}"
+                with_slides = 0
+                for stage in fight.stage_set.all():
+                    if stage.pdf_presentation:
+                        with_slides += 1
+                fpslides.label = (with_slides, fight.stage_set.count())
                 fpslides.fight = fight
 
                 fppart = forms.ModelChoiceField(
@@ -462,9 +483,9 @@ class ScanForm(forms.Form):
     orientation = forms.ChoiceField(
         choices=(
             (None, "level"),
-            (Image.ROTATE_90, "90 ccw"),
-            (Image.ROTATE_270, "90 cw"),
-            (Image.ROTATE_180, "180 turn"),
+            (PilRotation.ROTATE_90, "90 ccw"),
+            (PilRotation.ROTATE_270, "90 cw"),
+            (PilRotation.ROTATE_180, "180 turn"),
         ),
         required=False,
         label="Rotation to achieve correct one",
@@ -475,6 +496,8 @@ class ScanForm(forms.Form):
         self.fields["pdf"].queryset = tournament.pdf_set.all()
         self.fields["jurorsession"].queryset = JurorSession.objects.filter(
             juror__attendee__tournament=tournament
+        ).prefetch_related(
+            "juror__attendee__active_user__user", "fight__room", "role", "fight__round"
         )
 
 
@@ -501,7 +524,7 @@ class SlidesImportForm(forms.Form):
                 if file.filename == "System Volume Information":
                     continue
                 if S_ISDIR(file.st_mode):
-                    print(file.filename + " is folder")
+                    # print(file.filename + " is folder")
                     sftp.chdir(file.filename)
                     files += list_dir(sftp, os.path.join(prefix, file.filename))
                     sftp.chdir("..")
@@ -513,7 +536,7 @@ class SlidesImportForm(forms.Form):
                                 name=os.path.join(prefix, file.filename),
                                 size=sizeof_fmt(file.st_size),
                                 mtime=datetime.fromtimestamp(file.st_mtime),
-                                imported=False,  # file.filename in imported,
+                                imported=False,
                             ),
                         )
                     )
@@ -528,6 +551,14 @@ class SlidesImportForm(forms.Form):
             try:
                 ori = Origin.objects.filter(slug=base, tournament=trn).first()
                 file[1].origin = ori
+                sa = StageAttendance.objects.filter(
+                    stage__fight__round=round,
+                    team__origin=ori,
+                    role__type=FightRole.REP,
+                ).first()
+                if sa:
+                    if sa.stage.pdf_presentation:
+                        file[1].imported = True
             except Origin.DoesNotExist:
                 pass
 

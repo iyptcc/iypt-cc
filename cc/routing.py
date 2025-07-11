@@ -9,17 +9,18 @@ import apps.virtual.routing
 
 django_asgi_app = get_asgi_application()
 
-application = ProtocolTypeRouter({
-    # Django's ASGI application to handle traditional HTTP requests
-    'http': django_asgi_app,
-
-    'websocket': AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter(
-                apps.fight.routing.websocket_urlpatterns + \
-                apps.virtual.routing.websocket_urlpatterns + \
-                apps.result.routing.websocket_urlpatterns
-            )
+application = ProtocolTypeRouter(
+    {
+        # Django's ASGI application to handle traditional HTTP requests
+        "http": django_asgi_app,
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(
+                URLRouter(
+                    apps.fight.routing.websocket_urlpatterns
+                    + apps.virtual.routing.websocket_urlpatterns
+                    + apps.result.routing.websocket_urlpatterns
+                )
+            ),
         ),
-    ),
-})
+    }
+)

@@ -10,12 +10,12 @@
 # }
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        'LOCATION': 'iyptcc-snowflake',
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        "LOCATION": "iyptcc-snowflake",
     },
-    'results': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        'LOCATION': 'iyptcc-snowflake',
-    }
+    "results": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        "LOCATION": "iyptcc-snowflake",
+    },
 }

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponseNotAllowed
+from django.http import Http404, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -12,7 +12,6 @@ from mattermostdriver import Driver
 from mattermostdriver.client import ResourceNotFound
 from unidecode import unidecode
 
-from apps.account.models import ActiveUser
 from apps.bank.models import Account, Payment
 from apps.bank.utils import get_subpayments
 from apps.jury.models import Juror, JurorSession
@@ -216,7 +215,7 @@ class ProfileView(View):
 
                 return redirect("account:profile")
 
-        if "_profile" in request.POST:
+        elif "_profile" in request.POST:
             form = ProfileForm(request.user.profile)
             upform = UserPropertyForm(request.user.profile, request.POST)
 
@@ -225,6 +224,9 @@ class ProfileView(View):
                 upform.save(request)
 
                 return redirect("account:profile")
+
+        else:
+            return redirect("account:profile")
 
         return render(
             request,
@@ -242,7 +244,7 @@ class AvatarView(ObjectDownloadView):
             obj = self.request.user.profile.avatar
             return obj
         except AttributeError:
-            raise ActiveUser.DoesNotExist("Avatar does not exist")
+            raise Http404("Avatar does not exist")
 
 
 @login_required
@@ -269,6 +271,35 @@ def jurorplan(request):
             "availability": request.user.profile.tournament.publish_juror_availability,
         },
     )
+
+
+@method_decorator(login_required, name="dispatch")
+class InboxView(ListView):
+    template_name = "account/inbox.html"
+
+    def get_queryset(self):
+        return self.request.user.profile.active.pdf_set.all()
+
+
+@method_decorator(login_required, name="dispatch")
+class InboxDocumentView(ObjectDownloadView):
+
+    attachment = False
+
+    mimetype = "application/pdf"
+
+    def get_object(self, queryset=None):
+        try:
+            doc = get_object_or_404(
+                Pdf,
+                pk=self.kwargs["d_id"],
+                inbox_attendees=self.request.user.profile.active,
+                inbox_attendees__isnull=False,
+            )
+            obj = doc.file
+            return obj
+        except Pdf.DoesNotExist:
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -441,4 +472,4 @@ class InvoiceView(ObjectDownloadView):
             obj = acc.pdf_set.get(id=self.kwargs["pdf_id"]).file
             return obj
         except Pdf.DoesNotExist:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")

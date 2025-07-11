@@ -1,3 +1,4 @@
+import yaml
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth.decorators import login_required, permission_required
@@ -9,8 +10,9 @@ from django.views import View
 
 from apps.tournament.models import ScheduleTemplate
 
-from .forms import GenerateForm
+from .forms import GenerateForm, ImportForm
 from .generator import cal_stats, fix_roles, generate_plan, plan_yaml_dump
+from .utils import import_dict
 
 # Create your views here.
 
@@ -37,6 +39,8 @@ def show(request, id):
     maxr_teams = [[] for i in range(st.teams_nr())]
     max_cap_max = 0
 
+    startrole = [[0, 0, 0, 0] for i in range(st.teams_nr())]
+
     for round in st.rounds.all():
         for fight in round.fights.all():
             teams = list(
@@ -46,7 +50,8 @@ def show(request, id):
                 )
             )
             short_fightstr = "%d - %s" % (round.order, fight.room.name)
-            for team1 in teams:
+            for rlidx, team1 in enumerate(teams):
+                startrole[team1 - 1][rlidx] += 1
                 if fight.room.capacity() == max_cap:
                     maxr_teams[team1 - 1].append(short_fightstr)
                     if len(maxr_teams[team1 - 1]) > max_cap_max:
@@ -75,8 +80,30 @@ def show(request, id):
             "team_rooms": team_rooms,
             "equal_room": equal_rows,
             "big_room_cap": max_cap,
+            "start_role": startrole,
         },
     )
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(
+    permission_required("tournament.add_scheduletemplate"), name="dispatch"
+)
+class ImportView(View):
+    def get(self, request):
+        form = ImportForm()
+        return render(request, "schedule/import.html", context={"form": form})
+
+    def post(self, request):
+        form = ImportForm(request.POST)
+
+        if form.is_valid():
+            sched = yaml.safe_load(form.cleaned_data["input"])
+            import_dict(sched)
+
+            return redirect("schedule:list")
+        else:
+            render(request, "schedule/import.html", context={"form": form})
 
 
 class GenerateView(View):

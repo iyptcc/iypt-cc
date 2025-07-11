@@ -117,6 +117,9 @@ def _fightpreview(fight, use_cache=True):
 
 def _report_factor(stageatt):
 
+    if stageatt.voided:
+        return Decimal("0.0")
+
     nr_rejected_before = len(
         _rejected_before(stageatt.team, stageatt.stage.fight.round)
     )
@@ -130,6 +133,27 @@ def _report_factor(stageatt):
         return Decimal(stageatt.role.factor) - (
             Decimal(max(rejects - max_rej, 0)) * Decimal("0.2")
         )
+
+
+def _opposition_factor(stageatt):
+    if stageatt.voided:
+        return Decimal("0.0")
+    else:
+        return Decimal("2.0")
+
+
+def _review_factor(stageatt):
+    if stageatt.voided:
+        return Decimal("0.0")
+    else:
+        return Decimal("1.0")
+
+
+def _att_penalty(stageatt):
+    if stageatt.penalty:
+        return stageatt.penalty
+    else:
+        return Decimal(0)
 
 
 def _fightresult(fight, use_cache=True):
@@ -149,8 +173,8 @@ def _fightresult(fight, use_cache=True):
             if team_id not in teams:
                 teams[team_id] = [team, 0]
             teams[team.pk][1] += attendance.grade_average * Decimal(
-                str(_report_factor(stage.rep_attendance_grades))
-            )
+                str(_report_factor(attendance))
+            ) - Decimal(str(_att_penalty(attendance)))
 
         attendance = stage.opp_attendance_grades
         team = attendance.team
@@ -158,7 +182,9 @@ def _fightresult(fight, use_cache=True):
         if attendance.grade_average:
             if team_id not in teams:
                 teams[team_id] = [team, 0]
-            teams[team_id][1] += attendance.grade_average * Decimal("2.0")
+            teams[team_id][1] += attendance.grade_average * Decimal(
+                str(_opposition_factor(attendance))
+            ) - Decimal(str(_att_penalty(attendance)))
 
         if fight.round.review_phase:
             attendance = stage.rev_attendance_grades
@@ -167,7 +193,9 @@ def _fightresult(fight, use_cache=True):
             if attendance.grade_average:
                 if team_id not in teams:
                     teams[team_id] = [team, 0]
-                teams[team_id][1] += attendance.grade_average
+                teams[team_id][1] += attendance.grade_average * Decimal(
+                    str(_review_factor(attendance))
+                ) - Decimal(str(_att_penalty(attendance)))
 
     result = reversed(
         sorted(
@@ -255,18 +283,30 @@ def _fightdata(fight, use_cache=True):
 
         factors = {}
         factors["rep"] = _report_factor(stage.rep_attendance)
-        factors["opp"] = 2.0
-        factors["rev"] = 1.0
+        factors["opp"] = _opposition_factor(stage.opp_attendance)
+        if fight.round.review_phase:
+            factors["rev"] = _review_factor(stage.rev_attendance)
+
+        penalties = {}
+        penalties["rep"] = stage.rep_attendance.penalty
+        penalties["opp"] = stage.opp_attendance.penalty
+        if fight.round.review_phase:
+            penalties["rev"] = stage.rev_attendance.penalty
 
         avg_w = {}
         avg_w["rep"] = stage.rep_attendance.grade_average
         if avg_w["rep"]:
             avg_w["rep"] *= Decimal(str(_report_factor(stage.rep_attendance)))
+            avg_w["rep"] -= Decimal(str(_att_penalty(stage.rep_attendance)))
         avg_w["opp"] = stage.opp_attendance.grade_average
         if avg_w["opp"]:
-            avg_w["opp"] *= Decimal("2.0")
+            avg_w["opp"] *= Decimal(str(_opposition_factor(stage.opp_attendance)))
+            avg_w["opp"] -= Decimal(str(_att_penalty(stage.opp_attendance)))
         if fight.round.review_phase:
             avg_w["rev"] = stage.rev_attendance.grade_average
+            if avg_w["rev"]:
+                avg_w["rev"] *= Decimal(str(_review_factor(stage.rev_attendance)))
+                avg_w["rev"] -= Decimal(str(_att_penalty(stage.rev_attendance)))
 
         presented = ""
         if stage.presented:
@@ -282,6 +322,7 @@ def _fightdata(fight, use_cache=True):
                 "average": avg_s,
                 "w_average": avg_w,
                 "factors": factors,
+                "penalties": penalties,
                 "presented": presented,
                 "rejections": stage.rejections.all().values("number", "title"),
             }
@@ -560,11 +601,13 @@ def _resultdump(trn, use_cache=True):
     if ccontext and use_cache:
         return ccontext
 
-    grades = []
+    grades = {}
+
+    rank = _ranking(trn.round_set(manager="selectives").order_by("order"))
 
     for round in trn.round_set.all():
-
-        print("round:", round.order)
+        if not round.publish_schedule:
+            continue
 
         round_grades = []
 
@@ -577,13 +620,14 @@ def _resultdump(trn, use_cache=True):
 
                 stage_grades = {"rejected": [], "teams": {}}
 
-                try:
-                    stage_grades["presented"] = stage.presented.number
-                except:
-                    pass
+                if fight.publish_grades:
+                    try:
+                        stage_grades["presented"] = stage.presented.number
+                    except:
+                        pass
 
-                for rej in stage.rejections.all():
-                    stage_grades["rejected"].append(rej.number)
+                    for rej in stage.rejections.all():
+                        stage_grades["rejected"].append(rej.number)
 
                 roles = [stage.rep_attendance_grades, stage.opp_attendance_grades]
                 if fight.round.review_phase:
@@ -593,28 +637,50 @@ def _resultdump(trn, use_cache=True):
 
                     stage_grades["teams"][att.role.name] = {"grades": []}
                     stage_grades["teams"][att.role.name]["team"] = att.team.origin.name
-                    try:
-                        stage_grades["teams"][att.role.name][
-                            "person"
-                        ] = att.active_person.attendee.full_name
-                    except:
-                        pass
-
-                    for jur in stage.fight.jurorsession_set.all().prefetch_related(
-                        "jurorgrade_set", "juror__attendee__active_user__user"
-                    ):
+                    if fight.publish_grades:
                         try:
-                            jg = jur.jurorgrade_set.get(stage_attendee=att)
-                            stage_grades["teams"][att.role.name]["grades"].append(
-                                [jur.juror.attendee.full_name, int(jg.grade)]
-                            )
-                        except Exception as e:
-                            print(e)
+                            stage_grades["teams"][att.role.name][
+                                "person"
+                            ] = att.active_person.attendee.full_name
+                        except:
                             pass
 
+                    if round.publish_jurors:
+                        for jur in stage.fight.jurorsession_set.all().prefetch_related(
+                            "jurorgrade_set", "juror__attendee__active_user__user"
+                        ):
+
+                            try:
+                                jg = jur.jurorgrade_set.get(stage_attendee=att)
+                                data = [jur.juror.attendee.full_name, None]
+                                if fight.publish_grades:
+                                    if jg.public_grade is not None:
+                                        data[1] = int(jg.public_grade)
+                                stage_grades["teams"][att.role.name]["grades"].append(
+                                    data
+                                )
+                            except JurorGrade.DoesNotExist:
+                                pass
+
                 fight_grades["stages"].append(stage_grades)
+            if fight.publish_grades:
+                res = _fightresult(fight)
+                fight_grades["result"] = [
+                    {"team": r["name"], "sp": float(r["sp"]), "won": r["won"]}
+                    for r in res["result"]
+                ]
             round_grades.append(fight_grades)
-        grades.append(round_grades)
+        grades[round.order] = {"fights": round_grades}
+        if len(rank) >= round.order:
+            rrank = rank[round.order - 1]
+            san_rank = []
+            for el in rrank:
+                r = {x: el[x] for x in ["all_won", "rank", "team"]}
+                if "rank_diff" in el:
+                    r["rank_diff"] = el["rank_diff"]
+                r["tsp"] = float(el["tsp"])
+                san_rank.append(r)
+            grades[round.order]["rank"] = san_rank
 
     if use_cache:
         caches["results"].set(
@@ -659,7 +725,8 @@ def _best_members(trn):
 
         actives = list(member.keys())
         for k in actives:
-            member["%s_tot" % k] = sum(member[k]) / Decimal(len(member[k]))
+            member["%s_mean" % k] = sum(member[k]) / Decimal(len(member[k]))
+            member["%s_max" % k] = max(member[k])
 
         member["obj"] = tm.attendee
 

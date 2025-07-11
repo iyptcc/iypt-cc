@@ -780,7 +780,7 @@ class PayFeePreview(TeamMgntPermMixin, FormPreview):
             )
             return redirect("account:accounts")
 
-        if "account" in cleaned_data:
+        if "account" in cleaned_data and cleaned_data["account"] is not None:
             account = cleaned_data["account"]
         else:
             account = Account.objects.create(

@@ -1,0 +1,56 @@
+meta:
+  name: CK TMF
+  rooms:
+  - A
+  - B
+  - C
+  teams: 9
+rounds:
+- - name: A
+    rep: 1
+    opp: 2
+    rev: 3
+  - name: B
+    rep: 4
+    opp: 5
+    rev: 6
+  - name: C
+    rep: 7
+    opp: 8
+    rev: 9
+- - name: A
+    rep: 9
+    opp: 6
+    rev: 1
+  - name: B
+    rep: 2
+    opp: 4
+    rev: 8
+  - name: C
+    rep: 5
+    opp: 3
+    rev: 7
+- - name: A
+    rep: 3
+    opp: 6
+    rev: 8
+  - name: B
+    rep: 1
+    opp: 4
+    rev: 7
+  - name: C
+    rep: 2
+    opp: 9
+    rev: 5
+- - name: A
+    rep: 9
+    opp: 4
+    rev: 3
+  - name: B
+    rep: 6
+    opp: 7
+    rev: 2
+  - name: C
+    rep: 8
+    opp: 1
+    rev: 5

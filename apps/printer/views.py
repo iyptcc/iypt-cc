@@ -1,3 +1,5 @@
+import difflib
+
 import paramiko
 from celery.result import AsyncResult
 from django.contrib import messages
@@ -5,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.forms import ValidationError
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -15,10 +17,19 @@ from django_downloadview import ObjectDownloadView
 from paramiko.ssh_exception import SSHException
 
 from apps.dashboard.delete import ConfirmedDeleteView
+from apps.fight.models import ScanProcessing
+from apps.fight.tasks import processJob
 
+from ..tournament.models import Tournament
 from .default_context import default_template_context
-from .forms import ImportForm, TemplateForm, TemplateNewForm, UploadForm
-from .models import FileServer, Pdf, PdfTag, Template, TemplateVersion
+from .forms import (
+    ImportForm,
+    TemplateForm,
+    TemplateImportForm,
+    TemplateNewForm,
+    UploadForm,
+)
+from .models import FileServer, ORMHostKeyPolicy, Pdf, PdfTag, Template, TemplateVersion
 from .tasks import render_to_pdf
 from .utils import render_template
 
@@ -44,6 +55,20 @@ class ListTemplates(ListView):
 
         return Template.objects.filter(tournament=self.request.user.profile.tournament)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        atts = self.request.user.profile.attendee_set.all()
+        trns = []
+        for att in atts:
+            if att.tournament == self.request.user.profile.tournament:
+                continue
+            if att.has_permission("tournament.app_printer"):
+                trns.append(att.tournament)
+
+        context["importable_tournaments"] = trns
+        return context
+
 
 @method_decorator(login_required, name="dispatch")
 class FileView(ObjectDownloadView):
@@ -59,7 +84,7 @@ class FileView(ObjectDownloadView):
             ).file
             return obj
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -87,6 +112,150 @@ class AddTemplate(View):
             return redirect("printer:templates")
 
         return render(request, "printer/template_new.html", context={"form": form})
+
+
+@login_required
+def importable_templates(request, trn_id):
+
+    atts = request.user.profile.attendee_set.filter(tournament=trn_id)
+    trns = []
+    templates = []
+    for att in atts:
+        if att.tournament == request.user.profile.tournament:
+            continue
+        if att.has_permission("tournament.app_printer"):
+            trns.append(att.tournament)
+            tpl: Template
+            for tpl in att.tournament.template_set.all():
+                exists = False
+                table = ""
+                parent_exists = False
+                current = None
+                files = []
+                if request.user.profile.tournament.template_set.filter(
+                    name=tpl.name
+                ).exists():
+                    exists = True
+                    differ = difflib.HtmlDiff(wrapcolumn=83, tabsize=4)
+                    current = request.user.profile.tournament.template_set.get(
+                        name=tpl.name
+                    )
+                    current_content = (
+                        current.templateversion_set.last().src.splitlines()
+                    )  # (keepends=True)
+                    import_content = (
+                        tpl.templateversion_set.last().src.splitlines()
+                    )  # (keepends=True)
+                    if current_content != import_content:
+                        table = differ.make_table(
+                            current_content,
+                            import_content,
+                            fromdesc="this tournament",
+                            todesc="old tournament",
+                        )
+                if tpl.parent:
+                    if request.user.profile.tournament.template_set.filter(
+                        name=tpl.parent.name
+                    ).exists():
+                        parent_exists = True
+                for f in tpl.files.all():
+                    fstat = {"orig": f}
+                    if request.user.profile.tournament.pdf_set.filter(
+                        name=f.name
+                    ).exists():
+                        fstat["exists"] = True
+                    files.append(fstat)
+
+                templates.append(
+                    {
+                        "obj": tpl,
+                        "exists": exists,
+                        "diff": table,
+                        "parent_exists": parent_exists,
+                        "current": current,
+                        "files": files,
+                    }
+                )
+
+    return render(request, "printer/import_list.html", context={"templates": templates})
+
+
+@method_decorator(login_required, name="dispatch")
+class ImportTemplate(View):
+
+    def get(self, request, id):
+
+        template = get_object_or_404(Template, id=id)
+        atts = request.user.profile.attendee_set.all()
+        hasperm = False
+        for att in atts:
+            if att.has_permission("tournament.app_printer"):
+                hasperm = True
+                break
+
+        if not hasperm:
+            return HttpResponse("Permission denied", status=403)
+
+        current = None
+        if request.user.profile.tournament.template_set.filter(
+            name=template.name
+        ).exists():
+            current = request.user.profile.tournament.template_set.get(
+                name=template.name
+            )
+        trn = request.user.profile.tournament
+        form = TemplateImportForm(trn, template)
+
+        return render(
+            request,
+            "printer/template_import.html",
+            context={"form": form, "current": current, "template": template},
+        )
+
+    def post(self, request, id):
+        template = get_object_or_404(Template, id=id)
+        atts = request.user.profile.attendee_set.all()
+        hasperm = False
+        for att in atts:
+            if att.has_permission("tournament.app_printer"):
+                hasperm = True
+                break
+
+        if not hasperm:
+            return HttpResponse("Permission denied", status=403)
+
+        trn = request.user.profile.tournament
+        form = TemplateImportForm(trn, template, request.POST)
+
+        if form.is_valid():
+            if request.user.profile.tournament.template_set.filter(
+                name=template.name
+            ).exists():
+                current = request.user.profile.tournament.template_set.get(
+                    name=template.name
+                )
+                current.name = form.cleaned_data["tname"]
+                current.type = form.cleaned_data["type"]
+                current.parent = form.cleaned_data["parent"]
+                current.save()
+                current.files.set(form.cleaned_data["files"])
+
+            else:
+                current = Template.objects.create(
+                    tournament=request.user.profile.tournament,
+                    name=form.cleaned_data["tname"],
+                    type=form.cleaned_data["type"],
+                    parent=form.cleaned_data["parent"],
+                )
+                current.files.set(form.cleaned_data["files"])
+
+            TemplateVersion.objects.create(
+                template=current,
+                author=request.user.profile,
+                src=form.cleaned_data["src"],
+            )
+
+        return redirect("printer:templates")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -200,6 +369,7 @@ class ListTemplateVersions(ListView):
         return template.templateversion_set.all()
 
 
+@login_required
 def view_error(request, id):
 
     trn = request.user.profile.tournament
@@ -211,6 +381,7 @@ def view_error(request, id):
     return render(request, "printer/error.html", context=res.info)
 
 
+@login_required
 def view_render_error(request, id):
 
     trn = request.user.profile.tournament
@@ -220,45 +391,10 @@ def view_render_error(request, id):
     return render(request, "printer/render_error.html", context=res.result)
 
 
-class ORMHostKeyPolicy(paramiko.MissingHostKeyPolicy):
-
-    def __init__(self, server):
-        self.server = server
-
-    def missing_host_key(self, client, hostname, key):
-        if self.server.fingerprint != key.get_base64():
-            raise SSHException(
-                f"got fingerprint {key.get_base64()} which is not {self.server.fingerprint}"
-            )
-
-
 @method_decorator(login_required, name="dispatch")
 class PdfImport(View):
 
-    def get(self, request, id):
-        trn = request.user.profile.tournament
-        server = get_object_or_404(FileServer, tournament=trn, id=id)
-
-        ssh = paramiko.SSHClient()
-        policy = ORMHostKeyPolicy(server)
-        ssh.set_missing_host_key_policy(policy)
-        try:
-            ssh.connect(
-                hostname=server.hostname,
-                port=server.port,
-                username=server.username,
-                password=server.password,
-            )
-            sftp = ssh.open_sftp()
-
-            form = ImportForm(sftp, trn)
-        except SSHException as e:
-            return render(request, "printer/import.html", {"error": e})
-        return render(request, "printer/import.html", {"form": form})
-
-    def post(self, request, id):
-        trn = request.user.profile.tournament
-        server = get_object_or_404(FileServer, tournament=trn, id=id)
+    def _connect(self, server):
         ssh = paramiko.SSHClient()
         policy = ORMHostKeyPolicy(server)
         ssh.set_missing_host_key_policy(policy)
@@ -269,6 +405,23 @@ class PdfImport(View):
             password=server.password,
         )
         sftp = ssh.open_sftp()
+        sftp.chdir(server.path)
+        return sftp
+
+    def get(self, request, id):
+        trn = request.user.profile.tournament
+        server = get_object_or_404(FileServer, tournament=trn, id=id)
+        try:
+            sftp = self._connect(server)
+            form = ImportForm(sftp, trn)
+        except SSHException as e:
+            return render(request, "printer/import.html", {"error": e})
+        return render(request, "printer/import.html", {"form": form})
+
+    def post(self, request, id):
+        trn = request.user.profile.tournament
+        server = get_object_or_404(FileServer, tournament=trn, id=id)
+        sftp = self._connect(server)
 
         form = ImportForm(sftp, trn, request.POST)
 
@@ -285,6 +438,19 @@ class PdfImport(View):
                     status=Pdf.UPLOAD,
                     tournament=request.user.profile.tournament,
                 )
+
+                if form.cleaned_data["auto_process"]:
+                    print("autoprocess file")
+                    res = processJob.delay(
+                        request.user.profile.tournament.id, pdf_id=pdf.id
+                    )
+
+                    ScanProcessing.objects.create(
+                        tournament=request.user.profile.tournament,
+                        task_id=res.id,
+                        author=request.user.profile.active,
+                        pdf=pdf,
+                    )
 
             return redirect("printer:list")
 
@@ -314,6 +480,19 @@ class PdfUpload(View):
                 )
 
                 pdf.tags.add(*form.cleaned_data["tags"])
+
+                if form.cleaned_data["auto_process"]:
+                    print("autoprocess file")
+                    res = processJob.delay(
+                        request.user.profile.tournament.id, pdf_id=pdf.id
+                    )
+
+                    ScanProcessing.objects.create(
+                        tournament=request.user.profile.tournament,
+                        task_id=res.id,
+                        author=request.user.profile.active,
+                        pdf=pdf,
+                    )
 
                 return redirect("printer:list")
             except Exception as e:

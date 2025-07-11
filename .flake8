@@ -10,6 +10,7 @@ exclude =
     env,
     env*,
     env37,
+    .venv,
     oldenv,
     env-d110,
     scratch,

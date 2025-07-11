@@ -65,9 +65,9 @@
         <tr>
             <th>Points:</th>
             {% for stage in fight.info %}
-                <th>{{ stage.w_average.rep|floatformat:2 }}</th>
-                <th>{{ stage.w_average.opp|floatformat:2 }}</th>
-                <th>{{ stage.w_average.rev|floatformat:2 }}</th>
+                <th>{{ stage.w_average.rep|floatformat:2 }}{% if stage.penalties.rep %} <span class="label label-danger">- {{ stage.penalties.rep }}</span>{% endif %}</th>
+                <th>{{ stage.w_average.opp|floatformat:2 }}{% if stage.penalties.opp %} <span class="label label-danger">- {{ stage.penalties.opp }}</span>{% endif %}</th>
+                <th>{{ stage.w_average.rev|floatformat:2 }}{% if stage.penalties.rev %} <span class="label label-danger">- {{ stage.penalties.rev }}</span>{% endif %}</th>
             {% endfor %}
         </tr>
     </tbody>

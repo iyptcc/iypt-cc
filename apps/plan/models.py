@@ -425,6 +425,9 @@ class StageAttendance(models.Model):
 
     role = models.ForeignKey(FightRole, on_delete=models.CASCADE)
 
+    voided = models.BooleanField(default=False)
+    penalty = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+
     active_person = models.ForeignKey(
         TeamMember, blank=True, null=True, on_delete=models.SET_NULL
     )

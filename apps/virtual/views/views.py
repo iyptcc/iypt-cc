@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core import signing
-from django.http import HttpResponseNotAllowed, HttpResponseNotFound
+from django.http import Http404, HttpResponseNotAllowed, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.crypto import constant_time_compare
 from django.utils.decorators import method_decorator
@@ -534,7 +534,7 @@ class GradingSheetView(ObjectDownloadView):
             obj = self.request.user.profile.tournament.grading_sheet_pdf.file
             return obj
         except Pdf.DoesNotExist:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 def prelim_grades(request, fight_id):

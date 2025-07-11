@@ -41,7 +41,7 @@ urlpatterns = [
         r"^plan/genpdf/(?P<round_nr>[\d]+)$", genpdfteamround, name="teamround_pdf"
     ),
     re_path(
-        r"^plan/(?P<round>[\d]+)/plan.pdf$", PdfTeamView.as_view(), name="pdfteamplan"
+        r"^plan/plan_(?P<round>[\d]+).pdf$", PdfTeamView.as_view(), name="pdfteamplan"
     ),
     re_path(
         r"^plan/genselect/(?P<round_nr>[\d]+)$",
@@ -49,7 +49,7 @@ urlpatterns = [
         name="problemselect_pdf",
     ),
     re_path(
-        r"^plan/(?P<round>[\d]+)/select.pdf$",
+        r"^plan/select_(?P<round>[\d]+).pdf$",
         PdfProblemSelect.as_view(),
         name="pdfproblemselect",
     ),

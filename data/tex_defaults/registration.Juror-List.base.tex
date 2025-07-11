@@ -1,0 +1,24 @@
+(% block documentclass %)landscape(% endblock %)
+
+(% set indices = {} %)
+(%- for p in properties %)
+(%- do indices.update({p:loop.index0}) %)
+(%- endfor %)
+
+
+(% block header %)
+\usepackage{longtable}
+(% endblock %)
+
+(% block content %)
+\begin{longtable}{lllll}
+
+\textbf{Name}&\textbf{Country} & \textsf{Teams associated to}&\textbf{Declared Conflict of Interest}&\textbf{Signature}\endhead
+\hline
+(% for person in persons %)
+(( person.first_name|texify )) (( person.last_name|texify ))& ((person.data[indices["Nationality"]].value)) & (% for team in person.team %) (( team[0]|texify )) (% endfor %) & (% for c in person.data[indices["Conflicting Teams"]].list %) (( c|texify )) (% endfor %) & \vspace*{10mm} \\
+\hline
+(% endfor %)
+\end{longtable}
+
+(% endblock %)

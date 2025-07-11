@@ -1,8 +1,11 @@
 import datetime
 
+import paramiko
 from django.db import models
 from django.db.models import Q
+from paramiko.ssh_exception import SSHException
 
+from apps.account.models import Attendee
 from apps.bank.models import Account
 from apps.tournament.models import Tournament
 
@@ -143,6 +146,8 @@ class Pdf(models.Model):
         Account, null=True, blank=True, on_delete=models.CASCADE
     )
 
+    inbox_attendees = models.ManyToManyField(Attendee, blank=True)
+
     class Meta:
 
         unique_together = ("tournament", "name")
@@ -155,6 +160,18 @@ class Pdf(models.Model):
         return self.name.split("/")[-1]
 
 
+class ORMHostKeyPolicy(paramiko.MissingHostKeyPolicy):
+
+    def __init__(self, server):
+        self.server = server
+
+    def missing_host_key(self, client, hostname, key):
+        if self.server.fingerprint != key.get_base64():
+            raise SSHException(
+                f"got fingerprint {key.get_base64()} which is not {self.server.fingerprint}"
+            )
+
+
 class FileServer(models.Model):
     name = models.CharField(max_length=128, verbose_name="Name")
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
@@ -164,6 +181,7 @@ class FileServer(models.Model):
     username = models.CharField(max_length=64, verbose_name="username")
     password = models.CharField(max_length=200, verbose_name="password")
     fingerprint = models.CharField(max_length=4000, default="")
+    path = models.CharField(max_length=256, verbose_name="path", default=".")
 
     def __str__(self):
         return self.name

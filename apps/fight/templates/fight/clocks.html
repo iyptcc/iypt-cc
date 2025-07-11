@@ -1,6 +1,20 @@
 {% extends "dashboard/base-layout.html" %}
 {% load bootstrap3 i18n %}
+{% load flags %}
 
+    {% block styles_inline %}
+        <style>
+            .flag-container-72 {
+                height:13px;
+                overflow: hidden;
+                display: inline;
+            }
+            .flag-image-72 {
+                height: 18px;
+                margin-top: -2px;
+            }
+        </style>
+    {% endblock %}
 
     {% block page_title %}Tournament{% endblock %}
 
@@ -21,7 +35,7 @@
                                         </div>
                                         <div class="box-body">
                                             {% for s in sts %}
-                                                <div>{{ s.fight.room.name }} <p style="display: inline;" id="stage-{{ s.fight.id }}-{{ s.order }}">blub</p></div>
+                                                <div>{{ s.fight.room.name }} &nbsp; {% for att in s.stageattendance_set.all %}{{ att.team.origin |flag_image }} {% endfor %} <p style="display: inline;" id="stage-{{ s.fight.id }}-{{ s.order }}">...</p></div>
                                                 <div class="progress">
                                                     {% for p in phases %}
                                                         <div class="progress-bar progress-bar-{% if forloop.counter|divisibleby:2 %}info{% else %}primary{% endif %}" role="progressbar" id="bar-{{ s.fight.id }}-{{ s.order }}-{{ p.id }}" style="width:{% widthratio p.duration total_duration 100 %}%">

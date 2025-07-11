@@ -4,6 +4,7 @@
 (% endblock %)
 (% block content %)
 
+\pagestyle{empty}
 \begin{center}
 \LARGE \uppercase{Juror Assignment in Round (( round ))}
 \bigskip
@@ -24,6 +25,17 @@
     \end{minipage}\bigskip (%- if loop.index is divisibleby 3  %) \\ (% else %) & (% endif %)
 (%- endfor %) \\
 \end{tabularx}\bigskip
+
+\begin{tabularx}{\textwidth}{@{}X}
+    \begin{minipage}[t]{\linewidth}
+    \section*{Reserve}
+	Please be available at the office.
+    \bigskip
+
+    (% for j in reserve %)(( j.0 )) ((  j.1 ))(% if not loop.last %), (% endif %)(% endfor %)
+
+    \end{minipage}\bigskip
+\end{tabularx}
 
 \begin{tabularx}{\textwidth}{@{}X}
     \begin{minipage}[t]{\linewidth}

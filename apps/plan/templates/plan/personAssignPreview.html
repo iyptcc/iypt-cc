@@ -20,6 +20,7 @@
                                     <th>Team</th>
                                     <th>Roles</th>
                                     <th>Groups</th>
+                                    <th>PDFs</th>
                                 </tr>
                                 {% for person in persons %}
                                     <tr {% if not person.superior %}class="bg-danger"{% endif %}>
@@ -44,6 +45,9 @@
                                             {% for group in person.groups_new %}<span class="label label-success">{{ group }}</span> {% endfor %}
                                             {% for group in person.groups_del %}<span class="label label-danger">{{ group }}</span> {% endfor %}
                                             {% for group in person.groups_del_na %}<span class="label label-danger"><i class="fa fa-warning"></i> {{ group }}</span> {% endfor %}
+                                        </td>
+                                        <td>
+                                            {{ person.pdfs_new }}
                                         </td>
                                     </tr>
                                 {% endfor %}

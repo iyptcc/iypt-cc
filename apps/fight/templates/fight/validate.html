@@ -35,13 +35,14 @@
                                     <tr>
                                         <th>locked</th>
                                         {% for fight in round %}
-                                            <th>
+                                            <td>
                                                 {% if fight.locked %}
                                                     <i class="fa fa-check text-success"></i>
                                                 {% else %}
                                                     <i class="fa fa-close text-danger"></i>
                                                 {% endif %}
-                                            </th>
+                                                {{ fight.sheets }}/{{ fight.total_sheets }} scans
+                                            </td>
                                         {% endfor %}
                                     </tr>
                                     <tr>

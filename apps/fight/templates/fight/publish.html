@@ -32,7 +32,7 @@
                                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                             </div>
                         </div>
-                        <div class="box-body no-padding">
+                        <div class="box-body no-padding table-responsive">
                             <table class="table table-striped">
                                 <col style="width:6%">
                                 {% for fight in round %}
@@ -60,7 +60,7 @@
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <th>preview</th>
+                                        <th>preview <input id="checkAll-preview-{{ forloop.counter }}" type="checkbox"></th>
                                         {% for fight in round %}
                                             <td>
                                                 {{ fight.preview_check }}
@@ -72,7 +72,7 @@
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <th>grades</th>
+                                        <th>grades <input id="checkAll-grades-{{ forloop.counter }}" type="checkbox"></th>
                                         {% for fight in round %}
                                             <td>
                                                 {{ fight.grade_check }}
@@ -94,7 +94,7 @@
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <th>single sheets</th>
+                                        <th>single sheets <input id="checkAll-sheets-{{ forloop.counter }}" type="checkbox"></th>
                                         {% for fight in round %}
                                             <td>
                                                 <div style="width: 100px;">
@@ -104,11 +104,16 @@
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <th>slides</th>
+                                        <th>slides <input id="checkAll-slides-{{ forloop.counter }}" type="checkbox"></th>
                                         {% for fight in round %}
                                             <td>
                                                 <div style="width: 100px;">
                                                 {{ fight.slides_publish }}
+                                                {% if fight.slides_publish.label.0 == fight.slides_publish.label.1 %}
+                                                    <i class="fa fa-check text-success"></i>
+                                                {% else %}
+                                                    {{ fight.slides_publish.label.0 }}/{{ fight.slides_publish.label.1 }}
+                                                {% endif %}
                                                 </div>
                                             </td>
                                         {% endfor %}
@@ -145,6 +150,19 @@
         </form>
     {% endblock %}
 
+{% block javascripts_inline %}
+    {% with "slides sheets preview grades" as types %}
+    {% for t in types.split %}
+    {% for round in form.rounds %}
+        <script>
+        $("#checkAll-{{ t }}-{{ forloop.counter }}").click(function(){
+            $('.{{ t }}-round-{{ forloop.counter }}').not(this).prop('checked', this.checked);
+        });
+        </script>
+    {% endfor %}
+    {% endfor %}
+    {% endwith %}
+{% endblock %}
 
 {% block javascripts %}
     {{ block.super }}

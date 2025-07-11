@@ -27,11 +27,17 @@
                                             </div>
                                             <div class="box-body">
                                                 {% for stage in fight.stage_set.all %}
-                                                    <p>{% if stage.pdf_presentation %}<a href="{% url "result:slidesdownload" tournament stage.id stage.fight.round.order stage.rep_attendance.team.origin.slug %}">{{ stage.rep_attendance.team.origin.name }} <span class="fa fa-file-pdf-o"></span></a>{% else %}{{ stage.rep_attendance.team.origin.name }}{% endif %}</p>
+                                                    <p>{% if stage.pdf_presentation %}<a href="{% url "result:slidesdownload" tournament stage.id stage.fight.round.order stage.rep_attendance.team.origin.slug %}">
+                                                        {{ stage.rep_attendance.team.origin.name }} {% include "result/inc/problem.html" with problem=stage.presented presented=1 %} <span class="fa fa-file-pdf-o"></span></a>{% else %}
+                                                        {{ stage.rep_attendance.team.origin.name }} {% include "result/inc/problem.html" with problem=stage.presented presented=1 %}{% endif %}</p>
                                                 {% endfor %}
                                             </div>
                                         </div><!-- /.info-box -->
                                     </div>
+                                    {% endif %}
+                                    {% if forloop.counter|divisibleby:6  %}
+                                        </div>
+                                        <div class="row">
                                     {% endif %}
                                 {% endfor %}
                             </div>

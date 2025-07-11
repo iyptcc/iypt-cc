@@ -11,8 +11,9 @@ class JurorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(JurorForm, self).__init__(*args, **kwargs)
-        trn = self.instance.attendee.tournament
+        trn: Tournament = self.instance.attendee.tournament
         self.fields["availability_group"].queryset = trn.juroravailabilitygroup_set
+        self.fields["conflicting"].queryset = trn.origin_set
 
     class Meta:
 

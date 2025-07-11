@@ -1,0 +1,57 @@
+(% macro namesign(name, size=100) -%)
+\noindent
+\begin{tikzpicture}
+
+
+    \begin{scope}[xshift=\paperwidth-1cm, yshift=-5.25cm, rotate=180, bla/.style={transform shape}]
+        \node[bla] at (3.5,0) {(% if flags[name].exists %)\includegraphics[width=5cm]{flag/(( flags[name].slug )).pdf}(% endif %)};
+        \node[bla, right=7.5cm, text depth=0mm, font=\namefont\fontsize{(( size ))}{(( size ))}\selectfont] at (0,0) {((name))};
+        %\node at (25,3.2) {\includegraphics[width=12cm,angle=180]{pdf/juror-namesign-logo}};
+    \end{scope}
+
+    \begin{scope}[xshift=1cm, yshift=-\paperheight/4*3-0cm]
+        \node at (3.5,0) {(% if flags[name].exists %)\includegraphics[width=5cm]{flag/(( flags[name].slug )).pdf}(% endif %)};
+        \node[right=7.5cm, text depth=0mm, font=\namefont\fontsize{(( size ))}{(( size ))}\selectfont] at (0,0) {((name))};
+        %\node[left] at (20,3.2) {\includegraphics[width=12cm]{pdf/juror-namesign-logo}};
+    \end{scope}
+
+    \path[use as bounding box] (0,0) rectangle (\paperwidth, -\paperheight);
+    %\draw (0,-\paperheight/4*3) -- ++(\paperwidth,0);
+    %\draw (0,-\paperheight/4*2) -- ++(\paperwidth,0);
+    %\draw (0,-\paperheight/4*1) -- ++(\paperwidth,0);
+\end{tikzpicture}
+(%- endmacro %)
+
+\documentclass{minimal}
+\usepackage[a4paper, landscape, top=0mm, left=0mm, right=0mm, bottom=0mm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{fontspec}
+\newfontfamily{\namefont}{SourceSansPro-Semibold}
+
+\begin{document}%
+(%- for p in persons %)
+(%-   if p.team|length > 0 %)
+(%-     do p.update({"sort_team":p.team[0][0]}) %)
+(%-   else %)
+(%-     do p.update({"sort_team":""}) %)
+(%-   endif %)
+(%- endfor %)
+
+(%- set teams = [] %)
+(%- for p in persons %)
+(%-   if not p.sort_team in teams %)
+(%-     set name = p.sort_team %)
+(%-     do teams.append(name)%)
+(%-   endif %)
+(%- endfor %)
+
+(%- for team in teams|sort %)
+(%-   set size = 100 %)
+(%-   if team|length > 10 %)
+(%-   set size = 80 %)
+(%-   endif %)
+(( namesign(team, size) ))
+(% endfor %)
+
+\end{document}

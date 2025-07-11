@@ -1,0 +1,91 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+{% block styles_inline %}
+    <style>
+        pre {
+            max-height:300px;
+        }
+
+        table.diff {font-family:Courier; border:medium;}
+.diff_header {background-color:#e0e0e0}
+td.diff_header {text-align:right}
+.diff_next {background-color:#c0c0c0}
+.diff_add {background-color:#aaffaa}
+.diff_chg {background-color:#ffff77}
+.diff_sub {background-color:#ffaaaa}
+
+    </style>
+{% endblock %}
+
+    {% block page_title %}Templates{% endblock %}
+
+    {% block page_content %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Import Templates from {{ templates.0.obj.tournament.name }}</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Parent</th>
+                                    <th>Files</th>
+                                    <th>Source</th>
+                                    <th></th>
+                                </tr>
+                                {% for tmp in templates %}
+                                    <tr>
+                                        <td>{{ tmp.obj.name }} {% if tmp.exists %}<span class="label label-warning">name exists</span>{% endif %}</td>
+                                        <td>
+                                            {{ tmp.obj.get_type_display }}
+                                            {% if tmp.current and tmp.current.get_type_display != tmp.obj.get_type_display %}
+                                                <br><span class="label label-danger">current is {{ tmp.current.get_type_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if tmp.obj.parent %}
+                                                {{ tmp.obj.parent }}
+                                                {% if tmp.parent_exists %}<br><span class="label label-success">same name exists</span>{% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% for f in tmp.files %}
+                                                {% if f.exists %}
+                                                    <br/><span class="label label-success">{{ f.orig.pure_name }} (exists)</span>
+                                                {% else %}
+                                                <br/><span class="label label-warning">{{ f.orig.pure_name }} (missing)</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for f in tmp.current.files.all %}
+                                                <br/><span class="label label-danger">current: {{ f.pure_name }}</span>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% if not tmp.diff %}
+                                            <pre style="width: 400px;">
+{{ tmp.obj.templateversion_set.last.src }}
+                                            </pre>
+                                            {% endif %}
+                                        <td>
+                                            <a class="btn btn-info" href="{% url "printer:template_import" tmp.obj.id %}">import</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                    <td colspan="7">
+                                        {{ tmp.diff | safe }}
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

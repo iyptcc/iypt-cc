@@ -31,7 +31,9 @@
                             {% bootstrap_field form.files %}
                             {% endif %}
                             {% bootstrap_field form.type %}
+                            {% if form.parent %}
                             {% bootstrap_field form.parent %}
+                            {% endif %}
                             {% if form.subject %}
                             {% bootstrap_field form.subject %}
                             {% endif %}

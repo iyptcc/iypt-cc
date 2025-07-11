@@ -30,6 +30,7 @@
                             <div class="box box-primary">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><input  class="btn btn-success" type="submit" value="import selected"></h3>
+                                    {% bootstrap_field form.auto_process %}
                                     <div class="box-tools pull-right">
                                         <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                                     </div>
@@ -67,6 +68,20 @@
                                                 </td>
                                             </tr>
                                             {% endfor %}
+                                            {% for choice_id, pdf in form.unimportable.field.choices %}
+                                            <tr>
+                                                <td>
+
+                                                </td>
+                                                <td>{{ pdf.name }}</td>
+                                                <td>
+                                                    {{ pdf.size }}
+                                                </td>
+                                                <td>
+                                                    {{ pdf.mtime|date:'Y b j  H:m:s e' }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
                                         </tbody>
                                     </table>
                                 </div>

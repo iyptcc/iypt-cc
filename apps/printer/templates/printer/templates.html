@@ -18,7 +18,19 @@
                 <div class="box box-primary">
                     <div class="box-header with-border">
                         <h3 class="box-title">Templates
-                        <a class="btn btn-success" href="{% url "printer:template_add" %}" >add</a></h3>
+                        <a class="btn btn-success" href="{% url "printer:template_add" %}" >add</a>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                    <span>import</span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    {% for trn in importable_tournaments %}
+                                        <li><a href="{% url "printer:template_import_list" trn.id %}" class="btn-sm">{{ trn.name }}</a>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </h3>
                     </div>
                     <div class="box-body no-padding table-responsive">
                         <table class="table table-striped">

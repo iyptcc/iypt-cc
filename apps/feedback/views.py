@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from apps.jury.models import Juror, JurorRole
+from apps.jury.models import Juror, JurorRole, JurorSession
 from apps.plan.models import Fight, Round, Stage
 from apps.postoffice.models import Template
 from apps.postoffice.utils import render_template
@@ -215,7 +215,33 @@ def overview(request):  # noqa: max-complexity: 13
                                         chairsheet.write(row, 4 + ci, grade.grade.value)
                                 chairsheet.write(row, 4 + len(criteria), fb.comment)
                                 row += 1
-
+        jurorsheet = workbook.add_worksheet("Jurors")
+        jurorsheet.write(0, 0, "Round")
+        jurorsheet.write(0, 1, "Room")
+        jurorsheet.write(0, 2, "Team")
+        jurorsheet.write(0, 3, "Name")
+        jurorsheet.write(0, 4, "Grade")
+        jurorsheet.write(0, 5, "Comment")
+        row = 1
+        for juror in jurors:
+            for ro in request.user.profile.tournament.round_set(
+                manager="selectives"
+            ).all():
+                ro: Round
+                for fight in ro.fight_set.all():
+                    js: JurorSession
+                    for js in juror.jurorsession_set.filter(fight=fight):
+                        st1: Stage = fight.stage_set.first()
+                        for team in st1.attendees.all():
+                            for fb in js.feedback_set.filter(team=team):
+                                jurorsheet.write(row, 0, ro.order)
+                                jurorsheet.write(row, 1, fight.room.name)
+                                jurorsheet.write(row, 2, team.origin.name)
+                                jurorsheet.write(row, 3, juror.attendee.full_name)
+                                jurorsheet.write(row, 4, fb.grade.value)
+                                jurorsheet.write(row, 5, fb.comment)
+                                row += 1
+        workbook.close()
         return response
     else:
         return render(

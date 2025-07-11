@@ -6,6 +6,7 @@ from .views import (
     AddTemplate,
     EditTemplate,
     FileView,
+    ImportTemplate,
     ListTemplates,
     ListTemplateVersions,
     PdfImport,
@@ -14,6 +15,7 @@ from .views import (
     TagCreate,
     TagDelete,
     TagView,
+    importable_templates,
     view_error,
     view_render_error,
 )
@@ -23,12 +25,18 @@ app_name = "printer"
 urlpatterns = [
     # url(r'^', include('django.contrib.auth.urls')),
     path("list", PdfListPreview(forms.Form), name="list"),
-    path("file/<path:name>", FileView.as_view(), name="file"),
+    path("file/<path:name>.pdf", FileView.as_view(), name="file"),
     path("error/<uuid:id>", view_error, name="tex_error"),
     path("render_error/<uuid:id>", view_render_error, name="tex_render_error"),
     re_path(r"^upload", PdfUpload.as_view(), name="upload"),
     re_path(r"^templates", ListTemplates.as_view(), name="templates"),
     path("template/add", AddTemplate.as_view(), name="template_add"),
+    path(
+        "template/import_list/<int:trn_id>",
+        importable_templates,
+        name="template_import_list",
+    ),
+    path("template/import/<int:id>", ImportTemplate.as_view(), name="template_import"),
     path(
         "template/<path:id>/versions",
         ListTemplateVersions.as_view(),

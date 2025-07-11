@@ -111,9 +111,11 @@ def pdf_validator(value):
         )
 
 
-def field_for_question(question):
+def field_for_question(question: ApplicationQuestion):
     label = question.name
     t = question.type
+    if question.required_if:
+        label += " (required if %s)" % question.required_if.name
 
     commargs = {"label": label, "required": False, "help_text": question.help_text}
 
@@ -200,7 +202,12 @@ def field_for_property(property, suffix=""):
         field = forms.CharField(widget=forms.Textarea, **commargs)
     elif t == UserProperty.GENDER:
         field = forms.ChoiceField(
-            choices=((None, "----"), ("female", "female"), ("male", "male")),
+            choices=(
+                (None, "----"),
+                ("female", "female"),
+                ("male", "male"),
+                ("other", "other"),
+            ),
             widget=Select2Widget,
             **commargs
         )
@@ -410,7 +417,7 @@ def persons_data(attendees, hidden=False):
         att_roles = set(att.roles.values_list("id", flat=True))
         # apvs = att.attendeepropertyvalue_set.all()
 
-        print("attendee: ", att.full_name)
+        # print("attendee: ", att.full_name)
         if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
             testapv = AttendeePropertyValue.objects.raw(
                 """SELECT  "registration_propertyvalue"."id",
@@ -875,9 +882,10 @@ def assign_teammanager(origin, attendee, is_competing=True):
     ass_teamrole = TeamRole.objects.get(
         tournament=origin.tournament, type=TeamRole.ASSOCIATED
     )
-    tm = TeamMember.objects.get_or_create(
-        team=team, attendee=attendee, role=ass_teamrole
-    )[0]
+    if not TeamMember.objects.filter(team=team, attendee=attendee).exists():
+        tm = TeamMember.objects.create(team=team, attendee=attendee, role=ass_teamrole)
+    else:
+        tm = TeamMember.objects.get(team=team, attendee=attendee)
     tm.manager = True
     tm.save()
 

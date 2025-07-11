@@ -1,27 +1,45 @@
 # Celery settings
 import os
 
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_BROKER_URL = "redis://localhost:6379/2"
 if "IN_DOCKER" in os.environ:
-    CELERY_BROKER_URL = "amqp://" + os.environ['RABBITMQ_DEFAULT_USER'] + ":" + os.environ['RABBITMQ_DEFAULT_PASS'] + "@" + os.environ['RABBITMQ_SERVICE'] + "//"
+    if "RABBITMQ_SERVICE" in os.environ:
+        CELERY_BROKER_URL = (
+            "amqp://"
+            + os.environ["RABBITMQ_DEFAULT_USER"]
+            + ":"
+            + os.environ["RABBITMQ_DEFAULT_PASS"]
+            + "@"
+            + os.environ["RABBITMQ_SERVICE"]
+            + "//"
+        )
+    else:
+        CELERY_BROKER_URL = (
+            "redis://"
+            + os.environ["CELERY_REDIS_SERVICE"]
+            + ":"
+            + os.environ["CELERY_REDIS_PORT"]
+            + "/"
+            + os.environ["CELERY_REDIS_DB"]
+        )
 
 # Only add pickle to this list if your broker is secured
 # from unwanted access (see userguide/security.html)
-CELERY_ACCEPT_CONTENT = ['json']
+CELERY_ACCEPT_CONTENT = ["json"]
 # CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = "json"
 
-CELERY_RESULT_BACKEND = 'django-db'
+CELERY_RESULT_BACKEND = "django-db"
 
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-if 'XELATEX_IMAGE_NAME' in os.environ:
-    XELATEX_IMAGE_NAME = os.environ['XELATEX_IMAGE_NAME']
+if "XELATEX_IMAGE_NAME" in os.environ:
+    XELATEX_IMAGE_NAME = os.environ["XELATEX_IMAGE_NAME"]
 
 CELERY_BEAT_SCHEDULE = {
-    'syncbbb': {
-        'task': 'apps.virtual.tasks.syncbbb',
-        'schedule': 30,  # crontab(minute=59, hour=23),
+    "syncbbb": {
+        "task": "apps.virtual.tasks.syncbbb",
+        "schedule": 30,  # crontab(minute=59, hour=23),
         # 'args': (*args)
     },
 }

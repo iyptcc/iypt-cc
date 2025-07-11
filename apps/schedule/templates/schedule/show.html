@@ -85,6 +85,56 @@
                                     </div><!-- /.info-box -->
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-info">
+                                        <div class="box-header with-border">
+                                            <h4 class="box-title">Starting Role</h4>
+                                        </div>
+                                        <div class="box-body no-padding">
+                                            <table  class="table">
+                                                <col style="width:{{ meet_ratio }}%">
+                                                {% for i in start_role %}
+                                                    <col style="width:{{ meet_ratio }}%">
+                                                {% endfor %}
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Team</th>
+                                                        {% for t in start_role %}
+                                                            <th>{{ forloop.counter }}</th>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Reporter</th>
+                                                        {% for t in start_role %}
+                                                            <td {% if t.0 > 2 %}class="bg-danger"{% endif %}>{{ t.0|default:"" }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Opponent</th>
+                                                        {% for t in start_role %}
+                                                            <td {% if t.1 > 2 %}class="bg-danger"{% endif %}>{{ t.1|default:"" }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Reviewer</th>
+                                                        {% for t in start_role %}
+                                                            <td {% if t.2 > 2 %}class="bg-danger"{% endif %}>{{ t.2|default:"" }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Observer</th>
+                                                        {% for t in start_role %}
+                                                            <td {% if t.3 > 2 %}class="bg-danger"{% endif %}>{{ t.3|default:"" }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div><!-- /.info-box-content -->
+                                    </div><!-- /.info-box -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

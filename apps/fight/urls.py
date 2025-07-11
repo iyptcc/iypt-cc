@@ -14,6 +14,7 @@ from .views import (
     ScanView,
     SlidesImport,
     SlidesView,
+    VoidedView,
     clocks,
     fight_phases,
     fightclock,
@@ -34,6 +35,7 @@ urlpatterns = [
     path("plan/", plan, name="plan"),
     path("validate/", validate_plan, name="validate"),
     path("publish/", PublishView.as_view(), name="publish"),
+    path("voided/", VoidedView.as_view(), name="voided"),
     path("manage/", ManageFightsView.as_view(), name="manage"),
     path("fight/<int:fight_id>/", FightJuryView.as_view(), name="fightjury"),
     re_path(

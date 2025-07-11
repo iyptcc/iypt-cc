@@ -1,8 +1,11 @@
 from __future__ import absolute_import, unicode_literals
 
+import time
 from datetime import datetime
 
 from celery import current_task, shared_task
+from django.core.files.base import ContentFile
+from pypdf import PdfWriter
 
 from apps.jury.models import AssignResult
 from apps.plan.models import Round
@@ -110,12 +113,63 @@ def renderFeedback(baseurl, round_id):
     return None
 
 
+def merge_pdfs_by_id(trn, name, ids):
+    merger = PdfWriter()
+
+    print("merging", ids, "to", name)
+    for pdf in Pdf.objects.filter(id__in=ids).order_by("name"):
+        if pdf.status != Pdf.SUCCESS:
+            return
+        merger.append(open(pdf.file.path, "rb"))
+
+    cf = ContentFile(b"", name)
+    merger.write(cf)
+
+    Pdf.objects.create(
+        file=cf,
+        name=name,
+        status=Pdf.MERGE,
+        tournament=trn,
+    )
+
+
 @shared_task
 def renderSheets(round_id):
 
     round = Round.objects.get(pk=round_id)
 
+    # TODO: optionally render only a single fight
+    grading_pdfs = []
+    overview_pdfs = []
     for fight in round.fight_set.all():
-        create_fight_gradingsheets(fight)
+        res = create_fight_gradingsheets(fight)
+        grading_pdfs += res["grading_ids"]
+        overview_pdfs.append(res["overview_id"])
+
+    print("got grading pdfs", grading_pdfs)
+    print("got all overviews", overview_pdfs)
+    still_proc = Pdf.objects.filter(
+        id__in=grading_pdfs + overview_pdfs, status=Pdf.PROCESSING
+    )
+    print("processing", still_proc)
+    while still_proc.count() > 0:
+        print("waiting to finish", still_proc)
+        time.sleep(2)
+        still_proc = Pdf.objects.filter(
+            id__in=grading_pdfs + overview_pdfs, status=Pdf.PROCESSING
+        )
+
+    print("all pdfs done", still_proc)
+
+    fileprefix = "jury-grading-merged-round-%d-v" % (round.order,)
+    trn = round.tournament
+    merge_pdfs_by_id(
+        trn, "%s%d" % (fileprefix, _get_next_pdfname(trn, fileprefix)), grading_pdfs
+    )
+
+    fileprefix = "jury-overview-merged-round-%d-v" % (round.order,)
+    merge_pdfs_by_id(
+        trn, "%s%d" % (fileprefix, _get_next_pdfname(trn, fileprefix)), overview_pdfs
+    )
 
     return None

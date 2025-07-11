@@ -22,21 +22,14 @@
           <p>
             We could not find the page you were looking for.
           </p>
+        <p>
+            {{ exception }}
+        </p>
             {% if request.sentry.id %}
                 <p>If you need assistance, you may reference this error as
                 <strong>{{ request.sentry.id }}</strong>.</p>
             {% endif %}
 
-{% if request.sentry.id %}
-  <script>
-  Raven.showReportDialog({
-    eventId: '{{ request.sentry.id }}',
-
-    // use the public DSN (dont include your secret!)
-    dsn: 'https://52709813eb5d4fc599da7f7c3de5359d@sentry.iypt.nlogn.org/2'
-  });
-  </script>
-{% endif %}
         </div>
       </div>
     {% endblock %}

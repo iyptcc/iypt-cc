@@ -1052,6 +1052,8 @@ class RoundPreview(FormPreview):
             f["nonvoting"] = form.cleaned_data["fight_%s_nonvoting" % fight.pk]
 
             for ju in f["nonvoting"]:
+                fight_data["nonvoting"].append(ju)
+
                 if check_conflict_origin(fight, ju):
                     conflicts.append({"fight": fight, "juror": ju})
 

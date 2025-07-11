@@ -1,5 +1,5 @@
 {% for filter in filters %}
-    <p><span class="text-bold">{{ filter.name }}</span> <a class="text-primary" href="?{{ filter.link_rest }}">all</a></p>
+    <p><span class="text-bold">{{ filter.name }}</span> <a class="text-primary" href="?{{ filter.link_rest }}">all</a> , <a class="text-primary" href="?{{ filter.link_rest }}{% for opt in filter.elements %}&ex_{{ filter.link_name }}={{ opt.id }}{% endfor %}">none</a></p>
     {% for opt in filter.elements %}
         <p>
             {% if opt.id in filter.ex_actives %}

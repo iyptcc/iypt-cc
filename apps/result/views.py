@@ -89,8 +89,9 @@ def _view_slides_perm(request, tournament):
     if tournament.slides_public:
         return True
     else:
-        if request.user.profile.tournament == tournament:
-            return True
+        if request.user.is_authenticated:
+            if request.user.profile.tournament == tournament:
+                return True
 
     return render(request, "result/empty.html")
 
@@ -544,7 +545,9 @@ def jurystats(request, t_slug):
             writer.writerow(row)
         return response
     else:
-        return render(request, "result/jurystats.html", context=stats)
+        return render(
+            request, "result/jurystats.html", context={**stats, "tournament": trn.slug}
+        )
 
 
 @login_required
@@ -599,7 +602,7 @@ def memberrank(request, t_slug):
     b = _best_members(trn)
     best = [
         (a, sorted(b, key=lambda x: x[a] if a in x else 0, reverse=True))
-        for a in ["rep_tot", "opp_tot", "rev_tot"]
+        for a in ["rep_max", "opp_max", "rev_max", "rep_mean", "opp_mean", "rev_mean"]
     ]
 
     return render(

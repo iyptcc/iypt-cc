@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponseNotAllowed, JsonResponse
+from django.http import Http404, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -602,7 +602,16 @@ def genpdfjurysheets(request, fight_id):
         try:
             tpl_id = trn.default_templates.get(type=Template.GRADING).id
         except:
-            messages.add_message(request, messages.WARNING, "Default Template not set")
+            messages.add_message(
+                request, messages.WARNING, "Default Template for Grading not set"
+            )
+            return redirect("jury:plan")
+        try:
+            ovw_id = trn.default_templates.get(type=Template.GRADEOVERVIEW).id
+        except:
+            messages.add_message(
+                request, messages.WARNING, "Default Template for Overview not set"
+            )
             return redirect("jury:plan")
         create_fight_gradingsheets(fight)
 
@@ -739,10 +748,10 @@ class PdfJuryView(ObjectDownloadView):
                 order=self.kwargs["round"],
             ).pdf_juryplan
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -760,10 +769,10 @@ class PdfJuryFeedback(ObjectDownloadView):
                 id=self.kwargs["fight_id"],
             ).pdf_jury_feedback
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -781,10 +790,10 @@ class PdfJuryOverview(ObjectDownloadView):
                 id=self.kwargs["fight_id"],
             ).pdf_grade_overview
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -803,10 +812,10 @@ class PdfJurySheet(ObjectDownloadView):
                 order=self.kwargs["stage_order"],
             ).pdf_grading_sheets
             if not obj.status in [Pdf.SUCCESS, Pdf.UPLOAD, Pdf.MERGE]:
-                raise Pdf.DoesNotExist("File not yet available")
+                raise Http404("File not yet available")
             return obj.file
         except:
-            raise Pdf.DoesNotExist("File does not exist")
+            raise Http404("File does not exist")
 
 
 @method_decorator(login_required, name="dispatch")

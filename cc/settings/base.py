@@ -23,110 +23,130 @@ sys.path.insert(0, BASE_DIR)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if "SECRET_KEY" in os.environ:
-    SECRET_KEY = os.environ['SECRET_KEY']
+    SECRET_KEY = os.environ["SECRET_KEY"]
 else:
     try:
         from .secret_key import SECRET_KEY  # noqa: F401,F403
     except ImportError:
-        SECRET_KEY = '_e*f3!62w0%@2(rh#929yuk9^yi10618kp4nzriazy^&axaj_9'
+        SECRET_KEY = "_e*f3!62w0%@2(rh#929yuk9^yi10618kp4nzriazy^&axaj_9"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEV = False
 
 ALLOWED_HOSTS = ["cc.dev.iypt.org", "cc.iypt.org", "cc.iypt.net"]
-CSRF_TRUSTED_ORIGINS = ["https://cc.dev.iypt.org", "https://cc.iypt.org", "https://cc.iypt.net"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://cc.dev.iypt.org",
+    "https://cc.iypt.org",
+    "https://cc.iypt.net",
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'cc',
-    'ordered_model',
-    'apps.tournament.apps.TournamentConfig',
-    'apps.account.apps.AccountConfig',
-    'apps.plan.apps.PlanConfig',
-    'apps.jury.apps.JuryConfig',
-    'apps.team.apps.TeamConfig',
-    'apps.feedback.apps.FeedbackConfig',
-    'apps.bank.apps.BankConfig',
-    'apps.result.apps.ResultConfig',
-    'apps.fight.apps.FightConfig',
-    'apps.schedule.apps.ScheduleConfig',
-    'apps.printer.apps.PrinterConfig',
-    'apps.postoffice.apps.PostofficeConfig',
-    'apps.management.apps.ManagementConfig',
-    'apps.about.apps.AboutConfig',
-    'apps.fake.apps.FakeConfig',
-    'apps.virtual.apps.VirtualConfig',
-    'apps.registration.apps.RegistrationConfig',
-    'django_pwned_passwords',
-    'codemirror2',
-    'channels',
-    'bootstrap3',
-    'apps.dashboard.apps.DashboardConfig',
-    'django_select2',
-    'dbbackup',
-    'oauth2_provider',
-    'tellme',
-    'formtools',
-    'captcha',
-    'hijack',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'django_celery_results',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "cc",
+    "ordered_model",
+    "apps.tournament.apps.TournamentConfig",
+    "apps.account.apps.AccountConfig",
+    "apps.plan.apps.PlanConfig",
+    "apps.jury.apps.JuryConfig",
+    "apps.team.apps.TeamConfig",
+    "apps.feedback.apps.FeedbackConfig",
+    "apps.bank.apps.BankConfig",
+    "apps.result.apps.ResultConfig",
+    "apps.fight.apps.FightConfig",
+    "apps.schedule.apps.ScheduleConfig",
+    "apps.printer.apps.PrinterConfig",
+    "apps.postoffice.apps.PostofficeConfig",
+    "apps.management.apps.ManagementConfig",
+    "apps.about.apps.AboutConfig",
+    "apps.fake.apps.FakeConfig",
+    "apps.virtual.apps.VirtualConfig",
+    "apps.registration.apps.RegistrationConfig",
+    "django_pwned_passwords",
+    "auditlog",
+    "codemirror2",
+    "channels",
+    "bootstrap3",
+    "apps.dashboard.apps.DashboardConfig",
+    "django_select2",
+    "dbbackup",
+    "oauth2_provider",
+    "tellme",
+    "formtools",
+    "captcha",
+    "hijack",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'apps.tournament.middleware.AppPermissionMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'hijack.middleware.HijackUserMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.tournament.middleware.AppPermissionMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "auditlog.middleware.AuditlogMiddleware",
+    "hijack.middleware.HijackUserMiddleware",
 ]
 
-ROOT_URLCONF = 'cc.urls'
+ROOT_URLCONF = "cc.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'cc.wsgi.application'
+WSGI_APPLICATION = "cc.wsgi.application"
 
 ASGI_APPLICATION = "cc.routing.application"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'glue-media')
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "glue-media")
 
-DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-DBBACKUP_STORAGE_OPTIONS = {'location': os.path.join(os.path.dirname(BASE_DIR), 'dbbackup')}
+DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
+DBBACKUP_STORAGE_OPTIONS = {
+    "location": os.path.join(os.path.dirname(BASE_DIR), "dbbackup")
+}
 
-SELECT2_CSS = '/static/select2/dist/css/select2.css'
-SELECT2_JS = '/static/select2/dist/js/select2.min.js'
+SELECT2_CSS = "/static/select2/dist/css/select2.css"
+SELECT2_JS = "/static/select2/dist/js/select2.min.js"
+
+
+AUDITLOG_INCLUDE_ALL_MODELS = True
+AUDITLOG_DISABLE_REMOTE_ADDR = True
+
+AUDITLOG_MASK_TRACKING_FIELDS = (
+    "password",
+    "results_password",
+    "join_password",
+)
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000

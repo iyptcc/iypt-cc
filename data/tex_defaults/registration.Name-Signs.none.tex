@@ -1,0 +1,49 @@
+(% macro namesign(name) -%)
+\noindent
+\begin{tikzpicture}
+
+
+    \begin{scope}[xshift=\paperwidth-1cm, yshift=-3.25cm, rotate=180, bla/.style={transform shape}]
+        %\node[bla, above=2mm, text depth=0mm, font=\blackfont\fontsize{38}{38}\selectfont, dpggreen] (logo_gypt) at (logo_top) {AYPT};
+        %\node[bla, right=2cm, text depth=0mm, font=\blackfont\fontsize{38}{38}\selectfont, gyptgrey] (logo_header) at (logo_gypt) {JUROR};
+        \node[bla, right=2cm, text depth=0mm, font=\namefont\fontsize{84}{84}\selectfont] at (0,0) {((name))};
+    \end{scope}
+
+    \begin{scope}[xshift=1cm, yshift=-\paperheight/4*3-2cm]
+    	%\node[above=2mm, text depth=0mm, font=\blackfont\fontsize{38}{38}\selectfont, dpggreen] (logo_gypt) at (logo_top) {AYPT};
+        %\node[right=2cm, text depth=0mm, font=\blackfont\fontsize{38}{38}\selectfont, gyptgrey] (logo_header) at (logo_gypt) {JUROR};
+        \node[right=2cm, text depth=0mm, font=\namefont\fontsize{84}{84}\selectfont] at (0,0) {((name))};
+    \end{scope}
+
+    \path[use as bounding box] (0,0) rectangle (\paperwidth, -\paperheight);
+    %\draw (0,-\paperheight/4*3) -- ++(\paperwidth,0);
+    %\draw (0,-\paperheight/4*2) -- ++(\paperwidth,0);
+    %\draw (0,-\paperheight/4*1) -- ++(\paperwidth,0);
+\end{tikzpicture}
+(%- endmacro %)
+
+\documentclass{minimal}
+
+
+\usepackage[a4paper, landscape, top=0mm, left=0mm, right=0mm, bottom=0mm]{geometry}
+\usepackage{tikz}
+	\usetikzlibrary{calc}
+
+\usepackage{fontspec}
+
+\newfontfamily{\namefont}{SourceSansPro-Semibold}
+
+\begin{document}%
+  (%- for juror in persons %)
+  		(% set name = juror.first_name+" "+juror.last_name %)
+      (% if name|length >= 17 %)
+          (% set name = juror.first_name|first + ". " + juror.last_name %)
+          (% if name|length >= 17 %)
+              (% set name = juror.last_name %)
+          (% endif %)
+      (% endif %)
+      (( namesign(name) ))
+  (%- if not loop.last %)\newpage(% endif %)
+  (% endfor -%)
+
+\end{document}

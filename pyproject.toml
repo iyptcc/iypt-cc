@@ -1,3 +1,9 @@
 
 [tool.black]
 exclude = '.*migrations\/.*|.*static\/.*'
+
+[tool.coverage.report]
+omit = [
+    "config.py",
+    "config-3.py",
+    ]

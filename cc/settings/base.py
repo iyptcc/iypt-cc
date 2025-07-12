@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+import json
 import os
 import sys
 
@@ -35,12 +36,15 @@ else:
 DEV = False
 
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", ["cc.dev.iypt.org", "cc.iypt.org", "cc.iypt.net"])
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS",[
-    "https://cc.dev.iypt.org",
-    "https://cc.iypt.org",
-    "https://cc.iypt.net",
-])
+ALLOWED_HOSTS = json.loads(
+    os.getenv("ALLOWED_HOSTS", '["cc.dev.iypt.org", "cc.iypt.org", "cc.iypt.net"]')
+)
+CSRF_TRUSTED_ORIGINS = json.loads(
+    os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        '["https://cc.dev.iypt.org","https://cc.iypt.org","https://cc.iypt.net"]',
+    )
+)
 
 
 # Application definition

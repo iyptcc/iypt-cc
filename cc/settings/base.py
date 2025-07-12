@@ -34,12 +34,13 @@ else:
 
 DEV = False
 
-ALLOWED_HOSTS = ["cc.dev.iypt.org", "cc.iypt.org", "cc.iypt.net"]
-CSRF_TRUSTED_ORIGINS = [
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", ["cc.dev.iypt.org", "cc.iypt.org", "cc.iypt.net"])
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS",[
     "https://cc.dev.iypt.org",
     "https://cc.iypt.org",
     "https://cc.iypt.net",
-]
+])
 
 
 # Application definition

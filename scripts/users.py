@@ -18,6 +18,9 @@ root = None
 try:
     root = User.objects.get(username="root")
 except:
-    root=User.objects.create(username="root",email="fe-x@nlogn.org",is_staff=True,is_superuser=True,password="pbkdf2_sha256$30000$bfSRcz8435Km$VOJasXkSscLPajzWpi3An2aA8YKkn9keyX/FGassy/k=")
+    root=User.objects.create(username="root",is_staff=True,is_superuser=True)
+    root.email = input("email:")
+    root.set_password(input("password:"))
+    root.save()
 
 au = ActiveUser.objects.get_or_create(user=root)

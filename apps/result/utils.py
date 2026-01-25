@@ -513,24 +513,39 @@ def _jurystats(tournament, use_cache=True, emails=False):
         for js in juror.jurorsession_set.all():
 
             jgrinfi = []
-            for gr in js.jurorgrade_set.all():
-                if gr.public_grade:
-                    jgrinfi.append(gr.public_grade)
-                    allgrades.append(gr.public_grade)
-            if len(jgrinfi) > 0:
-                for stage in js.fight.stage_set.all():
-                    for sa in stage.stageattendance_set.all():
-                        holdupgrades = []
-                        for jg in sa.jurorgrade_set.all():
-                            holdupgrades.append(jg.public_grade)
-                        try:
-                            mygrade = sa.jurorgrade_set.get(
-                                juror_session=js
-                            ).public_grade
-                            jbiases.append(mygrade - statistics.mean(holdupgrades))
-                        except:
-                            pass
+            jbiinfi = []
 
+            jscached = caches["results"].get("jurystats-session-%d" % js.pk)
+            if jscached and use_cache:
+                jgrinfi += jscached["grades"]
+                jbiinfi += jscached["biases"]
+
+            else:
+                for gr in js.jurorgrade_set.all():
+                    if gr.public_grade:
+                        jgrinfi.append(gr.public_grade)
+                        allgrades.append(gr.public_grade)
+                if len(jgrinfi) > 0:
+                    for stage in js.fight.stage_set.all():
+                        for sa in stage.stageattendance_set.all():
+                            holdupgrades = []
+                            for jg in sa.jurorgrade_set.all():
+                                holdupgrades.append(jg.public_grade)
+                            try:
+                                mygrade = sa.jurorgrade_set.get(
+                                    juror_session=js
+                                ).public_grade
+                                jbiinfi.append(mygrade - statistics.mean(holdupgrades))
+                            except:
+                                pass
+                if use_cache:
+                    caches["results"].set(
+                        "jurystats-session-%d" % js.pk,
+                        {"grades": jgrinfi, "biases": jbiinfi},
+                        None,
+                    )
+
+            jbiases += jbiinfi
             jgrades += jgrinfi
 
         if len(jgrades):

@@ -35,7 +35,7 @@ def expected_fees(team):
         fees.append(
             {
                 "name": "Team fee for %s" % team.origin.name,
-                "amount": team.tournament.fee_team,
+                "amount": team.origin.team_fee or team.tournament.fee_team,
                 "type": Payment.TEAM,
             }
         )

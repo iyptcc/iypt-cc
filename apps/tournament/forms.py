@@ -145,6 +145,7 @@ class OriginForm(forms.ModelForm):
             "timezone",
             "short",
             "flag_pdf",
+            "team_fee",
             "publish_participation",
             "possible_managers",
         ]

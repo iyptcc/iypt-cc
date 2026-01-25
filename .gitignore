@@ -14,6 +14,7 @@
 /env37
 /oldenv
 /scratch
+/.venv
 
 # coverage
 /htmlcov

@@ -225,6 +225,10 @@ class Origin(models.Model):
 
     from_registration = models.BooleanField(default=False)
 
+    team_fee = models.DecimalField(
+        decimal_places=2, max_digits=10, blank=True, null=True
+    )
+
     publish_participation = models.BooleanField(default=False)
 
     possible_managers = models.ManyToManyField("account.ActiveUser", blank=True)

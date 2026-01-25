@@ -29,6 +29,7 @@ from .views.views import (
     phteamsdel,
     phteamsgen,
     plan,
+    RoundFightDelete,
 )
 
 app_name = "plan"
@@ -52,6 +53,11 @@ urlpatterns = [
         r"^plan/select_(?P<round>[\d]+).pdf$",
         PdfProblemSelect.as_view(),
         name="pdfproblemselect",
+    ),
+    path(
+        "plan/delete/<int:round>",
+        RoundFightDelete.as_view(),
+        name="deleteround",
     ),
     path("placeholder/plan", Placeholder.as_view(), name="placeholder"),
     path("placeholder/plan/delete", PhPlanDelete.as_view(), name="phplandel"),

@@ -1,0 +1,7 @@
+-r base-requirements.uv
+psycopg2-binary
+redis
+gunicorn
+daphne
+django-redis
+sentry-sdk==1.9.8

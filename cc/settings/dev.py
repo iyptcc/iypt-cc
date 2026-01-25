@@ -18,6 +18,8 @@ INSTALLED_APPS += [
     # 'debug_toolbar',
 ]
 
+# to enable debug toolbar also uncomment the routes in urls.py
+
 MIDDLEWARE = [
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     "corsheaders.middleware.CorsMiddleware",

@@ -22,6 +22,7 @@
                                     <th>pdf</th>
                                     <th>teams</th>
                                     <th>TZ</th>
+                                    <th>fee</th>
                                     <th>possible Managers</th>
                                     <th></th>
                                 </tr>
@@ -36,6 +37,7 @@
                                     <td>{{ origin.flag_pdf }}</td>
                                     <td>{{ origin.team_set.all|join:", " }}</td>
                                     <td>{{ origin.timezone }}</td>
+                                    <td>{% if origin.team_fee %}<b>{{ origin.team_fee }}</b>{% else %}{{ origin.tournament.fee_team }}{% endif %}</td>
                                     <td>{% for m in origin.possible_managers.all %}
                                         <span class="label label-default">{{ m.user.get_full_name }} ({{ m.user.email }})</span>
                                     {% endfor %}</td>

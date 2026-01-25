@@ -1,5 +1,5 @@
 #!/bin/bash
 
-./env/bin/isort -c .
-./env/bin/flake8
-./env/bin/black --check apps
+./.venv/bin/isort -c .
+./.venv/bin/flake8
+./.venv/bin/black --check apps

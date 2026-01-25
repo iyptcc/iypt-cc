@@ -267,6 +267,20 @@ class PhPlanDelete(ConfirmedDeleteView):
 
 @method_decorator(login_required, name="dispatch")
 @method_decorator(
+    permission_required("plan.delete_round", raise_exception=False), name="dispatch"
+)
+class RoundFightDelete(ConfirmedDeleteView):
+
+    redirection = "plan:plan"
+
+    def get_objects(self, request, *args, **kwargs):
+        return Round.objects.get(
+            tournament=request.user.profile.tournament, order=kwargs["round"]
+        ).fight_set.all()
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(
     permission_required("plan.delete_final", raise_exception=False), name="dispatch"
 )
 class FinalDelete(ConfirmedDeleteView):

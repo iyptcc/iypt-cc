@@ -22,7 +22,7 @@ from django.views.generic import CreateView, ListView, UpdateView
 
 from apps.account.models import ApiUser, ParticipationRole, Token
 from apps.dashboard.delete import ConfirmedDeleteView
-from apps.jury.models import JurorOccupation
+from apps.jury.models import JurorOccupation, JurorSession
 from apps.postoffice.models import DefaultTemplate as DefaultMailTemplate
 from apps.postoffice.models import Template as MailTemplate
 from apps.printer.models import DefaultTemplate, Template
@@ -371,6 +371,11 @@ class CachesView(View):
                 for k in ["preview", "points", "grades"]:
                     fight[k] = caches["results"].get("%s-%s" % (k, f.pk))
                 fights.append(fight)
+
+        for js in JurorSession.objects.filter(
+            juror__attendee__tournament=request.user.profile.tournament
+        ):
+            fights.append(caches["results"].get("jurystats-session-%d" % js.pk))
 
         return render(request, "tournament/caches.html", context={"cache": fights})
 

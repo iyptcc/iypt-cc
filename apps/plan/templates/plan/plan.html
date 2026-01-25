@@ -12,6 +12,7 @@
                         <div class="box-header with-border">
                             <h3 class="box-title">Round {{ round.order }}</h3>
                             <div class="box-tools pull-right">
+                                <a href="{% url "plan:deleteround" round.order %}" class="btn btn-danger">delete round assignment</a>
                                 problem selection:
                                 <form action="{% url "plan:problemselect_pdf" round.order %}" method="post" style="display: inline;">
                                     {% csrf_token %}

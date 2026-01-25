@@ -148,6 +148,8 @@ SELECT2_JS = "/static/select2/dist/js/select2.min.js"
 AUDITLOG_INCLUDE_ALL_MODELS = True
 AUDITLOG_DISABLE_REMOTE_ADDR = True
 
+AUDITLOG_LOGENTRY_MODEL = "auditlog.LogEntry"
+
 AUDITLOG_MASK_TRACKING_FIELDS = (
     "password",
     "results_password",

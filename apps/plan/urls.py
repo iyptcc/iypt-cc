@@ -13,11 +13,14 @@ from .preview import (
 from .views import events
 from .views.views import (
     FinalDelete,
+    ImportAttendees,
+    ImportTeams,
     PdfProblemSelect,
     PdfTeamView,
     PhPlanDelete,
     Placeholder,
     PlaceholderTeams,
+    RoundFightDelete,
     drawdelTeam,
     drawTeam,
     genpdfproblemselect,
@@ -29,7 +32,6 @@ from .views.views import (
     phteamsdel,
     phteamsgen,
     plan,
-    RoundFightDelete,
 )
 
 app_name = "plan"
@@ -92,6 +94,8 @@ urlpatterns = [
     path("teams", TeamsPreview(forms.Form), name="teams"),
     path("persons", PersonsPreview(forms.Form), name="persons"),
     path("curiie", CuriiePreview(CuriieForm), name="curiie"),
+    path("import", ImportAttendees.as_view(), name="import"),
+    path("teams/import", ImportTeams.as_view(), name="import_teams"),
     path("final", FinalPreview(forms.Form), name="final"),
     path("final/delete", FinalDelete.as_view(), name="finaldel"),
 ]

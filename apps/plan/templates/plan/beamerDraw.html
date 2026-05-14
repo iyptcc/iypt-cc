@@ -52,6 +52,8 @@
               <h1 id="top-number"></h1>
             </div>
         </div>
+        <div class="row" id="problems-container">
+        </div>
     </div>
     {% if wide %}</div>{% endif %}
     <div class="container{% if wide %}-fluid{% endif %}" {% if wide %}style="background:white;"{% endif %}>
@@ -110,15 +112,29 @@
 
             return obj
         }
-        function setOrigin(name,flag) {
+        function setOrigin(name,flag,problems) {
             currname = name;
             currflag = flag;
+            problems = problems || [];
+            console.log(problems);
             $("#top-name").text(name.toUpperCase());
             var f = $("#top-flag");
             f.empty();
             f.prepend('<img src="'+flag+'">');
             $("#top-number").text('')
             $('.fight').removeClass('bg-success');
+            const container = document.getElementById("problems-container");
+            container.innerHTML = "";
+            problems.forEach(item => {
+              const [id, title] = item;
+
+              const col = document.createElement("div");
+              col.className = "col-md-4";
+
+              col.innerHTML = `<h4><b>${id}</b> ${title}</h4>`;
+
+              container.appendChild(col);
+            });
         }
         function setNumber(num){
             $("#top-number").text(num);

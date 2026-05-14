@@ -1,12 +1,17 @@
+import csv
+
 import yaml
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
+from django.utils.text import slugify
 from django.views import View
 from django_downloadview import ObjectDownloadView
+from unidecode import unidecode
 
 from apps.dashboard.delete import ConfirmedDeleteView
 from apps.plan.models import StageAttendance, TeamPlaceholder
@@ -14,10 +19,11 @@ from apps.printer import context_generator
 from apps.printer.models import Pdf, PdfTag, Template
 from apps.printer.tasks import render_to_pdf
 from apps.printer.utils import _get_next_pdfname
-from apps.team.models import Team
-from apps.tournament.models import ScheduleTemplate
+from apps.team.models import Team, TeamMember, TeamRole
+from apps.tournament.models import Origin, Problem, ScheduleTemplate
 
-from ..forms import TeamDrawForm
+from ...account.models import ActiveUser, Attendee, ParticipationRole
+from ..forms import AttendeeCreateImportForm, TeamCreateImportForm, TeamDrawForm
 from ..models import Round
 
 # Create your views here.
@@ -456,3 +462,147 @@ def jurydatadump(request):
     data["rounds"] = rounds
     yaml.dump(data, response)
     return response
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(permission_required("account.add_attendee"), name="dispatch")
+class ImportAttendees(View):
+
+    def get(self, request):
+
+        form = AttendeeCreateImportForm(request.user.profile.tournament)
+
+        return render(request, "plan/attendeecsv.html", context={"form": form})
+
+    def post(self, request):
+
+        form = AttendeeCreateImportForm(request.user.profile.tournament, request.POST)
+
+        if form.is_valid():
+            if "_save" in request.POST:
+                # print("save", form.cleaned_data)
+
+                reader = csv.DictReader(form.cleaned_data["input"].splitlines())
+                for row in reader:
+                    lno = form.row_key(row)
+                    first_name = row[form.cleaned_data["first_name_column"]].strip()
+                    last_name = row[form.cleaned_data["last_name_column"]].strip()
+                    email = form.cleaned_data["default_email"]
+                    if (
+                        "email_column" in form.cleaned_data
+                        and form.cleaned_data["email_column"]
+                    ):
+                        email = row.get(form.cleaned_data["email_column"], "").strip()
+                        if not len(email):
+                            email = form.cleaned_data["default_email"]
+                    role = form.cleaned_data["assigned_role"]
+
+                    if form.cleaned_data.get(f"import_{lno}") is True:
+                        if form.cleaned_data.get(f"user_{lno}") is None:
+                            # print("create user", first_name, last_name, email)
+
+                            name = f"{first_name} {last_name}"
+                            username = "%s-%s" % (
+                                request.user.profile.tournament.slug,
+                                slugify(unidecode(name)),
+                            )
+                            user = User.objects.create_user(
+                                username,
+                                first_name=first_name,
+                                last_name=last_name,
+                                email=email,
+                            )
+
+                            auser = ActiveUser.objects.get_or_create(user=user)[0]
+                        else:
+                            # print("use active", form.cleaned_data[f"user_{lno}"] )
+                            auser = form.cleaned_data[f"user_{lno}"]
+
+                        attendee = Attendee.objects.get_or_create(
+                            active_user=auser,
+                            tournament=request.user.profile.tournament,
+                        )[0]
+
+                        attendee.roles.add(role)
+
+                        # print("make attendee", row)
+                        # print("assign role", role)
+                return redirect("plan:persons")
+
+        return render(request, "plan/attendeecsv.html", context={"form": form})
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(permission_required("tournament.add_origin"), name="dispatch")
+class ImportTeams(View):
+
+    def get(self, request):
+
+        form = TeamCreateImportForm(request.user.profile.tournament)
+
+        return render(request, "plan/teamcsv.html", context={"form": form})
+
+    def post(self, request):
+
+        trn = request.user.profile.tournament
+        form = TeamCreateImportForm(trn, request.POST)
+
+        if form.is_valid():
+            if "_create_teams" in request.POST:
+
+                reader = csv.DictReader(form.cleaned_data["input"].splitlines())
+                teamset = set()
+                teams = {}
+                for row in reader:
+                    team = row[form.cleaned_data["team_column"]].strip()
+                    teamset.add(team)
+
+                for team in teamset:
+                    if form.cleaned_data.get(f"team_{form.row_key(team)}") is None:
+                        print("create", team)
+                        ori = Origin.objects.create(name=team, tournament=trn)
+                        teams[team] = ori
+                    else:
+                        teams[team] = form.cleaned_data[f"team_{form.row_key(team)}"]
+
+                print(teams)
+
+            if "_save" in request.POST:
+                reader = csv.DictReader(form.cleaned_data["input"].splitlines())
+                for row in reader:
+                    team = row[form.cleaned_data["team_column"]].strip()
+                    role_str = row[form.cleaned_data["role_column"]].strip()
+                    att: Attendee = form.cleaned_data[f"member_{form.row_key(row)}"]
+
+                    role: TeamRole = form.cleaned_data.get(
+                        f"role_{form.row_key(role_str)}"
+                    )
+                    origin = form.cleaned_data[f"team_{form.row_key(team)}"]
+
+                    team, cre = Team.objects.get_or_create(
+                        origin=origin, tournament=trn
+                    )
+
+                    print("add", att, role, team)
+                    try:
+                        tm = TeamMember.objects.get(attendee=att, team=team)
+                        tm.role = role
+                        tm.save()
+                    except TeamMember.DoesNotExist:
+                        TeamMember.objects.create(attendee=att, team=team, role=role)
+
+                    for pr in role.participation_roles.all():
+                        att.roles.add(pr)
+
+                    try:
+                        problem = int(row.get(form.cleaned_data["problem_column"]))
+                        prob = Problem.objects.get(tournament=trn, number=problem)
+                        team.aypt_prepared_problems.add(prob)
+                    except Exception as e:
+                        print(e)
+
+                return redirect("plan:teams")
+
+                #    attnd.roles.add(prstudent)
+
+        return render(request, "plan/teamcsv.html", context={"form": form})

@@ -1,31 +1,51 @@
 ---
 
 stages:
+  - build
   - test
+  - deploy
 
-django_test:
-  image: "python:3"
-  stage: test
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [ "" ]
   script:
-    - pip install --upgrade pip
-    - pip install --upgrade packaging appdirs
-    - pip install --upgrade -r dep/test-requirements.pip
-    - mkdir -p src
-    - cd src && git clone https://github.com/felix-engelmann/django-formtools
-    - cd django-formtools && git checkout e5b85d634259ed020b08cb53a918cde1d2da4ce7
-    - python setup.py install
-    - cd ../../
-    - isort -c
-    - bandit -r . -x apps/dashboard/static,env,static,scratch -f json -o bandit.json || true
-    - bandit -r . -x apps/dashboard/static,env,static,scratch -f html -o bandit.html || true
-    - python -m coverage run --omit "env/*","*/migrations/*" manage.py test apps.dashboard.tournament_tests --verbosity=2
-    - python -m coverage report -m | tee coverage.log
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
+    # fast track with direct push to :latest
+    #- /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
+  environment:
+    name: staging
+    url: https://cc.dev.iypt.org
+
+test:
+  stage: test
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  script:
+    - cd /data/django
+    #- uv venv
+    - uv pip install --upgrade -r dep/test-requirements.uv
+    - .venv/bin/python3 -m coverage run --omit "/usr/*","src/*","env/*","*/migrations/*" manage.py test apps.dashboard.tournament_tests --verbosity=2
+    - .venv/bin/python3 -m coverage report -m | tee coverage.log
     - grep "^TOTAL" coverage.log | awk '{print "covered " $4;}'
-    - python -m coverage html
-  artifacts:
-    paths:
-    - htmlcov/
-    - bandit.html
-    - bandit.json
-    when: always
-    expire_in: 1 week
+
+deploy:
+  stage: deploy
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
+  environment:
+    name: production
+    url: https://cc.iypt.org
+  only:
+    - master

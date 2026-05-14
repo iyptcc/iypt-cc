@@ -1206,7 +1206,24 @@ class FinalPreview(FormPreview):
 
         if not self.fr.fight_set.exists():
 
-            self.rank = _ranking(rounds, use_cache=False, internal=True)
+            grades_ranking = _ranking(rounds, use_cache=False, internal=True)
+
+            print(grades_ranking)
+            teampks = [team["pk"] for team in grades_ranking[-1]]
+            for team in self.trn.team_set.all():
+                if team.pk not in teampks:
+                    grades_ranking[-1].append(
+                        {
+                            "rank": 0,
+                            "pk": team.pk,
+                            "team": team.origin.name,
+                            "slug": team.origin.slug,
+                            "tsp": 0,
+                            "sp": [],
+                        }
+                    )
+
+            self.rank = grades_ranking
 
             fields = {}
             best_all_won = True

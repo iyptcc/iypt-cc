@@ -1,0 +1,29 @@
+{% extends "dashboard/base-layout.html" %}
+{% load bootstrap3 i18n %}
+
+
+    {% block page_title %}Team Import{% endblock %}
+
+    {% block page_content %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">CSV</h3>
+                    </div>
+                    <div class="box-body">
+                        <form method="post" role="form">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            {% buttons %}
+                                <input class="btn btn-primary btn-flat" type="submit" value="{% trans 'Preview' %}">
+                                until you are happy, only then
+                                <input class="btn btn-warning btn-flat" type="submit" name="_create_teams" value="Create Teams">, once all origins are created, restart!, check, then
+                                <input class="btn btn-warning btn-flat" type="submit" name="_save" value="Save">
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

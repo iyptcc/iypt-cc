@@ -23,8 +23,11 @@ def my_menuitems_builder(sender, **kwargs):
             dump = MenuItem(37, "Export", "plan:jurydata")
 
             if user.has_perm("plan.import_curiie"):
-                curiie = MenuItem(35, "Import", "plan:curiie")
+                curiie = MenuItem(35, "Curiie Import", "plan:curiie")
                 top_item.add_child(curiie)
+            if user.has_perm("account.add_attendee"):
+                aypt = MenuItem(351, "AYPT Import", "plan:import")
+                top_item.add_child(aypt)
 
             top_item.add_child(teams)
             top_item.add_child(persons)

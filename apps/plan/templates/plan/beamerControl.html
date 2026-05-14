@@ -30,7 +30,8 @@
                                 <tr>
                                     <td>{{ team.origin|flag_image }}</td>
                                     <td>{{ team.origin.name }}</td>
-                                    <td><button class="btn btn-primary" onclick='beamerwindow.setOrigin("{% if team.origin.short %}{{ team.origin.short }}{% else %}{{ team.origin.name }}{% endif %}", "{{ team.origin|flag_url }}")'>display</button></td>
+                                    <td><button class="btn btn-primary" onclick='beamerwindow.setOrigin("{% if team.origin.short %}{{ team.origin.short }}{% else %}{{ team.origin.name }}{% endif %}", "{{ team.origin|flag_url }}",
+                                            [{% for problem in team.aypt_prepared_problems.all %}[{{ problem.number }},"{{ problem.title }}"],{%  endfor %}])'>display</button></td>
                                     <td>
                                         {% comment %}<select>
                                             <option>---</option>

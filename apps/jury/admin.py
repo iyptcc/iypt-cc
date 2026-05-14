@@ -19,7 +19,18 @@ from .models import (
 admin.site.register(Juror)
 admin.site.register(PossibleJuror)
 admin.site.register(JurorRole)
-admin.site.register(JurorSession)
+
+
+class JurorSessionAdmin(admin.ModelAdmin):
+    list_display = ["juror", "fight", "role", "juror__attendee__tournament"]
+    list_filter = ["role__type", "juror__attendee__tournament"]
+    search_fields = [
+        "juror__attendee__active_user__user__first_name",
+        "juror__attendee__active_user__user__last_name",
+    ]
+
+
+admin.site.register(JurorSession, JurorSessionAdmin)
 admin.site.register(JurorGrade)
 
 admin.site.register(AssignResult)

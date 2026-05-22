@@ -1,3 +1,95 @@
+[project]
+name = "iyptcc"
+version = "1.0.0"
+authors = [
+  { name="Felix Engelmann", email="fe-github@nlogn.org" },
+]
+description = "The IYPT Control Center"
+readme = "README.md"
+requires-python = ">=3.13"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "Django",
+    "django-bootstrap3",
+    "django_extensions",
+    "django_select2",
+    "django-debug-toolbar",
+    "django_formtools @ git+https://github.com/felix-engelmann/django-formtools",
+    "unidecode",
+    "PyYAML",
+    "celery",
+    #python-memcached
+    #pymemcache
+    "django-celery-results",
+    "coverage",
+    "django-downloadview",
+    "jinja2",
+    "Pillow",
+    "django-codemirror2",
+    "django-ordered-model",
+    "django-registration",
+    "django-bootstrap3-datetimepicker-2 @ git+https://github.com/tutorcruncher/django-bootstrap3-datetimepicker",
+    "pipdeptree",
+    "psutil",
+    "markdown",
+    "django-dbbackup",
+    #django-tellme
+    "django-tellme @ git+https://github.com/ludrao/django-tellme.git",
+    "django_countries",
+    "urllib3",
+    "requests",
+    "docker",
+    "channels_redis",
+    "channels",
+    "django-hijack",
+    #django-pwned-passwords",
+    "django-pwned-passwords @ git+https://github.com/slinkymanbyday/django-pwned-passwords.git",
+    #-e git+https://github.com/felix-engelmann/django-pwned-passwords@fix-fail-safe#egg=django-pwned-passwords",
+    "djangorestframework",
+    "pypdf",
+    "pypdfium2",
+    "numpy",
+    "opencv-contrib-python",
+    "faker",
+    "pycountry",
+    "django-oauth-toolkit",
+    "mattermostdriver",
+    "xlsxwriter",
+    "defusedxml",
+    "paramiko",
+    "django-simple-captcha",
+    "django-auditlog",
+    "pytz",
+    "django-unused-media @ git+https://github.com/EE/django-unused-media.git",
+]
+
+[project.optional-dependencies]
+server = [
+    "psycopg2-binary",
+    "redis",
+    "gunicorn",
+    "daphne",
+    "django-redis",
+    "sentry-sdk==1.9.8",
+]
+dev = [
+    "ipython",
+    "lxml",
+    "django-cors-headers"
+]
+test = [
+    "bandit",
+    "isort",
+    "black",
+    "flake8"
+]
+
+
 
 [tool.black]
 exclude = '.*migrations\/.*|.*static\/.*'

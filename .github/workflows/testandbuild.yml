@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  build-test-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build local test image
+        run: |
+          docker build \
+            -t app-test:${{ github.sha }} \
+            --build-arg CI_COMMIT_SHORT_SHA=${{ github.sha }} \
+            .
+
+      - name: Export image
+        run: |
+          docker save app-test:${{ github.sha }} | gzip > app-test.tar.gz
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-test-image
+          path: app-test.tar.gz
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build-test-image
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-test-image
+
+      - name: Load image
+        run: |
+          gunzip -c app-test.tar.gz | docker load
+
+      - name: Run tests
+        run: |
+          docker run --rm app-test:${{ github.sha }} bash -c '
+            cd /data/django
+            uv sync --extra server --extra dev --extra test
+
+            .venv/bin/python3 -m coverage run \
+              --omit "/usr/*","src/*","env/*","*/migrations/*" \
+              manage.py test apps.dashboard.tournament_tests --verbosity=2
+
+            .venv/bin/python3 -m coverage report -m | tee coverage.log
+            grep "^TOTAL" coverage.log | awk "{print \"covered \" \$4;}"
+          '
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/master'
+
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push production image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
+          build-args: |
+            CI_COMMIT_SHORT_SHA=${{ github.sha }}

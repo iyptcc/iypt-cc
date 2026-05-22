@@ -16,7 +16,7 @@ def get_source(template_id, pdf_obj, context):
     if not context:
         context = {}
     try:
-        (src, err) = render_template(template_id, context)
+        src, err = render_template(template_id, context)
     except Exception as e:
         pdf_obj.status = Pdf.ERROR
         pdf_obj.save()
@@ -164,9 +164,10 @@ def render_to_pdf(template_id, pdf_id, context=None):
             destname = cpf.pure_name()
             if not destname.endswith(".pdf"):
                 destname += ".pdf"
-            with open(cpf.file.path, "rb") as fs, open(
-                os.path.join(jobdir, "pdf", destname), "wb"
-            ) as fd:
+            with (
+                open(cpf.file.path, "rb") as fs,
+                open(os.path.join(jobdir, "pdf", destname), "wb") as fd,
+            ):
                 while True:
                     buf = fs.read(1024)
                     if buf:
@@ -181,9 +182,10 @@ def render_to_pdf(template_id, pdf_id, context=None):
                 destname = origin.slug
                 if not destname.endswith(".pdf"):
                     destname += ".pdf"
-                with open(origin.flag_pdf.path, "rb") as fs, open(
-                    os.path.join(jobdir, "flag", destname), "wb"
-                ) as fd:
+                with (
+                    open(origin.flag_pdf.path, "rb") as fs,
+                    open(os.path.join(jobdir, "flag", destname), "wb") as fd,
+                ):
                     while True:
                         buf = fs.read(1024)
                         if buf:

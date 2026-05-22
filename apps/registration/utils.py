@@ -131,7 +131,7 @@ def field_for_question(question: ApplicationQuestion):
     elif t == ApplicationQuestion.DATE:
         field = forms.DateField(
             widget=DateTimePicker(format="%Y-%m-%d", options={"format": "YYYY-MM-DD"}),
-            **commargs
+            **commargs,
         )
     elif t == ApplicationQuestion.INT:
         field = forms.IntegerField(**commargs)
@@ -143,7 +143,7 @@ def field_for_question(question: ApplicationQuestion):
         field = forms.FileField(
             widget=ClearablePermissionFileInput(),
             validators=[pdf_validator],
-            **commargs
+            **commargs,
         )
     elif t == ApplicationQuestion.TEXT:
         field = forms.CharField(
@@ -184,7 +184,7 @@ def field_for_property(property, suffix=""):
     elif t == UserProperty.DATE:
         field = forms.DateField(
             widget=DateTimePicker(format="%Y-%m-%d", options={"format": "YYYY-MM-DD"}),
-            **commargs
+            **commargs,
         )
     elif t == UserProperty.INT:
         field = forms.IntegerField(**commargs)
@@ -196,7 +196,7 @@ def field_for_property(property, suffix=""):
         field = forms.FileField(
             widget=ClearablePermissionFileInput(),
             validators=[pdf_validator],
-            **commargs
+            **commargs,
         )
     elif t == UserProperty.TEXT:
         field = forms.CharField(widget=forms.Textarea, **commargs)
@@ -209,7 +209,7 @@ def field_for_property(property, suffix=""):
                 ("other", "other"),
             ),
             widget=Select2Widget,
-            **commargs
+            **commargs,
         )
     elif t == UserProperty.BOOLEAN:
         field = forms.NullBooleanField(**commargs)

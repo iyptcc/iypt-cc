@@ -27,6 +27,6 @@ COPY . /data/django/
 RUN mkdir -p cc/static/admin
 
 RUN uv venv
-RUN uv pip install --upgrade -r dep/requirements.uv
+RUN uv sync --extra server
 
 RUN .venv/bin/python3 manage.py collectstatic --noinput

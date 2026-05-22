@@ -525,7 +525,7 @@ class TeamAccountCreateView(CreateView):
             self.request.user.profile.tournament,
             **self.get_form_kwargs(),
             team=team,
-            owners=team.get_managers()
+            owners=team.get_managers(),
         )
 
     success_url = reverse_lazy("bank:bill_teams")
@@ -605,7 +605,7 @@ class AttendeeFeeRequestView(CreateView):
                 "sender": acc,
                 "amount": feesum,
                 "reference": reference,
-            }
+            },
         )
 
     def form_valid(self, form):

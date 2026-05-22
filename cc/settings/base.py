@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "apps.virtual.apps.VirtualConfig",
     "apps.registration.apps.RegistrationConfig",
     "django_pwned_passwords",
+    "django_unused_media",
     "auditlog",
     "codemirror2",
     "channels",

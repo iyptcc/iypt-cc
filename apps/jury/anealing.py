@@ -337,13 +337,11 @@ def assignAneal(
                     # HARD: emptySeat
                     if len(fight_data["jurors"]) < 1:
                         valid_plan = False
-                        error.append(
-                            f"""
+                        error.append(f"""
                         No chair for fight {fight} found: 
                         we already assigned: {assigned_jurors}
                         meet team too often: {meetthrice}
-                         """
-                        )
+                         """)
 
                     round_fights["fights"].append(fight_data)
 
@@ -374,13 +372,11 @@ def assignAneal(
                     # HARD: emptySeat
                     if len(fight_data["jurors"]) < room_jurors:
                         valid_plan = False
-                        error.append(
-                            f"""
+                        error.append(f"""
                         Not {room_jurors-1} Jurors for fight {fight} found
                         only found: {fight_data['jurors']}
                         we already assigned: {assigned_jurors}
-                        """
-                        )
+                        """)
 
                     # assign nonvoting
                     for i in range(3):

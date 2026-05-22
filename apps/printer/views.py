@@ -346,7 +346,7 @@ class EditTemplate(View):
                 else:
                     context = {}
 
-                (src, err) = render_template(template.id, context)
+                src, err = render_template(template.id, context)
 
                 return render(request, "printer/source.html", context={"src": src})
 

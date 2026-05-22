@@ -171,7 +171,7 @@ class CuriiePreview(FormPreview):
         # Do something with the cleaned_data, then redirect
         # to a "success" page.
         trn = request.user.profile.tournament
-        (teams, jurors) = self._dissect_currie(
+        teams, jurors = self._dissect_currie(
             trn, cleaned_data["input"], cleaned_data["default"]
         )
 
@@ -239,7 +239,7 @@ class CuriiePreview(FormPreview):
 
     def process_preview(self, request, form, context):
 
-        (teams, jurors) = self._dissect_currie(
+        teams, jurors = self._dissect_currie(
             request.user.profile.tournament,
             form.cleaned_data["input"],
             form.cleaned_data["default"],

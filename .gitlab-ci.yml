@@ -30,7 +30,7 @@ test:
   script:
     - cd /data/django
     #- uv venv
-    - uv pip install --upgrade -r dep/test-requirements.uv
+    - uv sync --extra server --extra dev --extra test
     - .venv/bin/python3 -m coverage run --omit "/usr/*","src/*","env/*","*/migrations/*" manage.py test apps.dashboard.tournament_tests --verbosity=2
     - .venv/bin/python3 -m coverage report -m | tee coverage.log
     - grep "^TOTAL" coverage.log | awk '{print "covered " $4;}'

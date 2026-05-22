@@ -75,7 +75,7 @@ server = [
     "gunicorn",
     "daphne",
     "django-redis",
-    "sentry-sdk==1.9.8",
+    "sentry-sdk",
 ]
 dev = [
     "ipython",

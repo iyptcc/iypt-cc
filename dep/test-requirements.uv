@@ -1,5 +1,0 @@
--r requirements.uv
-bandit
-isort
-black
-flake8

@@ -1,5 +1,0 @@
--r requirements.pip
-bandit
-isort
-black
-flake8

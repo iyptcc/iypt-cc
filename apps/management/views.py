@@ -1,4 +1,6 @@
+import datetime
 import os
+from collections import Counter
 from glob import glob
 
 from django.conf import settings
@@ -22,7 +24,11 @@ from apps.feedback.models import ChairFeedbackCriterion, FeedbackGrade
 from apps.jury.models import JurorRole
 from apps.plan.models import FightRole
 from apps.printer.models import PdfTag, Template, TemplateVersion
-from apps.registration.models import UserProperty, UserPropertyValue
+from apps.registration.models import (
+    AttendeePropertyValue,
+    UserProperty,
+    UserPropertyValue,
+)
 from apps.team.models import TeamRole
 from apps.tournament.models import Phase, Tournament
 
@@ -41,6 +47,24 @@ from .system import get_information
 class TournamentView(ListView):
 
     model = Tournament
+
+    def get_queryset(self):
+        tournaments = []
+        for trn in Tournament.objects.all():
+            tournaments.append(
+                {
+                    "obj": trn,
+                    "apv": dict(
+                        Counter(
+                            AttendeePropertyValue.objects.filter(
+                                attendee__tournament=trn
+                            ).values_list("property__name", "property_id")
+                        )
+                    ),
+                }
+            )
+
+        return tournaments
 
     template_name = "management/list.html"
 
@@ -562,3 +586,17 @@ class UDMove(View):
 
 def trigger_error(request):
     division_by_zero = 1 / 0
+
+
+class OldUserDataDeleteView(ConfirmedDeleteView):
+
+    redirection = "management:properties"
+
+    def get_objects(self, request, *args, **kwargs):
+        objs = UserPropertyValue.objects.filter(
+            property=kwargs["property"],
+            user__user__last_login__lt=datetime.datetime.now(datetime.timezone.utc)
+            - datetime.timedelta(days=3 * 365),
+        )
+
+        return objs

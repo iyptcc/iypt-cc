@@ -1,3 +1,4 @@
+import csv
 import statistics
 from datetime import datetime
 
@@ -9,7 +10,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponseNotAllowed, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -839,6 +840,36 @@ class JuryClean(ConfirmedDeleteView):
             return redirect("jury:assign")
 
 
+def get_previous(pJ):
+    previous = []
+    for att in pJ.person.attendee_set.all().order_by("tournament__date_end").reverse():
+        if hasattr(att, "juror"):
+            part = att.juror
+            jss = []
+            for js in att.juror.jurorsession_set.all():
+                jbiases = []
+                for stage in js.fight.stage_set.all():
+                    for sa in stage.stageattendance_set.all():
+                        holdupgrades = []
+                        for jg in sa.jurorgrade_set.all():
+                            holdupgrades.append(jg.public_grade)
+                        try:
+                            mygrade = sa.jurorgrade_set.get(
+                                juror_session=js
+                            ).public_grade
+                            jbiases.append(mygrade - statistics.mean(holdupgrades))
+                        except:
+                            pass
+                jsdata = {"jurorsession": js}
+                if len(jbiases):
+                    jsdata["bias"] = statistics.mean(jbiases)
+                jss.append(jsdata)
+            previous.append({"juror": part, "jurorsessions": jss, "attendee": att})
+        else:
+            previous.append({"attendee": att})
+    return previous
+
+
 @method_decorator(permission_required("registration.accept_juror"), name="dispatch")
 class ViewPossibleJuror(View):
 
@@ -855,35 +886,7 @@ class ViewPossibleJuror(View):
             ),
             pJ.person,
         )
-
-        previous = []
-        for att in (
-            pJ.person.attendee_set.all().order_by("tournament__date_end").reverse()
-        ):
-            if hasattr(att, "juror"):
-                part = att.juror
-                jss = []
-                for js in att.juror.jurorsession_set.all():
-                    jbiases = []
-                    for stage in js.fight.stage_set.all():
-                        for sa in stage.stageattendance_set.all():
-                            holdupgrades = []
-                            for jg in sa.jurorgrade_set.all():
-                                holdupgrades.append(jg.public_grade)
-                            try:
-                                mygrade = sa.jurorgrade_set.get(
-                                    juror_session=js
-                                ).public_grade
-                                jbiases.append(mygrade - statistics.mean(holdupgrades))
-                            except:
-                                pass
-                    jsdata = {"jurorsession": js}
-                    if len(jbiases):
-                        jsdata["bias"] = statistics.mean(jbiases)
-                    jss.append(jsdata)
-                previous.append({"juror": part, "jurorsessions": jss, "attendee": att})
-            else:
-                previous.append({"attendee": att})
+        previous = get_previous(pJ)
         print(previous)
         return render(
             request,
@@ -968,3 +971,41 @@ class AcceptPossibleJuror(View):
         return render(
             request, "jury/accept_juror_application.html", context={"form": form}
         )
+
+
+@method_decorator(login_required, name="__call__")
+@method_decorator(permission_required("jury.assign_jurors"), name="dispatch")
+class PossibleDownload(View):
+    def get(self, request):
+        trn = request.user.profile.tournament
+
+        pj = PossibleJuror.objects.filter(tournament=trn).prefetch_related(
+            "person__application_set", "approved_by", "person__user"
+        )
+        print(pj)
+        format = request.GET.get("format", "").lower()
+
+        response = HttpResponse(
+            content_type="text/csv",
+            headers={
+                "Content-Disposition": 'attachment; filename="possible_jurors.csv"'
+            },
+        )
+
+        writer = csv.DictWriter(
+            response,
+            fieldnames=["first_name", "last_name", "username", "email", "experience"],
+        )
+        writer.writeheader()
+        for p in pj:
+            writer.writerow(
+                {
+                    "first_name": p.person.user.first_name,
+                    "last_name": p.person.user.last_name,
+                    "username": p.person.user.username,
+                    "email": p.person.user.email,
+                    "experience": p.experience,
+                }
+            )
+
+        return response

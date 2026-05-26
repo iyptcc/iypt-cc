@@ -22,17 +22,20 @@
                 <div class="col-md-12">
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <h3 class="box-title">{{ trn.name }}</h3>
+                            <h3 class="box-title">{{ trn.obj.name }}</h3>
                             <div class="box-tools pull-right">
                                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                             </div>
                         </div>
                         <div class="box-body">
-                            <p>slug: {{ trn.slug }}</p>
-                            <a href="{% url "management:change" trn.id %}" class="btn btn-primary">edit</a>
-                            <a href="{% url "management:delete" trn.id %}" class="btn btn-danger">delete</a>
+                            <p>slug: {{ trn.obj.slug }}</p>
+                            {% for apv,ct in trn.apv.items %}
+                                <p> {{ apv.0 }} : {{ ct }}</p>
+                            {% endfor %}
+                            <a href="{% url "management:change" trn.obj.id %}" class="btn btn-primary">edit</a>
+                            <a href="{% url "management:delete" trn.obj.id %}" class="btn btn-danger">delete</a>
 
-                            <form method="post" action="{% url "management:mm_create_team" trn.id %}" class="inline">{% csrf_token %}<input class="btn btn-info" type="submit" value="create MM team"></form>
+                            <form method="post" action="{% url "management:mm_create_team" trn.obj.id %}" class="inline">{% csrf_token %}<input class="btn btn-info" type="submit" value="create MM team"></form>
                         </div>
                     </div>
                 </div>

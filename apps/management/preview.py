@@ -1,37 +1,20 @@
+import datetime
+
 from django import forms
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group, User
-from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, redirect, render
-from django.template.defaultfilters import slugify
+from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.text import capfirst
 from django_select2.forms import Select2MultipleWidget, Select2Widget
 from formtools.preview import FormPreview
-from unidecode import unidecode
 
 from apps.account.models import ActiveUser, Attendee
 from apps.dashboard.forms import ModelDeleteListField
-from apps.jury.models import Juror
-from apps.plan.models import (
-    Fight,
-    FightRole,
-    Room,
-    Round,
-    Stage,
-    StageAttendance,
-    TeamPlaceholder,
-)
-from apps.result.utils import _ranking
-from apps.team.models import Team, TeamMember, TeamRole
+from apps.dashboard.preview import ListPreview
 from apps.tournament.models import (
-    ScheduleTemplate,
-    TemplateAttendance,
-    TemplateFight,
-    TemplateRoom,
-    TemplateRound,
     Tournament,
 )
 
@@ -43,6 +26,15 @@ class UserPreview(FormPreview):
     form_template = "management/users.html"
     preview_template = "dashboard/previewObjsDelete.html"
 
+    class DirectSelector(object):
+
+        def __init__(self, id, name):
+            self.id = id
+            self.name = name
+
+        def __str__(self):
+            return "%s" % self.name
+
     def parse_params(self, request):
 
         self.filters = [
@@ -50,7 +42,36 @@ class UserPreview(FormPreview):
                 "name": "Tournament",
                 "filter": "tournaments__in",
                 "elements": Tournament.objects.all(),
-            }
+            },
+            {
+                "name": "Last login",
+                "filter": "user__last_login",
+                "elements": [
+                    self.DirectSelector(x, f"{x}y inactive") for x in range(1, 10)
+                ],
+            },
+            {
+                "name": "No login",
+                "filter": "user__no_login",
+                "elements": [self.DirectSelector(1, f"no login")],
+            },
+            {
+                "name": "joined",
+                "filter": "user__date_joined",
+                "elements": [
+                    self.DirectSelector(x, f"{x}y or older") for x in range(1, 10)
+                ],
+            },
+            {
+                "name": "PossibleJuror",
+                "filter": "user__possible",
+                "elements": [self.DirectSelector(1, f"somewhere")],
+            },
+            {
+                "name": "Application",
+                "filter": "user__application",
+                "elements": [self.DirectSelector(1, f"somewhere")],
+            },
         ]
 
         #    {"name": "Roles",
@@ -78,17 +99,51 @@ class UserPreview(FormPreview):
             except:
                 pass
 
+        date_filters = {}
+        if request.GET.get("in_user__last_login", False):
+            date_filters["user__last_login__lt"] = datetime.datetime.now(
+                datetime.timezone.utc
+            ) - datetime.timedelta(
+                days=int(request.GET.get("in_user__last_login")) * 365
+            )
+        if request.GET.get("in_user__date_joined", False):
+            date_filters["user__date_joined__lt"] = datetime.datetime.now(
+                datetime.timezone.utc
+            ) - datetime.timedelta(
+                days=int(request.GET.get("in_user__date_joined")) * 365
+            )
+        if request.GET.get("in_user__no_login", False):
+            date_filters["user__last_login__isnull"] = True
+        if request.GET.get("in_user__possible", False):
+            date_filters["possiblejuror__isnull"] = False
+        if request.GET.get("ex_user__possible", False):
+            date_filters["possiblejuror__isnull"] = True
+        if request.GET.get("in_user__application", False):
+            date_filters["application__isnull"] = False
+        if request.GET.get("ex_user__application", False):
+            date_filters["application__isnull"] = True
+
         ex_query = Q()
 
         for k in self._excludes:
+            if k.startswith("user__"):
+                continue
             ex_query |= Q(**{k: self._excludes[k]})
 
         person = ModelDeleteListField(
-            queryset=ActiveUser.objects.filter(**self._filters)
+            queryset=ActiveUser.objects.filter(
+                **{
+                    k: v for k, v in self._filters.items() if not k.startswith("user__")
+                },
+                **date_filters,
+            )
             .prefetch_related("tournaments")
             .exclude(ex_query)
             .order_by("user__last_name")
-            .prefetch_related("user", "attendee_set")
+            .prefetch_related(
+                "user", "attendee_set", "possiblejuror_set", "application_set"
+            )
+            .distinct()
         )
 
         tournaments = forms.ModelMultipleChoiceField(
@@ -235,3 +290,17 @@ class UserPreview(FormPreview):
                 Attendee.objects.filter(active_user=user, tournament__in=news).delete()
 
         return redirect("management:users")
+
+
+@method_decorator(login_required, name="__call__")
+class DjangoUserPreview(ListPreview):
+
+    form_template = "management/djangousers.html"
+    success_url = "management:django_users"
+
+    def get_queryset(self):
+        return User.objects.filter(
+            profile__isnull=True,
+            date_joined__lt=datetime.datetime.now(datetime.timezone.utc)
+            - datetime.timedelta(days=8),
+        )

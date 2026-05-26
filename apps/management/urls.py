@@ -1,10 +1,11 @@
 from django import forms
 from django.urls import path, re_path
 
-from .preview import UserPreview
+from .preview import DjangoUserPreview, UserPreview
 from .views import (
     FeedbackDeleteView,
     FeedbackView,
+    OldUserDataDeleteView,
     ProfileDataView,
     ScreenshotView,
     SetPassword,
@@ -35,6 +36,7 @@ urlpatterns = [
     path("users/<int:id>/password", SetPassword.as_view(), name="user_password"),
     path("users/<int:id>/edit", UserUpdate.as_view(), name="user_edit"),
     path("users/", UserPreview(forms.Form), name="users"),
+    path("django_users/", DjangoUserPreview(forms.Form), name="django_users"),
     path("system", SystemInfo.as_view(), name="system_info"),
     path("error/", trigger_error, name="error_debug"),
     path("profile/", ProfileDataView.as_view(), name="properties"),
@@ -45,6 +47,11 @@ urlpatterns = [
         r"^profile/move/(?P<id>\d+)/(?P<direction>\w+)/$",
         UDMove.as_view(),
         name="move_property",
+    ),
+    path(
+        "profile/prune/<int:property>/",
+        OldUserDataDeleteView.as_view(),
+        name="prune_properties",
     ),
     path("feedback/image/<int:id>", ScreenshotView.as_view(), name="screenshot"),
     path("feedback/", FeedbackView.as_view(), name="feedback"),

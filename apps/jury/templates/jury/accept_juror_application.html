@@ -96,8 +96,8 @@
                                                 <dt>Team:</dt>
                                                 <dd>{% for tm in prev.attendee.teammember_set.all %}{{ tm.team.origin.name }}: {{ tm.role }} {% endfor %}</dd>
                                             </dl>
-                                            <span class="label label-default">{% if juror.juror.local %}Local Juror{% endif %}</span>
-                                                    <span class="label label-default">{% if juror.juror.possible_chair %}Possible Chair{% endif %}</span>
+                                            <span class="label label-default">{% if prev.juror.local %}Local Juror{% endif %}</span>
+                                                    <span class="label label-default">{% if prev.juror.possible_chair %}Possible Chair{% endif %}</span>
                                         </div>
 
 

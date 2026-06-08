@@ -20,7 +20,7 @@ class Command(BaseCommand):
         # )
         pjs = PossibleJuror.objects.filter(tournament=trn)
         data = []
-        for p in pjs[:2]:
+        for p in pjs:
             dat = {
                 "first_name": p.person.user.first_name,
                 "last_name": p.person.user.last_name,

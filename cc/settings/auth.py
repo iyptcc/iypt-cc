@@ -14,11 +14,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
-    {"NAME": "django_pwned_passwords.password_validation.PWNEDPasswordValidator"},
+    {
+        "NAME": "pwned_passwords_django.validators.PwnedPasswordsValidator",
+    },
 ]
-
-PWNED_VALIDATOR_FAIL_SAFE = False
-PWNED_VALIDATOR_URL = "http://haveibeenpwned-api:5000/range/{short_hash}"
 
 LOGIN_REDIRECT_URL = "account:profile"
 LOGOUT_REDIRECT_URL = "login"

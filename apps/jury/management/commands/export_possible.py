@@ -1,5 +1,7 @@
 import json
 
+from tqdm import tqdm
+
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.jury.models import PossibleJuror
@@ -20,7 +22,7 @@ class Command(BaseCommand):
         # )
         pjs = PossibleJuror.objects.filter(tournament=trn)
         data = []
-        for p in pjs:
+        for p in tqdm(pjs):
             dat = {
                 "first_name": p.person.user.first_name,
                 "last_name": p.person.user.last_name,

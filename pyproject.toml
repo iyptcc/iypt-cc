@@ -64,6 +64,7 @@ dependencies = [
     "django-auditlog",
     "pytz",
     "django-unused-media @ git+https://github.com/EE/django-unused-media.git",
+    "tqdm",
 ]
 
 [project.optional-dependencies]

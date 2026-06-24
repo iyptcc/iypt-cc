@@ -17,7 +17,8 @@
                         <h3 class="box-title">{{ attendee.full_name }} participate in {{ attendee.tournament.name }} with roles</h3>
                     </div>
                     <div class="box-body">
-                        {% for r in attendee.roles.all %}<span class="label label-default">{{ r.name }}</span> {% endfor %}
+                        {% for r in attendee.roles.all %}<span class="label label-default">{{ r.name }}{% if perms.registration.accept_role %} <a href="{% url 'registration:remove_attendeerole' attendee.id r.id %}" style="color:#fff;" title="Remove role {{ r.name }}">&times;</a>{% endif %}</span> {% endfor %}
+                        {% if perms.registration.accept_role and attendee.roles.all %}<p class="help-block" style="margin-top:8px;">Click the &times; on a role to remove it from this person.</p>{% endif %}
                     </div>
                 </form>
                 </div>

@@ -1,6 +1,7 @@
 import copy
 import statistics
 from decimal import ROUND_HALF_UP, Decimal
+from operator import itemgetter
 
 from django.core.cache import caches
 
@@ -463,6 +464,7 @@ def _ranking(rounds, use_cache=True, internal=False):
                         "team": team["name"],
                         "slug": team["slug"],
                         "tsp": 0,
+                        "won": 0,
                         "sp": [],
                     }
                 grades_r[team["pk"]]["sp"].append(
@@ -470,22 +472,18 @@ def _ranking(rounds, use_cache=True, internal=False):
                 )
                 wons = [x[1] for x in grades_r[team["pk"]]["sp"]]
                 grades_r[team["pk"]]["all_won"] = all(wons) and len(wons) > 0
+                grades_r[team["pk"]]["won"] = sum(wons)
                 grades_r[team["pk"]]["tsp"] += team["sp"]
 
-        grlist = sorted(
-            grades_r.values(),
-            key=lambda t: (t["tsp"], sum(1 for x in t["sp"] if x[1])),
-            reverse=True,
-        )
+        rankkey = itemgetter("tsp", "won")
+        grlist = sorted(grades_r.values(), key=rankkey, reverse=True)
         rank = 0
-        tsp = -1
+        prev = None
         for tix, t in enumerate(grlist):
-            if (t["tsp"]) != tsp:
-                t["rank"] = tix + 1
+            if rankkey(t) != prev:
                 rank = tix + 1
-            else:
-                t["rank"] = rank
-            tsp = t["tsp"]
+            t["rank"] = rank
+            prev = rankkey(t)
             if len(grades) > 0:
                 for op in grades[-1]:
                     if op["pk"] == t["pk"]:

@@ -53,7 +53,7 @@ jobs:
 
             .venv/bin/python3 -m coverage run \
               --omit "/usr/*","src/*","env/*","*/migrations/*" \
-              manage.py test apps.dashboard.tournament_tests --verbosity=2
+              manage.py test apps.dashboard.tournament_tests apps.result --verbosity=2
 
             .venv/bin/python3 -m coverage report -m | tee coverage.log
             grep "^TOTAL" coverage.log | awk "{print \"covered \" \$4;}"

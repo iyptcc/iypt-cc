@@ -48,6 +48,7 @@ jobs:
       - name: Run tests
         run: |
           docker run --rm app-test:${{ github.sha }} bash -c '
+            set -e
             cd /data/django
             uv sync --extra server --extra dev --extra test
 

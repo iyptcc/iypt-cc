@@ -472,7 +472,11 @@ def _ranking(rounds, use_cache=True, internal=False):
                 grades_r[team["pk"]]["all_won"] = all(wons) and len(wons) > 0
                 grades_r[team["pk"]]["tsp"] += team["sp"]
 
-        grlist = list(reversed(sorted(grades_r.values(), key=lambda t: t["tsp"])))
+        grlist = sorted(
+            grades_r.values(),
+            key=lambda t: (t["tsp"], sum(1 for x in t["sp"] if x[1])),
+            reverse=True,
+        )
         rank = 0
         tsp = -1
         for tix, t in enumerate(grlist):

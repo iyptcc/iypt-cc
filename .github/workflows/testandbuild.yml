@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -26,7 +26,7 @@ jobs:
           docker save app-test:${{ github.sha }} | gzip > app-test.tar.gz
 
       - name: Upload image artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-test-image
           path: app-test.tar.gz
@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Download image artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: app-test-image
 
@@ -48,6 +48,7 @@ jobs:
       - name: Run tests
         run: |
           docker run --rm app-test:${{ github.sha }} bash -c '
+            set -e
             cd /data/django
             uv sync --extra server --extra dev --extra test
 
@@ -69,7 +70,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 

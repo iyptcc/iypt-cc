@@ -82,6 +82,9 @@ class TournamentCreate(CreateView):
 
     form_class = TournamentEditForm
 
+    # new tournaments default to the new TSP calculation, existing ones keep the old
+    initial = {"ranking_unrounded_tsp": True}
+
     def form_valid(self, form):
         trn = form.save(commit=False)
         trn.save()

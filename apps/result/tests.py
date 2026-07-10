@@ -7,11 +7,12 @@ from django.test import SimpleTestCase
 from apps.result.utils import _ranking  # adjust import path to where _ranking lives
 
 
-def make_round(publish_ranking, fights):
+def make_round(publish_ranking, fights, unrounded_tsp=False):
     """Mock Round object exposing round.publish_ranking and round.fight_set.all()."""
     round_obj = MagicMock()
     round_obj.publish_ranking = publish_ranking
     round_obj.fight_set.all.return_value = fights
+    round_obj.tournament.ranking_unrounded_tsp = unrounded_tsp
     return round_obj
 
 
@@ -20,9 +21,7 @@ class RankingTiesTests(SimpleTestCase):
     @patch("apps.result.utils._fightresult")
     def test_ranking_matches_expected_grades(self, mock_fightresult):
         fight = MagicMock()
-        round1 = MagicMock()
-        round1.publish_ranking = True
-        round1.fight_set.all.return_value = [fight]
+        round1 = make_round(True, [fight])
 
         mock_fightresult.return_value = {
             'room': 'A',
@@ -43,6 +42,7 @@ class RankingTiesTests(SimpleTestCase):
                     "team": "Austria",
                     "slug": "austria",
                     "tsp": Decimal("19.9"),
+                    "tsp_raw": Decimal("19.9"),
                     "won": 1,
                     "sp": [(Decimal("19.9"), True, "A")],
                     "all_won": True,
@@ -53,6 +53,7 @@ class RankingTiesTests(SimpleTestCase):
                     "team": "Bahrain",
                     "slug": "bahrain",
                     "tsp": Decimal("12.8"),
+                    "tsp_raw": Decimal("12.8"),
                     "won": 0,
                     "sp": [(Decimal("12.8"), False, "A")],
                     "all_won": False,
@@ -63,6 +64,7 @@ class RankingTiesTests(SimpleTestCase):
                     "team": "Albania",
                     "slug": "albania",
                     "tsp": Decimal("0.0"),
+                    "tsp_raw": Decimal("0.0"),
                     "won": 0,
                     "sp": [(Decimal("0.0"), False, "A")],
                     "all_won": False,
@@ -77,13 +79,8 @@ class RankingTiesTests(SimpleTestCase):
         fight_r1 = MagicMock()
         fight_r2 = MagicMock()
 
-        round1 = MagicMock()
-        round1.publish_ranking = True
-        round1.fight_set.all.return_value = [fight_r1]
-
-        round2 = MagicMock()
-        round2.publish_ranking = True
-        round2.fight_set.all.return_value = [fight_r2]
+        round1 = make_round(True, [fight_r1])
+        round2 = make_round(True, [fight_r2])
 
         def side_effect(fight, use_cache=True):
             if fight is fight_r1:
@@ -134,3 +131,74 @@ class RankingTiesTests(SimpleTestCase):
         self.assertEqual(final[4]["rank_diff"], 0)
         # Austria drops from rank 1 to rank 2 -> diff = 1 - 2 = -1
         self.assertEqual(final[25]["rank_diff"], -1)
+
+
+class RankingTspRoundingTests(SimpleTestCase):
+    """Legacy tsp sums the rounded fight SPs; with Tournament.ranking_unrounded_tsp
+    the tsp is the unrounded sum of fight sums, rounded once."""
+
+    def _rank(self, unrounded_tsp):
+        fight_r1 = MagicMock()
+        fight_r2 = MagicMock()
+
+        round1 = make_round(True, [fight_r1], unrounded_tsp)
+        round2 = make_round(True, [fight_r2], unrounded_tsp)
+
+        def side_effect(fight, use_cache=True):
+            if fight is fight_r1:
+                return {
+                    "room": "A",
+                    "round": 1,
+                    "result": [
+                        {"pk": 25, "won": True, "name": "Austria",
+                         "sp": Decimal("19.3"), "sp_raw": Decimal("19.25"), "slug": "austria"},
+                        {"pk": 4, "won": False, "name": "Bahrain",
+                         "sp": Decimal("10.0"), "sp_raw": Decimal("10.0"), "slug": "bahrain"},
+                    ],
+                }
+            return {
+                "room": "A",
+                "round": 2,
+                "result": [
+                    {"pk": 25, "won": True, "name": "Austria",
+                     "sp": Decimal("20.3"), "sp_raw": Decimal("20.25"), "slug": "austria"},
+                    {"pk": 4, "won": False, "name": "Bahrain",
+                     "sp": Decimal("10.0"), "sp_raw": Decimal("10.0"), "slug": "bahrain"},
+                ],
+            }
+
+        with patch("apps.result.utils._fightresult", side_effect=side_effect):
+            grades = _ranking([round1, round2], use_cache=False)
+        return {t["pk"]: t for t in grades[-1]}
+
+    def test_legacy_tsp_sums_rounded_sps(self):
+        final = self._rank(unrounded_tsp=False)
+        # 19.3 + 20.3
+        self.assertEqual(final[25]["tsp"], Decimal("39.6"))
+        self.assertEqual(final[4]["tsp"], Decimal("20.0"))
+
+    def test_unrounded_tsp_rounds_once(self):
+        final = self._rank(unrounded_tsp=True)
+        # 19.25 + 20.25 = 39.5 (not 19.3 + 20.3 = 39.6)
+        self.assertEqual(final[25]["tsp"], Decimal("39.5"))
+        self.assertEqual(final[4]["tsp"], Decimal("20.0"))
+
+    def test_unrounded_tsp_falls_back_to_sp_for_stale_cache(self):
+        fight = MagicMock()
+        round1 = make_round(True, [fight], unrounded_tsp=True)
+
+        def side_effect(fight, use_cache=True):
+            # fight result cached before sp_raw existed
+            return {
+                "room": "A",
+                "round": 1,
+                "result": [
+                    {"pk": 25, "won": True, "name": "Austria",
+                     "sp": Decimal("19.3"), "slug": "austria"},
+                ],
+            }
+
+        with patch("apps.result.utils._fightresult", side_effect=side_effect):
+            grades = _ranking([round1], use_cache=False)
+
+        self.assertEqual(grades[-1][0]["tsp"], Decimal("19.3"))

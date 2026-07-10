@@ -36,6 +36,14 @@ class Tournament(models.Model):
 
     results_help_html = models.TextField(blank=True, null=True)
 
+    ranking_unrounded_tsp = models.BooleanField(
+        verbose_name="Ranking total from unrounded fight sums",
+        help_text="Compute the total sum of points from the unrounded fight sums and "
+        "round once for display. If unset, the total is the sum of the rounded fight "
+        "SPs (legacy behaviour).",
+        default=False,
+    )
+
     allow_oauth = models.BooleanField(default=False)
 
     # registration timings

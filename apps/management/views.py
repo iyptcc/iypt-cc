@@ -348,7 +348,8 @@ class TournamentChange(UpdateView):
         return obj
 
     def form_valid(self, form):
-        # cached fight results bake in the SP rounding mode
+        # cached rankings bake in the TSP mode, and fight results cached
+        # before the flag existed lack sp_raw
         if "ranking_unrounded_tsp" in form.changed_data:
             caches["results"].clear()
         return super().form_valid(form)

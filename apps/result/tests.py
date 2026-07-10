@@ -215,8 +215,11 @@ def make_attendance(pk, name, grade_average):
 
 
 class FightSpRoundingTests(SimpleTestCase):
-    """Legacy fight SPs round halves up; with Tournament.ranking_unrounded_tsp
-    halves round to even (official IYPT arithmetic)."""
+    """Fight SPs round halves up regardless of Tournament.ranking_unrounded_tsp;
+    the flag only changes how the ranking total is accumulated. (Verified against
+    the official IYPT 2026 pages: all 19 non-winner SPs on an exact half rounded
+    up, as did every total; only 4 winner cells rounded down, an inconsistency
+    of the iypt.ch generator itself.)"""
 
     def _fightresult(self, unrounded_tsp):
         fight = MagicMock()
@@ -244,8 +247,8 @@ class FightSpRoundingTests(SimpleTestCase):
         self.assertEqual(result[25]["sp_raw"], Decimal("20.25"))
         self.assertEqual(result[4]["sp"], Decimal("10.0"))
 
-    def test_exact_sp_rounds_half_to_even(self):
+    def test_sp_rounds_half_up_with_unrounded_tsp_flag(self):
         result = self._fightresult(unrounded_tsp=True)
-        self.assertEqual(result[25]["sp"], Decimal("20.2"))
+        self.assertEqual(result[25]["sp"], Decimal("20.3"))
         self.assertEqual(result[25]["sp_raw"], Decimal("20.25"))
         self.assertEqual(result[4]["sp"], Decimal("10.0"))

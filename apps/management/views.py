@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
+from django.core.cache import caches
 from django.db import IntegrityError, transaction
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
@@ -345,6 +346,12 @@ class TournamentChange(UpdateView):
     def get_object(self, queryset=None):
         obj = Tournament.objects.get(id=self.kwargs["id"])
         return obj
+
+    def form_valid(self, form):
+        # cached fight results bake in the SP rounding mode
+        if "ranking_unrounded_tsp" in form.changed_data:
+            caches["results"].clear()
+        return super().form_valid(form)
 
 
 @method_decorator(login_required, name="dispatch")

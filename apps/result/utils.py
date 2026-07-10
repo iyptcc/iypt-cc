@@ -1,6 +1,6 @@
 import copy
 import statistics
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from operator import itemgetter
 
 from django.core.cache import caches
@@ -198,6 +198,14 @@ def _fightresult(fight, use_cache=True):
                     str(_review_factor(attendance))
                 ) - Decimal(str(_att_penalty(attendance)))
 
+    # official IYPT arithmetic rounds halves to even; the legacy behaviour
+    # rounded halves up
+    sp_rounding = (
+        ROUND_HALF_EVEN
+        if fight.round.tournament.ranking_unrounded_tsp
+        else ROUND_HALF_UP
+    )
+
     result = reversed(
         sorted(
             map(
@@ -205,7 +213,7 @@ def _fightresult(fight, use_cache=True):
                     "pk": t[0].pk,
                     "won": False,
                     "name": t[0].origin.name,
-                    "sp": Decimal(t[1]).quantize(Decimal("1.1"), ROUND_HALF_UP),
+                    "sp": Decimal(t[1]).quantize(Decimal("1.1"), sp_rounding),
                     "sp_raw": Decimal(t[1]),
                     "slug": t[0].origin.slug,
                 },
@@ -481,7 +489,7 @@ def _ranking(rounds, use_cache=True, internal=False):
                 if unrounded_tsp:
                     grades_r[team["pk"]]["tsp"] = grades_r[team["pk"]][
                         "tsp_raw"
-                    ].quantize(Decimal("1.1"), ROUND_HALF_UP)
+                    ].quantize(Decimal("1.1"), ROUND_HALF_EVEN)
                 else:
                     grades_r[team["pk"]]["tsp"] += team["sp"]
 

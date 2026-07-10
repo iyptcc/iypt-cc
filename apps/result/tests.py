@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 
 from django.test import SimpleTestCase
 
-from apps.result.utils import _ranking  # adjust import path to where _ranking lives
+from apps.result.utils import _fightresult, _ranking
 
 
 def make_round(publish_ranking, fights, unrounded_tsp=False):
@@ -202,3 +202,50 @@ class RankingTspRoundingTests(SimpleTestCase):
             grades = _ranking([round1], use_cache=False)
 
         self.assertEqual(grades[-1][0]["tsp"], Decimal("19.3"))
+
+
+def make_attendance(pk, name, grade_average):
+    attendance = MagicMock()
+    attendance.team.pk = pk
+    attendance.team_id = pk
+    attendance.team.origin.name = name
+    attendance.team.origin.slug = name.lower()
+    attendance.grade_average = grade_average
+    return attendance
+
+
+class FightSpRoundingTests(SimpleTestCase):
+    """Legacy fight SPs round halves up; with Tournament.ranking_unrounded_tsp
+    halves round to even (official IYPT arithmetic)."""
+
+    def _fightresult(self, unrounded_tsp):
+        fight = MagicMock()
+        fight.pk = 1
+        fight.round.review_phase = False
+        fight.round.tournament.ranking_unrounded_tsp = unrounded_tsp
+        fight.round.order = 1
+        fight.room.name = "A"
+
+        stage = MagicMock()
+        # 6.75 * factor 3 = 20.25, exactly on the rounding boundary
+        stage.rep_attendance_grades = make_attendance(25, "Austria", Decimal("6.75"))
+        stage.opp_attendance_grades = make_attendance(4, "Bahrain", Decimal("5"))
+        fight.stage_set.all.return_value = [stage]
+
+        with patch("apps.result.utils._report_factor", return_value=3.0), patch(
+            "apps.result.utils._opposition_factor", return_value=2.0
+        ), patch("apps.result.utils._att_penalty", return_value=0):
+            context = _fightresult(fight, use_cache=False)
+        return {t["pk"]: t for t in context["result"]}
+
+    def test_legacy_sp_rounds_half_up(self):
+        result = self._fightresult(unrounded_tsp=False)
+        self.assertEqual(result[25]["sp"], Decimal("20.3"))
+        self.assertEqual(result[25]["sp_raw"], Decimal("20.25"))
+        self.assertEqual(result[4]["sp"], Decimal("10.0"))
+
+    def test_exact_sp_rounds_half_to_even(self):
+        result = self._fightresult(unrounded_tsp=True)
+        self.assertEqual(result[25]["sp"], Decimal("20.2"))
+        self.assertEqual(result[25]["sp_raw"], Decimal("20.25"))
+        self.assertEqual(result[4]["sp"], Decimal("10.0"))

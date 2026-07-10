@@ -37,10 +37,11 @@ class Tournament(models.Model):
     results_help_html = models.TextField(blank=True, null=True)
 
     ranking_unrounded_tsp = models.BooleanField(
-        verbose_name="Ranking total from unrounded fight sums",
-        help_text="Compute the total sum of points from the unrounded fight sums and "
-        "round once for display. If unset, the total is the sum of the rounded fight "
-        "SPs (legacy behaviour).",
+        verbose_name="Exact ranking arithmetic (half-even rounding)",
+        help_text="Round fight SPs half to even and compute the total sum of points "
+        "from the unrounded fight sums, rounded once for display (matches the "
+        "official IYPT arithmetic). If unset, fight SPs are rounded half up and "
+        "the total is their sum (legacy behaviour).",
         default=False,
     )
 

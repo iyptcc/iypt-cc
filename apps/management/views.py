@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
-from django.core.cache import caches
 from django.db import IntegrityError, transaction
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
@@ -83,11 +82,9 @@ class TournamentCreate(CreateView):
 
     form_class = TournamentEditForm
 
-    # new tournaments default to the new TSP calculation, existing ones keep the old
-    initial = {"ranking_unrounded_tsp": True}
-
     def form_valid(self, form):
         trn = form.save(commit=False)
+        trn.ranking_unrounded_tsp = True
         trn.save()
 
         for typ, name in JurorRole.ROLE_TYPE:
@@ -346,13 +343,6 @@ class TournamentChange(UpdateView):
     def get_object(self, queryset=None):
         obj = Tournament.objects.get(id=self.kwargs["id"])
         return obj
-
-    def form_valid(self, form):
-        # cached rankings bake in the TSP mode, and fight results cached
-        # before the flag existed lack sp_raw
-        if "ranking_unrounded_tsp" in form.changed_data:
-            caches["results"].clear()
-        return super().form_valid(form)
 
 
 @method_decorator(login_required, name="dispatch")

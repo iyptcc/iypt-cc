@@ -8,7 +8,7 @@ from apps.tournament.models import Tournament
 class TournamentEditForm(forms.ModelForm):
     class Meta:
         model = Tournament
-        fields = ["name", "slug", "groups", "allow_oauth", "ranking_unrounded_tsp"]
+        fields = ["name", "slug", "groups", "allow_oauth"]
 
         widgets = {"groups": Select2MultipleWidget()}
 

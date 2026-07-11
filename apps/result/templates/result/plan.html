@@ -1,5 +1,5 @@
 {% extends "dashboard/base-layout.html" %}
-{% load bootstrap3 i18n %}
+{% load bootstrap3 i18n rounding %}
 
     {% block styles_inline %}
     <style>
@@ -39,7 +39,7 @@
                                                     <h4 class="box-title"><b>{{ fight.room }}:</b>
                                                         <div style="display: inline-block;line-height: 24px;">
                                                         {% for t in fight.result %}
-                                                            <a class="label label-info" href="{% url 'result:team' tournament t.slug %}">{{ t.name }}: {{ t.sp|floatformat:1 }}{% if t.won %} <i class="fa fa-star text-yellow"></i>{% endif %}</a>
+                                                            <a class="label label-info" href="{% url 'result:team' tournament t.slug %}">{{ t.name }}: {{ t.sp|halfup:1 }}{% if t.won %} <i class="fa fa-star text-yellow"></i>{% endif %}</a>
                                                         {% endfor %}
                                                         </div>
                                                     </h4>

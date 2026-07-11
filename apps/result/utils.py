@@ -198,6 +198,15 @@ def _fightresult(fight, use_cache=True):
                     str(_review_factor(attendance))
                 ) - Decimal(str(_att_penalty(attendance)))
 
+    def round_sp(val):
+        # full-precision mode: SPs stay unrounded, displays round via the
+        # result.rounding filters; legacy mode bakes half-up rounding into
+        # the fight SP itself
+        if fight.round.tournament.ranking_unrounded_tsp:
+            return Decimal(val)
+        else:
+            return Decimal(val).quantize(Decimal("1.1"), ROUND_HALF_UP)
+
     result = reversed(
         sorted(
             map(
@@ -205,7 +214,7 @@ def _fightresult(fight, use_cache=True):
                     "pk": t[0].pk,
                     "won": False,
                     "name": t[0].origin.name,
-                    "sp": Decimal(t[1]).quantize(Decimal("1.1"), ROUND_HALF_UP),
+                    "sp": round_sp(t[1]),
                     "slug": t[0].origin.slug,
                 },
                 teams.values(),

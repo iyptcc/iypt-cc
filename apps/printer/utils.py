@@ -4,6 +4,8 @@ from django.template import TemplateDoesNotExist
 from jinja2 import BaseLoader, DebugUndefined, Environment, Undefined
 from jinja2.exceptions import TemplateError
 
+from apps.result.rounding import round_half_up
+
 from .models import Pdf, Template
 
 
@@ -140,6 +142,7 @@ def render_template(template_id, context):
 
     env.filters["texify"] = texify
     env.filters["initials"] = initials
+    env.filters["halfup"] = round_half_up
 
     import json
 

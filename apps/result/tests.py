@@ -4,14 +4,17 @@ from unittest.mock import patch, MagicMock
 
 from django.test import SimpleTestCase
 
-from apps.result.utils import _ranking  # adjust import path to where _ranking lives
+from apps.result.rounding import round_half_up
+from apps.result.templatetags.rounding import halfup
+from apps.result.utils import _fightresult, _ranking
 
 
-def make_round(publish_ranking, fights):
+def make_round(publish_ranking, fights, unrounded_tsp=False):
     """Mock Round object exposing round.publish_ranking and round.fight_set.all()."""
     round_obj = MagicMock()
     round_obj.publish_ranking = publish_ranking
     round_obj.fight_set.all.return_value = fights
+    round_obj.tournament.ranking_unrounded_tsp = unrounded_tsp
     return round_obj
 
 
@@ -20,9 +23,7 @@ class RankingTiesTests(SimpleTestCase):
     @patch("apps.result.utils._fightresult")
     def test_ranking_matches_expected_grades(self, mock_fightresult):
         fight = MagicMock()
-        round1 = MagicMock()
-        round1.publish_ranking = True
-        round1.fight_set.all.return_value = [fight]
+        round1 = make_round(True, [fight])
 
         mock_fightresult.return_value = {
             'room': 'A',
@@ -77,13 +78,8 @@ class RankingTiesTests(SimpleTestCase):
         fight_r1 = MagicMock()
         fight_r2 = MagicMock()
 
-        round1 = MagicMock()
-        round1.publish_ranking = True
-        round1.fight_set.all.return_value = [fight_r1]
-
-        round2 = MagicMock()
-        round2.publish_ranking = True
-        round2.fight_set.all.return_value = [fight_r2]
+        round1 = make_round(True, [fight_r1])
+        round2 = make_round(True, [fight_r2])
 
         def side_effect(fight, use_cache=True):
             if fight is fight_r1:
@@ -134,3 +130,123 @@ class RankingTiesTests(SimpleTestCase):
         self.assertEqual(final[4]["rank_diff"], 0)
         # Austria drops from rank 1 to rank 2 -> diff = 1 - 2 = -1
         self.assertEqual(final[25]["rank_diff"], -1)
+
+
+class RankingTspAccumulationTests(SimpleTestCase):
+    """Legacy tsp sums the (rounded) fight SPs; in full-precision mode the
+    fight results already carry unrounded SPs, so the tsp is their exact sum
+    and is only rounded for display by the result.rounding filters."""
+
+    def _rank(self, sps_r1, sps_r2, unrounded_tsp):
+        fight_r1 = MagicMock()
+        fight_r2 = MagicMock()
+
+        round1 = make_round(True, [fight_r1], unrounded_tsp)
+        round2 = make_round(True, [fight_r2], unrounded_tsp)
+
+        def side_effect(fight, use_cache=True):
+            sps = sps_r1 if fight is fight_r1 else sps_r2
+            return {
+                "room": "A",
+                "round": 1 if fight is fight_r1 else 2,
+                "result": [
+                    {"pk": 25, "won": True, "name": "Austria",
+                     "sp": sps[0], "slug": "austria"},
+                    {"pk": 4, "won": False, "name": "Bahrain",
+                     "sp": sps[1], "slug": "bahrain"},
+                ],
+            }
+
+        with patch("apps.result.utils._fightresult", side_effect=side_effect):
+            grades = _ranking([round1, round2], use_cache=False)
+        return {t["pk"]: t for t in grades[-1]}
+
+    def test_legacy_tsp_sums_rounded_sps(self):
+        final = self._rank(
+            [Decimal("19.3"), Decimal("10.0")],
+            [Decimal("20.3"), Decimal("10.0")],
+            unrounded_tsp=False,
+        )
+        self.assertEqual(final[25]["tsp"], Decimal("39.6"))
+        self.assertEqual(final[4]["tsp"], Decimal("20.0"))
+
+    def test_full_precision_tsp_is_exact_sum(self):
+        final = self._rank(
+            [Decimal("19.25"), Decimal("10.0")],
+            [Decimal("20.25"), Decimal("10.0")],
+            unrounded_tsp=True,
+        )
+        # exact, never rounded in the calculation
+        self.assertEqual(final[25]["tsp"], Decimal("39.50"))
+        self.assertEqual(final[4]["tsp"], Decimal("20.0"))
+
+
+def make_attendance(pk, name, grade_average):
+    attendance = MagicMock()
+    attendance.team.pk = pk
+    attendance.team_id = pk
+    attendance.team.origin.name = name
+    attendance.team.origin.slug = name.lower()
+    attendance.grade_average = grade_average
+    return attendance
+
+
+class FightSpRoundingTests(SimpleTestCase):
+    """Legacy fight SPs bake in half-up rounding; in full-precision mode the
+    SP stays exact and is rounded only for display. (Official IYPT pages round
+    halves up in every consistently-generated cell and in all totals; their
+    winner cells on exact halves are a known inconsistency of the iypt.ch
+    generator that no rounding rule reproduces.)"""
+
+    def _fightresult(self, unrounded_tsp):
+        fight = MagicMock()
+        fight.pk = 1
+        fight.round.review_phase = False
+        fight.round.tournament.ranking_unrounded_tsp = unrounded_tsp
+        fight.round.order = 1
+        fight.room.name = "A"
+
+        stage = MagicMock()
+        # 6.75 * factor 3 = 20.25, exactly on the rounding boundary
+        stage.rep_attendance_grades = make_attendance(25, "Austria", Decimal("6.75"))
+        stage.opp_attendance_grades = make_attendance(4, "Bahrain", Decimal("5"))
+        fight.stage_set.all.return_value = [stage]
+
+        with patch("apps.result.utils._report_factor", return_value=3.0), patch(
+            "apps.result.utils._opposition_factor", return_value=2.0
+        ), patch("apps.result.utils._att_penalty", return_value=0):
+            context = _fightresult(fight, use_cache=False)
+        return {t["pk"]: t for t in context["result"]}
+
+    def test_legacy_sp_rounds_half_up(self):
+        result = self._fightresult(unrounded_tsp=False)
+        self.assertEqual(result[25]["sp"], Decimal("20.3"))
+        self.assertEqual(result[4]["sp"], Decimal("10.0"))
+
+    def test_full_precision_sp_stays_exact(self):
+        result = self._fightresult(unrounded_tsp=True)
+        self.assertEqual(result[25]["sp"], Decimal("20.25"))
+        self.assertEqual(result[4]["sp"], Decimal("10.0"))
+
+
+class DisplayRoundingTests(SimpleTestCase):
+    """Score displays round halves up via result.rounding, an explicit rule
+    independent of Django's floatformat (whose rounding has changed across
+    Django releases) and of locale formatting."""
+
+    def test_sp_display_rounds_half_up(self):
+        self.assertEqual(round_half_up(Decimal("20.25"), 1), Decimal("20.3"))
+        self.assertEqual(round_half_up(Decimal("46.25"), 1), Decimal("46.3"))
+
+    def test_weighted_average_display_rounds_half_up(self):
+        self.assertEqual(round_half_up(Decimal("11.625"), 2), Decimal("11.63"))
+
+    def test_non_halves_unchanged(self):
+        self.assertEqual(round_half_up(Decimal("20.24"), 1), Decimal("20.2"))
+        self.assertEqual(round_half_up(Decimal("20.26"), 1), Decimal("20.3"))
+
+    def test_none_renders_empty(self):
+        self.assertEqual(round_half_up(None, 1), "")
+
+    def test_template_filter(self):
+        self.assertEqual(halfup(Decimal("20.25"), 1), Decimal("20.3"))

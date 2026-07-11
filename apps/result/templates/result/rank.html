@@ -1,5 +1,5 @@
 {% extends "dashboard/base-layout.html" %}
-{% load bootstrap3 i18n %}
+{% load bootstrap3 i18n rounding %}
 
 
     {% block page_title %}Tournament{% endblock %}
@@ -30,7 +30,7 @@
                                             </td>
                                             <td><a href="{% url "result:team" tournament t.slug %}">{{ t.name }}</a>
                                             </td>
-                                            <td><b>{{ t.sp|floatformat:1 }}</b></td>
+                                            <td><b>{{ t.sp|halfup:1 }}</b></td>
 
                                         </tr>
                                     {% endfor %}
@@ -77,9 +77,9 @@
                                                     <i class="fa fa-star text-yellow"></i>
                                                 {% endif %}
                                             </td>
-                                            <td><b>{{ t.tsp|floatformat:1 }}</b></td>
+                                            <td><b>{{ t.tsp|halfup:1 }}</b></td>
                                             {% for sp in t.sp %}
-                                                <td><a href="{% url "result:fight" tournament forloop.counter sp.2|slugify %}">{{ sp.0 }}</a>{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
+                                                <td><a href="{% url "result:fight" tournament forloop.counter sp.2|slugify %}">{{ sp.0|halfup:1 }}</a>{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}

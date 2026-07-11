@@ -1,4 +1,4 @@
-{% load flags %}
+{% load flags rounding %}
 <table class="table table-striped">
     {% if fight.info|length == 3 %}
         {% for i in "xxxxxxx" %}
@@ -73,8 +73,8 @@
         <tr>
             <td>Average:</td>
             {% for stage in fight.info %}
-                <td>{{ stage.average.rep|floatformat:2 }}</td>
-                <td>{{ stage.average.opp|floatformat:2 }}</td>
+                <td>{{ stage.average.rep|halfup:2 }}</td>
+                <td>{{ stage.average.opp|halfup:2 }}</td>
             {% endfor %}
         </tr>
         <tr>
@@ -87,8 +87,8 @@
         <tr>
             <th>Points:</th>
             {% for stage in fight.info %}
-                <th>{{ stage.w_average.rep|floatformat:2 }}</th>
-                <th>{{ stage.w_average.opp|floatformat:2 }}</th>
+                <th>{{ stage.w_average.rep|halfup:2 }}</th>
+                <th>{{ stage.w_average.opp|halfup:2 }}</th>
             {% endfor %}
         </tr>
     </tbody>

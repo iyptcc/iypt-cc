@@ -470,7 +470,6 @@ def _ranking(rounds, use_cache=True, internal=False):
                         "team": team["name"],
                         "slug": team["slug"],
                         "tsp": 0,
-                        "tsp_raw": 0,
                         "won": 0,
                         "sp": [],
                     }

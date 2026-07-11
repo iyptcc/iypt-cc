@@ -9,7 +9,7 @@ from apps.dashboard.templatetags.flags import flag_url
 from apps.jury.models import GradingSheet, GroupGrade, Juror, JurorGrade
 from apps.plan.models import FightRole, Round, Stage, StageAttendance
 from apps.team.models import TeamMember
-from apps.tournament.models import Problem
+from apps.tournament.models import Problem, Tournament
 
 
 def _presented_before(team, round):
@@ -198,6 +198,12 @@ def _fightresult(fight, use_cache=True):
                     str(_review_factor(attendance))
                 ) - Decimal(str(_att_penalty(attendance)))
 
+    def round_sp(val, fight):
+        if fight.round.tournament.ranking_unrounded_tsp:
+            return Decimal(val)
+        else:
+            return Decimal(val).quantize(Decimal("1.1"), ROUND_HALF_UP)
+
     result = reversed(
         sorted(
             map(
@@ -205,8 +211,7 @@ def _fightresult(fight, use_cache=True):
                     "pk": t[0].pk,
                     "won": False,
                     "name": t[0].origin.name,
-                    "sp": Decimal(t[1]).quantize(Decimal("1.1"), ROUND_HALF_UP),
-                    "sp_raw": Decimal(t[1]),
+                    "sp": round_sp(t[1], fight),
                     "slug": t[0].origin.slug,
                 },
                 teams.values(),
@@ -455,7 +460,6 @@ def _ranking(rounds, use_cache=True, internal=False):
         if (not round.publish_ranking) and not internal:
             continue
         grades_r = copy.deepcopy(grades_r)
-        unrounded_tsp = round.tournament.ranking_unrounded_tsp
         for fight in round.fight_set.all():
             fightresults = _fightresult(fight, use_cache=use_cache)
             for team in fightresults["result"]:
@@ -476,14 +480,7 @@ def _ranking(rounds, use_cache=True, internal=False):
                 wons = [x[1] for x in grades_r[team["pk"]]["sp"]]
                 grades_r[team["pk"]]["all_won"] = all(wons) and len(wons) > 0
                 grades_r[team["pk"]]["won"] = sum(wons)
-                # sp_raw is absent in fight results cached before its introduction
-                grades_r[team["pk"]]["tsp_raw"] += team.get("sp_raw", team["sp"])
-                if unrounded_tsp:
-                    grades_r[team["pk"]]["tsp"] = grades_r[team["pk"]][
-                        "tsp_raw"
-                    ].quantize(Decimal("1.1"), ROUND_HALF_UP)
-                else:
-                    grades_r[team["pk"]]["tsp"] += team["sp"]
+                grades_r[team["pk"]]["tsp"] += team["sp"]
 
         rankkey = itemgetter("tsp", "won")
         grlist = sorted(grades_r.values(), key=rankkey, reverse=True)

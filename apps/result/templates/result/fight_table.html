@@ -1,4 +1,4 @@
-{% load flags %}
+{% load flags rounding %}
 <table class="table table-striped">
     {% if fight.info|length == 4 %}
         {% for i in "xxxxxxxxxxxxx" %}
@@ -49,9 +49,9 @@
         <tr>
             <td>Average:</td>
             {% for stage in fight.info %}
-                <td>{{ stage.average.rep|floatformat:2 }}</td>
-                <td>{{ stage.average.opp|floatformat:2 }}</td>
-                <td>{{ stage.average.rev|floatformat:2 }}</td>
+                <td>{{ stage.average.rep|halfup:2 }}</td>
+                <td>{{ stage.average.opp|halfup:2 }}</td>
+                <td>{{ stage.average.rev|halfup:2 }}</td>
             {% endfor %}
         </tr>
         <tr>
@@ -65,9 +65,9 @@
         <tr>
             <th>Points:</th>
             {% for stage in fight.info %}
-                <th>{{ stage.w_average.rep|floatformat:2 }}{% if stage.penalties.rep %} <span class="label label-danger">- {{ stage.penalties.rep }}</span>{% endif %}</th>
-                <th>{{ stage.w_average.opp|floatformat:2 }}{% if stage.penalties.opp %} <span class="label label-danger">- {{ stage.penalties.opp }}</span>{% endif %}</th>
-                <th>{{ stage.w_average.rev|floatformat:2 }}{% if stage.penalties.rev %} <span class="label label-danger">- {{ stage.penalties.rev }}</span>{% endif %}</th>
+                <th>{{ stage.w_average.rep|halfup:2 }}{% if stage.penalties.rep %} <span class="label label-danger">- {{ stage.penalties.rep }}</span>{% endif %}</th>
+                <th>{{ stage.w_average.opp|halfup:2 }}{% if stage.penalties.opp %} <span class="label label-danger">- {{ stage.penalties.opp }}</span>{% endif %}</th>
+                <th>{{ stage.w_average.rev|halfup:2 }}{% if stage.penalties.rev %} <span class="label label-danger">- {{ stage.penalties.rev }}</span>{% endif %}</th>
             {% endfor %}
         </tr>
     </tbody>

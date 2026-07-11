@@ -9,7 +9,7 @@ from apps.dashboard.templatetags.flags import flag_url
 from apps.jury.models import GradingSheet, GroupGrade, Juror, JurorGrade
 from apps.plan.models import FightRole, Round, Stage, StageAttendance
 from apps.team.models import TeamMember
-from apps.tournament.models import Problem, Tournament
+from apps.tournament.models import Problem
 
 
 def _presented_before(team, round):
@@ -198,7 +198,10 @@ def _fightresult(fight, use_cache=True):
                     str(_review_factor(attendance))
                 ) - Decimal(str(_att_penalty(attendance)))
 
-    def round_sp(val, fight):
+    def round_sp(val):
+        # full-precision mode: SPs stay unrounded, displays round via the
+        # result.rounding filters; legacy mode bakes half-up rounding into
+        # the fight SP itself
         if fight.round.tournament.ranking_unrounded_tsp:
             return Decimal(val)
         else:
@@ -211,7 +214,7 @@ def _fightresult(fight, use_cache=True):
                     "pk": t[0].pk,
                     "won": False,
                     "name": t[0].origin.name,
-                    "sp": round_sp(t[1], fight),
+                    "sp": round_sp(t[1]),
                     "slug": t[0].origin.slug,
                 },
                 teams.values(),

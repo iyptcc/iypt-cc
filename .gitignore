@@ -33,3 +33,10 @@ bandit.html
 /ccmodels*
 
 celerybeat-schedule
+
+# macOS
+.DS_Store
+
+# local-only dev helpers (not for commit)
+/cc/settings/local.py
+/scripts/seed_local.py

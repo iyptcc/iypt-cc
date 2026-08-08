@@ -934,6 +934,65 @@ class EditAttendeeData(View):
 
 
 @method_decorator(login_required, name="dispatch")
+@method_decorator(permission_required("registration.accept_role"), name="dispatch")
+class RemoveAttendeeRole(View):
+    """Remove a single participation role from a person.
+
+    This only detaches the role; the person, their other roles, team
+    memberships and data are left untouched. When a juror role is removed the
+    person is also taken out of the juror candidate pool (PossibleJuror). An
+    existing juror assignment (Juror object, possibly used in fights) is never
+    deleted automatically and is only flagged for manual handling.
+    """
+
+    def get_targets(self, request, id, role_id):
+        att = get_object_or_404(
+            Attendee, id=id, tournament=request.user.profile.tournament
+        )
+        role = get_object_or_404(
+            ParticipationRole,
+            id=role_id,
+            tournament=request.user.profile.tournament,
+        )
+        return att, role
+
+    def get(self, request, id, role_id):
+        att, role = self.get_targets(request, id, role_id)
+        juror_cleanup = None
+        if role.type == ParticipationRole.JUROR:
+            juror_cleanup = {
+                "possible": PossibleJuror.objects.filter(
+                    person=att.active_user, tournament=att.tournament
+                ).count(),
+                "juror": Juror.objects.filter(attendee=att).first(),
+            }
+        return render(
+            request,
+            "registration/remove_role_confirm.html",
+            context={
+                "attendee": att,
+                "role": role,
+                "has_role": att.roles.filter(id=role.id).exists(),
+                "juror_cleanup": juror_cleanup,
+            },
+        )
+
+    def post(self, request, id, role_id):
+        att, role = self.get_targets(request, id, role_id)
+        att.roles.remove(role)
+        if role.type == ParticipationRole.JUROR:
+            PossibleJuror.objects.filter(
+                person=att.active_user, tournament=att.tournament
+            ).delete()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Removed role %s from %s." % (role.name, att.full_name),
+        )
+        return redirect("registration:change_attendeeproperty", id=att.id)
+
+
+@method_decorator(login_required, name="dispatch")
 @method_decorator(permission_required("registration.manage_data"), name="dispatch")
 class EditTeamMemberData(TeamMgntPermMixin, View):
 

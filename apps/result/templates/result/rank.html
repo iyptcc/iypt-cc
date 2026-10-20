@@ -30,7 +30,7 @@
                                             </td>
                                             <td><a href="{% url "result:team" tournament t.slug %}">{{ t.name }}</a>
                                             </td>
-                                            <td><b>{{ t.sp|halfup:1 }}</b></td>
+                                            <td><b>{{ t.sp|halfup:score_display.score }}</b></td>
 
                                         </tr>
                                     {% endfor %}
@@ -77,9 +77,9 @@
                                                     <i class="fa fa-star text-yellow"></i>
                                                 {% endif %}
                                             </td>
-                                            <td><b>{{ t.tsp|halfup:1 }}</b></td>
+                                            <td><b>{{ t.tsp|halfup:score_display.score }}</b></td>
                                             {% for sp in t.sp %}
-                                                <td><a href="{% url "result:fight" tournament forloop.counter sp.2|slugify %}">{{ sp.0|halfup:1 }}</a>{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
+                                                <td><a href="{% url "result:fight" tournament forloop.counter sp.2|slugify %}">{{ sp.0|halfup:score_display.score }}</a>{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}

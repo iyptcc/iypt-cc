@@ -2,11 +2,14 @@ import json
 from decimal import Decimal
 from unittest.mock import patch, MagicMock
 
-from django.test import SimpleTestCase
+from django.contrib.auth.models import AnonymousUser
+from django.template import Context, Template
+from django.test import RequestFactory, SimpleTestCase, TestCase
 
-from apps.result.rounding import round_half_up
+from apps.result.rounding import ScoreDisplay, round_half_up
 from apps.result.templatetags.rounding import halfup
 from apps.result.utils import _fightresult, _ranking
+from apps.tournament.models import Tournament
 
 
 def make_round(publish_ranking, fights, unrounded_tsp=False):
@@ -250,3 +253,58 @@ class DisplayRoundingTests(SimpleTestCase):
 
     def test_template_filter(self):
         self.assertEqual(halfup(Decimal("20.25"), 1), Decimal("20.3"))
+
+
+class ScoreDisplayTests(SimpleTestCase):
+    """Displayed decimals follow the tournament's ranking arithmetic."""
+
+    def test_full_precision_shows_three_decimals(self):
+        display = ScoreDisplay(tournament=MagicMock(ranking_unrounded_tsp=True))
+        self.assertEqual((display.score, display.average), (3, 3))
+
+    def test_legacy_shows_one_and_two_decimals(self):
+        display = ScoreDisplay(tournament=MagicMock(ranking_unrounded_tsp=False))
+        self.assertEqual((display.score, display.average), (1, 2))
+
+    def test_without_tournament_falls_back_to_legacy(self):
+        self.assertEqual(ScoreDisplay().places, ScoreDisplay.LEGACY)
+
+    def test_logged_in_user_without_slug_uses_active_tournament(self):
+        request = MagicMock(resolver_match=None)
+        request.user.is_authenticated = True
+        request.user.profile.tournament.ranking_unrounded_tsp = True
+        self.assertEqual(ScoreDisplay(request=request).score, 3)
+
+    def test_anonymous_without_slug_is_legacy(self):
+        request = MagicMock(resolver_match=None)
+        request.user.is_authenticated = False
+        self.assertEqual(ScoreDisplay(request=request).score, 1)
+
+    def test_template_prints_exact_value_with_three_places(self):
+        template = Template("{% load rounding %}{{ v|halfup:score_display.score }}")
+        display = ScoreDisplay(tournament=MagicMock(ranking_unrounded_tsp=True))
+        out = template.render(
+            Context({"v": Decimal("225.375"), "score_display": display})
+        )
+        self.assertEqual(out, "225.375")
+
+
+class ScoreDisplaySlugTests(TestCase):
+    """Public result pages pick the tournament from the URL."""
+
+    def request_for(self, slug):
+        request = RequestFactory().get("/")
+        request.user = AnonymousUser()
+        request.resolver_match = MagicMock(kwargs={"t_slug": slug})
+        return request
+
+    def test_slug_selects_that_tournament(self):
+        Tournament.objects.create(name="Full", slug="full", ranking_unrounded_tsp=True)
+        self.assertEqual(ScoreDisplay(request=self.request_for("full")).score, 3)
+
+    def test_legacy_tournament_keeps_one_decimal(self):
+        Tournament.objects.create(name="Old", slug="old", ranking_unrounded_tsp=False)
+        self.assertEqual(ScoreDisplay(request=self.request_for("old")).score, 1)
+
+    def test_unknown_slug_is_legacy(self):
+        self.assertEqual(ScoreDisplay(request=self.request_for("nope")).score, 1)

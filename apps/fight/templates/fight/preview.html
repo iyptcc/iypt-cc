@@ -1,5 +1,5 @@
 {% extends "dashboard/base-layout.html" %}
-{% load bootstrap3 i18n %}
+{% load bootstrap3 i18n rounding %}
 
     {% block page_title %}Fight: {{ fight }} {% if fight.locked %}<span class="label label-info"><i class="fa fa-lock"></i></span>{% endif %} {% endblock %}
 
@@ -146,9 +146,9 @@
                                                         {% endfor %}
                                                         <tr style="border-top: 2px solid black;">
                                                             <td>Average:</td>
-                                                                <td>{{ stage.average.rep|floatformat:2 }}</td>
-                                                                <td>{{ stage.average.opp|floatformat:2 }}</td>
-                                                                <td>{{ stage.average.rev|floatformat:2 }}</td>
+                                                                <td>{{ stage.average.rep|halfup:score_display.average }}</td>
+                                                                <td>{{ stage.average.opp|halfup:score_display.average }}</td>
+                                                                <td>{{ stage.average.rev|halfup:score_display.average }}</td>
                                                         </tr>
                                                         <tr>
                                                             <td>Factor:</td>
@@ -158,9 +158,9 @@
                                                         </tr>
                                                         <tr>
                                                             <th>Points:</th>
-                                                                <th>{{ stage.w_average.rep|floatformat:2 }}</th>
-                                                                <th>{{ stage.w_average.opp|floatformat:2 }}</th>
-                                                                <th>{{ stage.w_average.rev|floatformat:2 }}</th>
+                                                                <th>{{ stage.w_average.rep|halfup:score_display.average }}</th>
+                                                                <th>{{ stage.w_average.opp|halfup:score_display.average }}</th>
+                                                                <th>{{ stage.w_average.rev|halfup:score_display.average }}</th>
                                                         </tr>
                                                     </tbody>
                                                 </table>

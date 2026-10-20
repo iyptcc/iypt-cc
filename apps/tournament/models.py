@@ -36,6 +36,14 @@ class Tournament(models.Model):
 
     results_help_html = models.TextField(blank=True, null=True)
 
+    ranking_unrounded_tsp = models.BooleanField(
+        verbose_name="Full-precision ranking arithmetic",
+        help_text="Keep fight SPs and the total sum of points in full precision "
+        "and round only for display (halves up). If unset, fight SPs are rounded "
+        "half up per fight and the total is their sum (legacy behaviour).",
+        default=False,
+    )
+
     allow_oauth = models.BooleanField(default=False)
 
     # registration timings

@@ -33,3 +33,5 @@ bandit.html
 /ccmodels*
 
 celerybeat-schedule
+
+.DS_Store

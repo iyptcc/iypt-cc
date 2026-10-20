@@ -489,6 +489,7 @@ class JurySettingsForm(forms.ModelForm):
             "fa_show_grades",
             "room_show_grades",
             "grading_sheet_pdf",
+            "ranking_unrounded_tsp",
         ]
 
     def __init__(self, *args, **kwargs):

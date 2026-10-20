@@ -84,6 +84,7 @@ class TournamentCreate(CreateView):
 
     def form_valid(self, form):
         trn = form.save(commit=False)
+        trn.ranking_unrounded_tsp = True
         trn.save()
 
         for typ, name in JurorRole.ROLE_TYPE:

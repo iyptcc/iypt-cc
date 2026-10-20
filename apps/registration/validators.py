@@ -1,9 +1,21 @@
 from django.db.models import Q
+from django.utils import timezone
 
 from apps.account.models import ParticipationRole
 
 from .models import Application, AttendeeProperty, UserPropertyValue
 from .utils import persons_data
+
+
+def role_open(tournament, *roletypes):
+    """True while a role of one of these types still accepts applications."""
+    return ParticipationRole.objects.filter(
+        Q(tournament=tournament, type__in=roletypes)
+        & (
+            Q(application_deadline__gt=timezone.now())
+            | Q(application_deadline__isnull=True)
+        )
+    ).exists()
 
 
 class Validator:
@@ -89,6 +101,8 @@ class IOCValidator(Validator):
                     return {self.tag: "finished"}
             except:
                 pass
+            if not role_open(kwargs["tournament"], ParticipationRole.IOC):
+                return {self.tag: "disabled"}
             return {self.tag: "available"}
         return {self.tag: "disabled"}
 
@@ -110,6 +124,8 @@ class TeamManagerValidator(Validator):
                     return {self.tag: "finished"}
             except:
                 pass
+            if not role_open(kwargs["tournament"], ParticipationRole.TEAM_MANAGER):
+                return {self.tag: "disabled"}
             return {self.tag: "available"}
         return {self.tag: "disabled"}
 
@@ -216,6 +232,8 @@ class TeamRoleValidator(Validator):
                     return {self.tag: "finished"}
             except:
                 pass
+            if not role_open(kwargs["tournament"], self.get_roletype()):
+                return {self.tag: "disabled"}
             return {self.tag: "available"}
         return {self.tag: "disabled"}
 
@@ -303,6 +321,8 @@ class ExperiencedJurorValidator(Validator):
                 tournament=kwargs["tournament"]
             )
             if pj.approved_by:
+                if not role_open(kwargs["tournament"], ParticipationRole.JUROR):
+                    return {self.tag: "disabled"}
                 return {self.tag: "available"}
         except:
             pass

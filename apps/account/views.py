@@ -278,7 +278,10 @@ class InboxView(ListView):
     template_name = "account/inbox.html"
 
     def get_queryset(self):
-        return self.request.user.profile.active.pdf_set.all()
+        active = self.request.user.profile.active
+        if active is None:
+            return Pdf.objects.none()
+        return active.pdf_set.all()
 
 
 @method_decorator(login_required, name="dispatch")

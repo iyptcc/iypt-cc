@@ -251,7 +251,7 @@ class TeamPasswordValidator(TeamRoleValidator):
         return ParticipationRole.TEAM_MANAGER
 
     def validate(self, nodes, *args, **kwargs):
-        val = super().validate(nodes, args, kwargs)
+        val = super().validate(nodes, *args, **kwargs)
         if val[self.tag] == "finished":
             val[self.tag] = "available"
         elif val[self.tag] == "available":

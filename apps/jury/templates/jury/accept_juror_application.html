@@ -23,10 +23,12 @@
                                             {% if a.set %}
                                                 {% if a.type == "boolean" %}
                                                     {{ a.value|yesno:"Yes,No" }}
-                                                {% elif a.type == "image" %}
-                                                    <a href="{% url "registration:file_property" 'u' a.apv.user.id a.apv.id a.value.url %}">{{ a.value.url }}</a>
-                                                {% elif a.type == "pdf" %}
-                                                    <a href="{% url "registration:file_property" 'u' a.apv.user.id a.apv.id a.value.url %}">{{ a.value.url }}</a>
+                                                {% elif a.type == "image" or a.type == "pdf" %}
+                                                    {% if a.value %}
+                                                        <a href="{% url "registration:file_property" 'u' a.apv.user.id a.apv.id a.value.url %}">{{ a.value.url }}</a>
+                                                    {% else %}
+                                                        <i>no file uploaded</i>
+                                                    {% endif %}
                                                 {% elif a.value %}
                                                     {{ a.value }}
                                                 {% else %}

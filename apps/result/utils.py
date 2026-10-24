@@ -1,7 +1,6 @@
 import copy
 import statistics
 from decimal import ROUND_HALF_UP, Decimal
-from operator import itemgetter
 
 from django.core.cache import caches
 
@@ -203,7 +202,12 @@ def _fightresult(fight, use_cache=True):
         # result.rounding filters; legacy mode bakes half-up rounding into
         # the fight SP itself
         if fight.round.tournament.ranking_unrounded_tsp:
-            return Decimal(val)
+            # stage averages with 4, 7, 8 or 10 jurors divide by 3, 6, 7 or 9,
+            # Decimal keeps 28 noisy digits and exact ties would compare
+            # unequal: cut at nine decimals (invisible at the three displayed),
+            # drop trailing zeros
+            sp = Decimal(val).quantize(Decimal("1e-9"))
+            return sp.quantize(Decimal(1)) if sp == sp.to_integral() else sp.normalize()
         else:
             return Decimal(val).quantize(Decimal("1.1"), ROUND_HALF_UP)
 
@@ -484,7 +488,9 @@ def _ranking(rounds, use_cache=True, internal=False):
                 grades_r[team["pk"]]["won"] = sum(wons)
                 grades_r[team["pk"]]["tsp"] += team["sp"]
 
-        rankkey = itemgetter("tsp", "won")
+        # totals carry the 1e-9 residue of the fight SPs, compare at 1e-6
+        # shortcut: exact only up to 11 jurors per stage, use Fractions beyond
+        rankkey = lambda t: (Decimal(t["tsp"]).quantize(Decimal("1e-6")), t["won"])
         grlist = sorted(grades_r.values(), key=rankkey, reverse=True)
         rank = 0
         prev = None

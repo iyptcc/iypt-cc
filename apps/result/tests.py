@@ -229,7 +229,78 @@ class FightSpRoundingTests(SimpleTestCase):
     def test_full_precision_sp_stays_exact(self):
         result = self._fightresult(unrounded_tsp=True)
         self.assertEqual(result[25]["sp"], Decimal("20.25"))
+        self.assertEqual(str(result[25]["sp"]), "20.25")
         self.assertEqual(result[4]["sp"], Decimal("10.0"))
+
+
+class FullPrecisionTieTests(SimpleTestCase):
+    """With 7 jurors the stage average divides by 6 and Decimal keeps 28
+    noisy digits, so two exactly tied SPs computed from different grades
+    must still compare equal: both teams win the fight."""
+
+    def test_tied_sps_with_seven_jurors_both_win(self):
+        fight = MagicMock()
+        fight.pk = 1
+        fight.round.review_phase = True
+        fight.round.tournament.ranking_unrounded_tsp = True
+        fight.round.order = 1
+        fight.room.name = "A"
+
+        def att(pk, name, total):
+            # StageAttendance.average(): five middle grades plus the mean of
+            # the two extremes, divided by 6
+            return make_attendance(pk, name, Decimal(total) / 6)
+
+        # A: 44/6*3 + 38/6*1 + 42/6*2 = B: 32/6*2 + 47.5/6*3 + 47.5/6*1 = 254/6
+        stages = []
+        for rep, opp, rev in [
+            (att(1, "A", "44"), att(2, "B", "32"), att(3, "C", "30")),
+            (att(2, "B", "47.5"), att(3, "C", "30"), att(1, "A", "38")),
+            (att(3, "C", "30"), att(1, "A", "42"), att(2, "B", "47.5")),
+        ]:
+            stage = MagicMock()
+            stage.rep_attendance_grades = rep
+            stage.opp_attendance_grades = opp
+            stage.rev_attendance_grades = rev
+            stages.append(stage)
+        fight.stage_set.all.return_value = stages
+
+        with patch("apps.result.utils._report_factor", return_value=3.0), patch(
+            "apps.result.utils._opposition_factor", return_value=2.0
+        ), patch("apps.result.utils._review_factor", return_value=1.0), patch(
+            "apps.result.utils._att_penalty", return_value=0
+        ):
+            result = {t["pk"]: t for t in _fightresult(fight, use_cache=False)["result"]}
+
+        self.assertEqual(result[1]["sp"], result[2]["sp"])
+        self.assertTrue(result[1]["won"])
+        self.assertTrue(result[2]["won"])
+        self.assertFalse(result[3]["won"])
+
+    @patch("apps.result.utils._fightresult")
+    def test_tied_tsp_from_different_sps_shares_rank(self, mock_fightresult):
+        """Nine-decimal SPs keep a residue that depends on the grades, so the
+        same true total (374/6, one win each) can differ in the ninth decimal."""
+        fight_r1, fight_r2 = MagicMock(), MagicMock()
+        round1 = make_round(True, [fight_r1], unrounded_tsp=True)
+        round2 = make_round(True, [fight_r2], unrounded_tsp=True)
+
+        def side_effect(fight, use_cache=True):
+            if fight is fight_r1:  # A 254/6, B 124/6
+                return {"room": "A", "round": 1, "result": [
+                    {"pk": 1, "won": True, "name": "A", "sp": Decimal("42.333333333"), "slug": "a"},
+                    {"pk": 2, "won": False, "name": "B", "sp": Decimal("20.666666667"), "slug": "b"},
+                ]}
+            return {"room": "A", "round": 2, "result": [  # B 250/6, A 120/6
+                {"pk": 2, "won": True, "name": "B", "sp": Decimal("41.666666667"), "slug": "b"},
+                {"pk": 1, "won": False, "name": "A", "sp": Decimal("20"), "slug": "a"},
+            ]}
+
+        mock_fightresult.side_effect = side_effect
+        final = {t["pk"]: t for t in _ranking([round1, round2], use_cache=False)[-1]}
+
+        self.assertEqual(final[1]["rank"], 1)
+        self.assertEqual(final[2]["rank"], 1)
 
 
 class DisplayRoundingTests(SimpleTestCase):

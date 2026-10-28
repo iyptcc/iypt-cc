@@ -36,7 +36,7 @@
                                             </td>
                                             <td><b>{{ t.1.tsp|halfup:score_display.score }}</b></td>
                                             {% for sp in t.1.sp %}
-                                                <td>{{ sp.0 }}{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
+                                                <td>{{ sp.0|halfup:score_display.score }}{% if sp.1 %} <i class="fa fa-star text-yellow"></i>{% endif %}</td>
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}

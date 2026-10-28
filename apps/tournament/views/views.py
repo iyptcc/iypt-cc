@@ -184,6 +184,13 @@ class JurySettings(UpdateView):
     def get_object(self, queryset=None):
         return self.request.user.profile.tournament
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if "ranking_unrounded_tsp" in form.changed_data:
+            # cached fight results carry the SP rounding of the old setting
+            caches["results"].clear()
+        return response
+
 
 class BankSettings(UpdateView):
 

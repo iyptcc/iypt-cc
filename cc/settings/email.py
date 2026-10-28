@@ -8,5 +8,6 @@ except ImportError:
     pass
 
 EMAIL_USE_TLS = True
+EMAIL_TIMEOUT = 60
 
 EMAIL_FROM = "cc@iypt.org"

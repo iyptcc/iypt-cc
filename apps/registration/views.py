@@ -1275,25 +1275,33 @@ class RoleApplicationsDecline(View):
 
         if form.is_valid():
 
-            if form.cleaned_data["notify"]:
-                send_mail(
-                    "Your application for %s with role %s was declined"
-                    % (app.tournament.name, app.participation_role.name),
-                    "You do not have the role %s in the tournament %s because of: \n%s"
-                    % (
-                        app.participation_role.name,
-                        app.tournament.name,
-                        form.cleaned_data["decline_reason"],
-                    ),
-                    settings.EMAIL_FROM,
-                    [app.applicant.user.email],
-                    fail_silently=False,
-                )
-
             app.handled_as = Application.DECLINED
             app.handled_at = timezone.now()
             app.handled_by = request.user.profile.active
             app.save()
+
+            if form.cleaned_data["notify"]:
+                try:
+                    send_mail(
+                        "Your application for %s with role %s was declined"
+                        % (app.tournament.name, app.participation_role.name),
+                        "You do not have the role %s in the tournament %s because of: \n%s"
+                        % (
+                            app.participation_role.name,
+                            app.tournament.name,
+                            form.cleaned_data["decline_reason"],
+                        ),
+                        settings.EMAIL_FROM,
+                        [app.applicant.user.email],
+                        fail_silently=False,
+                    )
+                except Exception:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        "The application was declined, but the notification "
+                        "e-mail to the applicant could not be sent.",
+                    )
 
             return redirect("registration:list_role_applications")
 
@@ -1305,13 +1313,29 @@ class RoleApplicationsDecline(View):
 
 
 @method_decorator(login_required, name="dispatch")
-@method_decorator(permission_required("registration.accept_role"), name="dispatch")
+@method_decorator(permission_required("registration.accept_team"), name="dispatch")
 class TeamApplicationsDecline(View):
+
+    def open_application(self, request, id):
+        """The application while it is still unhandled, otherwise None."""
+        app = get_object_or_404(
+            Application.handled, id=id, tournament=request.user.profile.tournament
+        )
+        return None if app.handled_at else app
+
+    def already_handled(self, request):
+        messages.add_message(
+            request,
+            messages.INFO,
+            "This team application has already been handled.",
+        )
+        return redirect("registration:list_team_applications")
+
     def get(self, request, id):
 
-        app = get_object_or_404(
-            Application, id=id, tournament=request.user.profile.tournament
-        )
+        app = self.open_application(request, id)
+        if app is None:
+            return self.already_handled(request)
 
         form = DeclineTeamForm(app)
 
@@ -1322,35 +1346,51 @@ class TeamApplicationsDecline(View):
         )
 
     def post(self, request, id):
-        trn = request.user.profile.tournament
 
-        app = get_object_or_404(Application, id=id, tournament=trn)
+        app = self.open_application(request, id)
+        if app is None:
+            return self.already_handled(request)
 
         form = DeclineTeamForm(app, request.POST)
 
         if form.is_valid():
 
+            # decide first and only once: a hanging mail server or a double
+            # click must not leave the application open or mail twice
+            decided = Application.handled.filter(
+                pk=app.pk, handled_at__isnull=True
+            ).update(
+                handled_as=Application.DECLINED,
+                handled_at=timezone.now(),
+                handled_by=request.user.profile.active,
+            )
+            if not decided:
+                return self.already_handled(request)
+
             if form.cleaned_data["notify"]:
-                send_mail(
-                    "Your application for %s with team %s was declined"
-                    % (app.tournament.name, app.origin.name),
-                    "You do not manage the team %s in the tournament %s because of: \n %s"
-                    % (
-                        app.origin.name,
-                        app.tournament.name,
-                        form.cleaned_data["decline_reason"],
-                    ),
-                    settings.EMAIL_FROM,
-                    [app.applicant.user.email],
-                    fail_silently=False,
-                )
+                try:
+                    send_mail(
+                        "Your application for %s with team %s was declined"
+                        % (app.tournament.name, app.origin.name),
+                        "You do not manage the team %s in the tournament %s because of: \n %s"
+                        % (
+                            app.origin.name,
+                            app.tournament.name,
+                            form.cleaned_data["decline_reason"],
+                        ),
+                        settings.EMAIL_FROM,
+                        [app.applicant.user.email],
+                        fail_silently=False,
+                    )
+                except Exception:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        "The application was declined, but the notification "
+                        "e-mail to the applicant could not be sent.",
+                    )
 
-            app.handled_as = Application.DECLINED
-            app.handled_at = timezone.now()
-            app.handled_by = request.user.profile.active
-            app.save()
-
-            return redirect("registration:list_role_applications")
+            return redirect("registration:list_team_applications")
 
         return render(
             request,

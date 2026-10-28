@@ -172,6 +172,8 @@ class RankingTspAccumulationTests(SimpleTestCase):
         )
         self.assertEqual(final[25]["tsp"], Decimal("39.6"))
         self.assertEqual(final[4]["tsp"], Decimal("20.0"))
+        # legacy totals are exported as summed, no cut applied
+        self.assertEqual(str(final[25]["tsp"]), "39.6")
 
     def test_full_precision_tsp_is_exact_sum(self):
         final = self._rank(
@@ -301,6 +303,9 @@ class FullPrecisionTieTests(SimpleTestCase):
 
         self.assertEqual(final[1]["rank"], 1)
         self.assertEqual(final[2]["rank"], 1)
+        # exported totals agree with the shared rank
+        self.assertEqual(str(final[1]["tsp"]), "62.333333")
+        self.assertEqual(str(final[2]["tsp"]), "62.333333")
 
 
 class DisplayRoundingTests(SimpleTestCase):

@@ -156,6 +156,12 @@ def _att_penalty(stageatt):
         return Decimal(0)
 
 
+def _cut(val, exp):
+    # quantize and drop trailing zeros, integers stay plain integers
+    val = Decimal(val).quantize(Decimal(exp))
+    return val.quantize(Decimal(1)) if val == val.to_integral() else val.normalize()
+
+
 def _fightresult(fight, use_cache=True):
 
     ccontext = caches["results"].get("points-%s" % (fight.pk,))
@@ -204,10 +210,8 @@ def _fightresult(fight, use_cache=True):
         if fight.round.tournament.ranking_unrounded_tsp:
             # stage averages with 4, 7, 8 or 10 jurors divide by 3, 6, 7 or 9,
             # Decimal keeps 28 noisy digits and exact ties would compare
-            # unequal: cut at nine decimals (invisible at the three displayed),
-            # drop trailing zeros
-            sp = Decimal(val).quantize(Decimal("1e-9"))
-            return sp.quantize(Decimal(1)) if sp == sp.to_integral() else sp.normalize()
+            # unequal: cut at nine decimals (invisible at the three displayed)
+            return _cut(val, "1e-9")
         else:
             return Decimal(val).quantize(Decimal("1.1"), ROUND_HALF_UP)
 
@@ -463,6 +467,9 @@ def _ranking(rounds, use_cache=True, internal=False):
     grade_dicts = []
 
     grades_r = {}
+    # totals carry the 1e-9 residue of the fight SPs, compare at 1e-6
+    # shortcut: exact only up to 11 jurors per stage, use Fractions beyond
+    rankkey = lambda t: (_cut(t["tsp"], "1e-6"), t["won"])
     for round in rounds:
         if (not round.publish_ranking) and not internal:
             continue
@@ -488,9 +495,6 @@ def _ranking(rounds, use_cache=True, internal=False):
                 grades_r[team["pk"]]["won"] = sum(wons)
                 grades_r[team["pk"]]["tsp"] += team["sp"]
 
-        # totals carry the 1e-9 residue of the fight SPs, compare at 1e-6
-        # shortcut: exact only up to 11 jurors per stage, use Fractions beyond
-        rankkey = lambda t: (Decimal(t["tsp"]).quantize(Decimal("1e-6")), t["won"])
         grlist = sorted(grades_r.values(), key=rankkey, reverse=True)
         rank = 0
         prev = None
@@ -504,6 +508,13 @@ def _ranking(rounds, use_cache=True, internal=False):
                     if op["pk"] == t["pk"]:
                         t["rank_diff"] = op["rank"] - rank
         grades.append(grlist)
+
+    if any(r.tournament.ranking_unrounded_tsp for r in rounds):
+        # shown totals get the rank key's cut, after the loop so the raw
+        # sums keep accumulating without the rounding fed back
+        for grlist in grades:
+            for t in grlist:
+                t["tsp"] = rankkey(t)[0]
 
     return grades
 
